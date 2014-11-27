@@ -9,6 +9,7 @@ class CardItemController extends Controller
      */
     public function actionIndex($id)
     {
+        set_time_limit(0); //防止执行超时
         //$itemModel = $this->loadModel((int)$id, 'item', 'dataset_id', true);
         $dsModel = $this->loadModel((int)$id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
@@ -44,6 +45,7 @@ class CardItemController extends Controller
      */
     public function actionImport($id)
     {
+        set_time_limit(0); //防止执行超时
         $itemModel = new CardItem;
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
@@ -74,11 +76,15 @@ class CardItemController extends Controller
                             $tmpValue = $value;
 
                             if( $tmpField['extra']['field_info']['addition_type'] == "image"){
-                                $resData = $mcss->uploadImage($tmpValue);
-                                if(is_array($resData)){
-                                    $tmpValue = "";
+                                if($tmpValue != '' && is_file($tmpValue)){
+                                    $resData = $mcss->uploadImage($tmpValue);
+                                    if(is_array($resData)){
+                                        $tmpValue = "";
+                                    }else{
+                                        $tmpValue = $resData;
+                                    }
                                 }else{
-                                    $tmpValue = $resData;
+                                    $tmpValue = "";
                                 }
                             }
                             elseif (intval($tmpField['extra']['field_info']['field_type']) == 0 && intval($tmpField['extra']['field_info']['addition_type']) == 3) { //单选

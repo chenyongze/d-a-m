@@ -28,26 +28,36 @@ class UserIdentity extends CUserIdentity
 		}
 		return $this->errorCode==self::ERROR_NONE;
 		*/
-		switch (strtolower($this->username)) {
-			case 'creator':
-				if ($this->password == '123456') {
-					$this->_id=1;
-					$this->username = 'creator';
-					$this->errorCode=self::ERROR_NONE;
-				} else {
-					$this->errorCode=self::ERROR_PASSWORD_INVALID;
-				}
-				break;
-			default:
-				if ($this->password == '654321') {
-					$this->_id=2;
-					$this->username=strtolower($this->username);
-					$this->errorCode=self::ERROR_NONE;
-				} else {
-					$this->errorCode=self::ERROR_PASSWORD_INVALID;
-				}
-				break;
+		
+		//内置用户定义
+		$init_user = array(
+			'creator'=>array(
+				'id'=>1,
+				'password'=>'123456',
+			),
+			'publisher'=>array(
+				'id'=>2,
+				'password'=>'654321',
+			),
+		);
+		
+		//登录信息验证
+		$this->username = strtolower($this->username);
+		if(isset($init_user[$this->username])){
+			$login_info = $init_user[$this->username];
+			//验证密码
+			if ($this->password == $login_info['password']) {
+				$this->_id = $login_info['id'];
+				$this->username = $this->username;
+				$this->errorCode = self::ERROR_NONE;
+			}else{
+				$this->errorCode=self::ERROR_PASSWORD_INVALID;
+			}
+		}else{
+			//若不是预定义用户则提示账号错误
+			$this->errorCode=self::ERROR_USERNAME_INVALID;	
 		}
+		
 	}
 
 	/**

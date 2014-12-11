@@ -37,8 +37,12 @@ class LoginForm extends CFormModel {
 	*/
 	public function authenticate($attribute,$params) {
 		$this->_identity=new UserIdentity($this->username,$this->password);
-		if(!$this->_identity->authenticate())
-			$this->addError('password','Incorrect username or password.');
+		$this->_identity->authenticate();
+		if($this->_identity->errorCode == UserIdentity::ERROR_USERNAME_INVALID){
+			$this->addError('username','账号不存在');
+		}else if($this->_identity->errorCode == UserIdentity::ERROR_PASSWORD_INVALID){
+			$this->addError('password','输入的密码有误，请重新输入');
+		}	
 	}
 
 	/**

@@ -55,7 +55,7 @@ class SiteController extends Controller
 		if (isset($_POST['LoginForm'])) {
 			$model->attributes=$_POST['LoginForm'];
 			//if($model->validate() && $model->login()) {
-			if ($model->login()) {
+			if ($model->validate() && $model->login()) {
 				$this->redirect(array('CardDb/index'));
 			}
 		}

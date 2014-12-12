@@ -312,11 +312,15 @@ class CardDs extends EMongoDocument
 	public function getFieldList($datasetId = 0, $enName = '') {
 		$condition = array();
 		$select = array('fields');
-		if ($datasetId!=0) {
-		    $condition = array('id' => (int)$datasetId);
-		} else {
-		    $condition = array('en_name' => $enName);
+		if(empty($datasetId) || empty($enName)){
+			return false;
 		}
+		
+		$condition = array(
+		  	'database_id' => (int)$datasetId,
+		  	'en_name' => $enName
+		 );
+		
 		$fieldList = self::findAllByAttributes(
 			$condition,
 			array(
@@ -324,6 +328,7 @@ class CardDs extends EMongoDocument
 			    'order' => 'id desc',
 			)
 		);
+		
 		//手工过滤了AR填充的Model数据
 		foreach ($fieldList as $key=>$value) {
 			$value = $value->toArray();

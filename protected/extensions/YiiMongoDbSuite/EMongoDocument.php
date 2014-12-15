@@ -1340,7 +1340,12 @@ abstract class EMongoDocument extends EMongoEmbeddedDocument
 
 		return $criteria;
 	}
-
+	
+	/**
+	 * 为当前集合生成一个新的数字id并返回
+	 * @param $autoSetMongoId 是否同时调整_id值，默认true
+	 * @return int 生成的id
+	 */
 	public function getAutoIncreaseId($autoSetMongoId = true)
 	{
 		if(is_array($primaryKey = $this->primaryKey()))
@@ -1349,8 +1354,8 @@ abstract class EMongoDocument extends EMongoEmbeddedDocument
 		}
 		$command = array(
 			'findAndModify' => 'autoIncreaseIds',
-			'update' => array('$inc' => array($this->primaryKey() => 1)),
-			'query' => array('name' => $this->getCollectionName()),
+			'update' => array('$inc' => array($this->primaryKey() => 1)),	//id加1
+			'query' => array('name' => $this->getCollectionName()),			//查询集合
 			'new' => true,
 			'upsert' => true,
 		);

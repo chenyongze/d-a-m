@@ -34,6 +34,7 @@ class Controller extends CController
 		if (Yii::app()->user->name=='Guest' && !in_array($controller, $noCheck)) {
 			$this->redirect(array('Site/login'));
 		}
+		//如果是建库人员，则使用column1布局
 		if (Yii::app()->user->name == 'creator') {
 			$this->layout = '//layouts/column1';
 		}

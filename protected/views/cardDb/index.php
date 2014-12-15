@@ -53,7 +53,7 @@ echo CHtml::ajaxButton('新建数据库', array('//CardDb/create'),
 			'transitionOut'		: 'none',
 			'width'			: 650,
 			'height'		: 170,
-			'href'			: ajaxHref,
+			'href'			: ajaxHref,	//请求地址
 			'type'			: 'inline',
 		});
 		$("#fancybox-close").unbind("click");

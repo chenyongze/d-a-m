@@ -1,7 +1,7 @@
 <?php
-$fieldsArray = isset($data['extra']['field_info']['fields'])?$data['extra']['field_info']['fields']:array();
-$referenceField = isset($data['extra']['field_info']['reference_field'])?$data['extra']['field_info']['reference_field']:'';
-$type = isset($data['extra']['field_info']['type'])?$data['extra']['field_info']['type']:0;
+$fieldsArray = isset($data['extra']['field_info']['fields'])?$data['extra']['field_info']['fields']:array();				//字段列表
+$referenceField = isset($data['extra']['field_info']['reference_field'])?$data['extra']['field_info']['reference_field']:'';//关联字段
+$type = isset($data['extra']['field_info']['type'])?$data['extra']['field_info']['type']:0;	//关联模式
 
 if (!empty($group)) {
 	$fieldLabelId = "refrenceSelected{$group}_{$key}_{$enName}";

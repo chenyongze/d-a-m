@@ -11,8 +11,8 @@ class CardItemController extends Controller
     {
         set_time_limit(0); //防止执行超时
         //$itemModel = $this->loadModel((int)$id, 'item', 'dataset_id', true);
-        $dsModel = $this->loadModel((int)$id, 'ds');
-        $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
+        $dsModel = $this->loadModel((int)$id, 'ds');					//获取表模型
+        $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');	//获取库模型
 
         $criteria = new EMongoCriteria();
         $criteria->dataset_id = (int)$id;
@@ -40,7 +40,14 @@ class CardItemController extends Controller
     }
 
     /**
-     * 导入数据
+     * 导入数据###后续重点改造对象
+     * 目前导入数据，需要开发帮编辑新建xls文件，导入时还需要执行以下操作，非常不便，而且有些格式的字段处理有误
+     * 会将所有字段都以文本形式入库
+     * 		1 修改图片地址为本地绝对路径
+	 *		2 xls文件另存为 逗号分隔的csv 文件
+	 *		3 第一行空
+	 *		4 内容转utf-8
+	 *		5 执行导入
      * @author gentle
      */
     public function actionImport($id)
@@ -51,69 +58,97 @@ class CardItemController extends Controller
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
         $mcss = Yii::app()->mcss;
 
+    	//获取字段和中文的对应关系
+        $fields_kv = array();
+       	foreach($dsModel->fields as $field_key=>$field_info){
+         	$fields_kv[$field_key] =  $field_info['name'];
+         	//预处理单选和复选的候选项
+         	if(isset($field_info['extra']) && in_array($field_info['extra']['field_info']['addition_type'], array('select', 'multiselect'))){
+         		foreach($field_info['extra']['field_info']['select_value'] as $fikey=>$fival){
+         			$dsModel->fields[$field_key]['extra']['field_info']['select_value'][$fikey] = $fival['value'];
+         		}
+         	}
+      	}
+        
         if (isset($_FILES['CardItem'])) {
             $file = fopen($_FILES['CardItem']['tmp_name'], 'r');
             $csvHeader = array();
             //往卡牌库Item表导入记录
             //1条1条导入
-            for ($i = 0; ; $i++) {
-                if ($i < 1) {
-                    fgetcsv($file);
-                    continue;
-                } elseif ($i == 1) {
+            for ($i = 1; ; $i++) {
+                if ($i == 1) {
                     $csvHeader = fgetcsv($file);
                 } elseif ($i >= 2) {
                     $itemData = array();
                     $csvData = fgetcsv($file);
+                    
                     if (empty($csvData)) {
                         break;
                     }
+                    
+                    //逐一处理每个字段
                     foreach ($csvData as $key => $value) {
                         //只导入元素集有的字段
                         if (isset($dsModel->fields[$csvHeader[$key]])) {
-                            $tmpField = $dsModel->fields[$csvHeader[$key]];
+                            $tmpField = $dsModel->fields[$csvHeader[$key]];		//字段定义
                             //$tmpValue = mb_convert_encoding($value, 'UTF-8', 'GBK,GB2312,UTF-8');
                             $tmpValue = $value;
-
-                            if( $tmpField['extra']['field_info']['addition_type'] == "image"){
+                            $field_type = $tmpField['extra']['field_info']['field_type'];			//字段类型
+                            $addition_type = $tmpField['extra']['field_info']['addition_type'];		//附加类型
+							
+                            //图片类型处理
+                            if( $addition_type == "image"){
+                            	//有地址且文件存在则尝试上传
                                 if($tmpValue != '' && is_file($tmpValue)){
                                     $resData = $mcss->uploadImage($tmpValue);
+                                    //如果返回值是数组类型，则发生了错误
                                     if(is_array($resData)){
                                         $tmpValue = "";
                                     }else{
-                                        $tmpValue = $resData;
+                                        $tmpValue = $resData;	//成功后替换原有地址
                                     }
                                 }else{
                                     $tmpValue = "";
                                 }
-                            }
-                            elseif (intval($tmpField['extra']['field_info']['field_type']) == 0 && intval($tmpField['extra']['field_info']['addition_type']) == 3) { //单选
-                                if (!is_numeric($tmpValue)) {
-                                    $tmpValue = array_search($tmpValue, $tmpField['extra']['field_info']['select_value']);
-                                    if ($tmpValue === FALSE) {
-                                        continue;
-                                    }
-                                }
-                            } else if (intval($tmpField['extra']['field_info']['field_type']) == 0 && intval($tmpField['extra']['field_info']['addition_type']) == 4) { //多选
-                                $tmpSelectValue = explode(';', $tmpField['extra']['field_info']['select_value']);
-                                $tmpValue = trim($tmpValue, '[]');
-                                $tmpMultiArray = array();
-                                if (!empty($tmpValue)) {
-                                    $tmpValue = explode(',', $tmpValue);
-                                    foreach ($tmpValue as $k => $v) {
-                                        if (!is_numeric($v)) {
-                                            $tmpValueItem = array_search($v, $tmpSelectValue);
-                                            //$tmpValueItem = ($tmpValueItem===FALSE) ? '' : $tmpValueItem;
-                                            if ($tmpValueItem === FALSE) {
-                                                continue;
-                                            }
-                                            $tmpMultiArray[] = $tmpValueItem;
-                                        } else {
-                                            $tmpMultiArray[] = $v;
-                                        }
-                                    }
-                                    $tmpValue = $tmpMultiArray;
-                                }
+                                
+                          	//选择框处理
+                            } else if ($field_type == 'normal' && in_array($addition_type, array('select', 'multiselect'))) {
+                            	$tmpSelectValue = $tmpField['extra']['field_info']['select_value'];
+                            	if($tmpValue){
+                            		//多选框
+                            		if($addition_type=='multiselect'){
+                            			$tmpValue = explode('、', $tmpValue);
+	                            		//检查是否为候选项
+	                            		foreach($tmpValue as $tkey=>$tval){
+	                            			$tval = trim($tval);
+	                            			//若不是预定义的选项则清除该项
+	                            			if(!in_array($tval, $tmpSelectValue)){
+	                            				unset($tmpValue[$tkey]);
+	                            			}
+	                            		}
+	                            		ksort($tmpValue);	//重排索引
+	                            	//单选框
+                            		}else{
+                            			//不是预定义的选项则情况值
+                            			if(!in_array($tmpValue, $tmpSelectValue)){
+	                            			$tmpValue = '';
+	                            		}
+                            		}
+                            	}
+                          	
+                          	//关联类型
+                            }elseif ($field_type == 'reference' && $addition_type) {
+                            	if($tmpValue){
+                            		$tmpValue = explode('、', $tmpValue);
+                            		$tmpNew = array();
+                            		foreach($tmpValue as $tkey=>$tval){
+                            			$tval = trim($tval);
+                            			if($tval){
+                            				$tmpNew[] = $tval;
+                            			}
+                            		}
+                            		$tmpValue = $tmpNew;
+	                            }
                             }
                             $itemData[$csvHeader[$key]] = $tmpValue;
                         }
@@ -174,11 +209,13 @@ class CardItemController extends Controller
         }
 
         //构造字段Html
-        $dsModel = $dsModel->sortField();
+        $dsModel = $dsModel->sortField();		//排序字段
         $fieldHtml = '';
         foreach ($dsModel->fields as $key => $value) {
+        	//普通字段
             if ($value['type'] == 'field') {
                 $fieldHtml .= $this->fieldItemHtml($key, $value);
+          	//字段组
             } elseif ($value['type'] == 'group') {
                 $groupData = array();
                 $groupData['datasetId'] = $id;
@@ -204,6 +241,15 @@ class CardItemController extends Controller
         return $this->groupItemHtml($id, $group, $index, $itemData, true);
     }
 
+    /**
+     * 构造字段组的显示html
+     * @param $id			库id
+     * @param $group		字段组的英文名
+     * @param $index
+     * @param $itemData
+     * @param $output
+     * @return unknown_type
+     */
     public function groupItemHtml($id, $group, $index = '[key]', $itemData = array(), $output = false)
     {
         $dsModel = $this->loadModel($id, 'ds');
@@ -223,11 +269,22 @@ class CardItemController extends Controller
         }
     }
 
+    /**
+     * 生成字段的展示HTML代码
+     * @param $key		string	字段英文名
+     * @param $value	array	字段属性
+     * @param $group	string	组字段英文名
+     * @param $index	string	貌似无用
+     * @param $itemData
+     * @return unknown_type
+     */
     private function fieldItemHtml($key, $value, $group = '', $index = 'key', $itemData = '')
     {
-        $fieldData = array();
+        $fieldData = array();			//初始化字段信息
         $fieldData['enName'] = $key;
         $fieldData['data'] = $value;
+        
+        //组需要加入的额外属性
         if ($group) {
             $fieldData['group'] = $group;
             $fieldData['key'] = $index;
@@ -235,13 +292,15 @@ class CardItemController extends Controller
         if ($itemData) {
             $fieldData['itemData'] = $itemData;
         }
-
+        
+		//关联字段
         if ($value['extra']['field_info']['field_type'] == 'reference') {
-            $fieldType = $value['extra']['field_info']['field_type'];
-            $additionType = $value['extra']['field_info']['addition_type'];
-            $dataset = CardDs::model()->findByAttributes(array('en_name' => $additionType));
-            $dsId = $dataset['id'];
-            $fieldData['referenceItems'] = $this->loadModel($dsId, 'item', 'dataset_id', true);
+            $fieldType = $value['extra']['field_info']['field_type'];			//字段类型,此处只可能为reference
+            $additionType = $value['extra']['field_info']['addition_type'];		//关联表名
+            $dataset = CardDs::model()->findByAttributes(array('en_name' => $additionType));	//获取指定的表模型
+            $dsId = $dataset['id'];		//获取表id
+            $fieldData['referenceItems'] = $this->loadModel($dsId, 'item', 'dataset_id', true);	//获取 item表中dataset_id=$dsId的数据
+            
             $tplName = '_form_item_' . $fieldType;
         } else {
             $fieldType = $value['extra']['field_info']['field_type'];

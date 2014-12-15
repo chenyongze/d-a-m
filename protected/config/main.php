@@ -11,6 +11,7 @@ return array(
 	'name'=>'卡牌数据库',
 	'defaultController' => 'cardDb',
 	'theme' => 'abound',
+	'language'=>'zh_cn',		//启用中文语言包
 
 	// preloading 'log' component
 	'preload'=>array('log'),

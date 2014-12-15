@@ -42,23 +42,23 @@ class DatasetFieldController extends Controller {
 		    //独立字段
 			case 'normal':
 				$data = array('text'=>'文本', 'multitext'=>'多行文本', 'number'=>'数值', 'select'=>'单选', 'multiselect'=>'多选', 'image'=>'图片');
-			break;
+				break;
 		    //调用元素集字段
 		    case 'reference':
-			$dsModel = $this->loadModel($databaseId, 'ds', 'database_id', true);
-			$data = array();
-			foreach ($dsModel as $key=>$value) {
-				$data[$value->en_name] = $value->name;
-			}
-			break;
+				$dsModel = $this->loadModel($databaseId, 'ds', 'database_id', true);
+				$data = array();
+				foreach ($dsModel as $key=>$value) {
+					$data[$value->en_name] = $value->name;
+				}
+				break;
 		}
 
 		$dropDown = "<option value=''>选择附属类型</option>";
 		foreach($data as $value=>$name) {
 		    if ($additionType>=0 && $value==$additionType) {
-			$dropDown .= CHtml::tag('option', array('value'=>$value, 'selected'=>'selected'),CHtml::encode($name),true);
+				$dropDown .= CHtml::tag('option', array('value'=>$value, 'selected'=>'selected'),CHtml::encode($name),true);
 		    } else {
-			$dropDown .= CHtml::tag('option', array('value'=>$value),CHtml::encode($name),true);
+				$dropDown .= CHtml::tag('option', array('value'=>$value),CHtml::encode($name),true);
 		    }
 		}
 

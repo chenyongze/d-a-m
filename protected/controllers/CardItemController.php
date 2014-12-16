@@ -105,7 +105,7 @@ class CardItemController extends Controller
                     	if($key>=$field_count){
                     		continue;
                     	}
-                    	$value = iconv('gb2312','utf-8',$value);
+                    	$value = iconv('gbk','utf-8',$value);
                     	$field_key = $field_real = $csvHeader[$key];	//字段名称
                         
                     	//如果是字段组，获取组名
@@ -229,11 +229,11 @@ class CardItemController extends Controller
       	$str = $fields_name."\n".$fields_keys;
     	
 	    header("Content-type:text/csv");   
-	    header("Content-Disposition:attachment;filename=".iconv('utf-8','gb2312',$file_name));   
+	    header("Content-Disposition:attachment;filename=".iconv('utf-8','gbk',$file_name));   
 	    header('Cache-Control:must-revalidate,post-check=0,pre-check=0');   
 	    header('Expires:0');   
 	    header('Pragma:public');   
-	    echo iconv('utf-8','gb2312',$str);   
+	    echo iconv('utf-8','gbk',$str);   
 	    exit();
     }
     
@@ -265,7 +265,7 @@ class CardItemController extends Controller
           	}else{
         		$tmpValue = "";
            	}
-                                
+
       	//选择框处理
        	} else if ($field_type == 'normal' && in_array($addition_type, array('select', 'multiselect'))) {
         	$tmpSelectValue = $tmpField['extra']['field_info']['select_value'];
@@ -291,8 +291,10 @@ class CardItemController extends Controller
                        	$tmpValue = '';
                   	}
               	}
-      		}else{
-      			$tmpValue = array();
+      		}else {
+      			if($addition_type=='multiselect'){
+      				$tmpValue = array();
+      			}
       		}
                           
    		//关联类型

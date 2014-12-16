@@ -44,6 +44,9 @@ function selectall(name) {
 <div class="span1">
 	<input type="button" value="导入数据" id="ImportData">
 </div>
+<div class="span1">
+	<input type="button" value="导出模板" id="ExportTplData" onClick="location.href='/CardItem/exporttpl/id/<?php echo $datasetId;?>'">
+</div>
 <script type="text/javascript">
 	function ItemInfo() {
 		var itemId = arguments[0] ? arguments[0] : 0;
@@ -159,7 +162,11 @@ function selectall(name) {
 										break;
 									case 'multiselect':
 										if (isset($valueItem['data'][$key]) && !empty($valueItem['data'][$key])) {
-											$selectItems = join(',', $valueItem['data'][$key]);
+											$selectItems = $valueItem['data'][$key];
+											if(is_array($selectItems)){
+												$selectItems = join(',', $selectItems);
+											}
+											
 											echo $selectItems;
 										} else {
 											echo "";
@@ -181,7 +188,10 @@ function selectall(name) {
 								}
 							//调用元素集字段
 							} elseif($fieldType == 'reference') {
-								$selectItems = join(',', $valueItem['data'][$key]);
+								$selectItems = $valueItem['data'][$key];
+								if(is_array($selectItems)){
+									$selectItems = join(',', $selectItems);
+								}
 								echo $selectItems;
 							}
 						?>

@@ -75,84 +75,103 @@ class CardItemController extends Controller
             $csvHeader = array();
             //往卡牌库Item表导入记录
             //1条1条导入
-            for ($i = 1; ; $i++) {
-                if ($i == 1) {
+            for ($i = 0; ; $i++) {
+            	//跳过第一行中文表头
+            	if(empty($i)){
+            		fgetcsv($file);
+            		continue;
+            	//获取对应字段名
+            	}if ($i == 1) {
                     $csvHeader = fgetcsv($file);
+               	//获取值
                 } elseif ($i >= 2) {
                     $itemData = array();
                     $csvData = fgetcsv($file);
-                    
                     if (empty($csvData)) {
                         break;
                     }
                     
+                    //组字段数据临时存放点
+                    $group_key = '';		//组键值
+                    $group_info = array();	//字段信息
+                    $group_arr = array();	//组数据
+                    $group_one = array();	//一个组
+                    $field_count = count($csvHeader);	//字段总数
+                    $group_set = false;		//是否要进行值设置
+                    
                     //逐一处理每个字段
                     foreach ($csvData as $key => $value) {
+                    	//多余的字段的数据不作处理
+                    	if($key>=$field_count){
+                    		continue;
+                    	}
+                    	$value = iconv('gb2312','utf-8',$value);
+                    	$field_key = $field_real = $csvHeader[$key];	//字段名称
+                        
+                    	//如果是字段组，获取组名
+                    	if(strpos($field_key, '-')){
+                    		$group_info = explode('-', $field_key, 2);
+                    		if(isset($group_info[0])){
+                    			$field_real = $group_info[0];
+                    		}
+                        }
                         //只导入元素集有的字段
-                        if (isset($dsModel->fields[$csvHeader[$key]])) {
-                            $tmpField = $dsModel->fields[$csvHeader[$key]];		//字段定义
-                            //$tmpValue = mb_convert_encoding($value, 'UTF-8', 'GBK,GB2312,UTF-8');
-                            $tmpValue = $value;
-                            $field_type = $tmpField['extra']['field_info']['field_type'];			//字段类型
-                            $addition_type = $tmpField['extra']['field_info']['addition_type'];		//附加类型
-							
-                            //图片类型处理
-                            if( $addition_type == "image"){
-                            	//有地址且文件存在则尝试上传
-                                if($tmpValue != '' && is_file($tmpValue)){
-                                    $resData = $mcss->uploadImage($tmpValue);
-                                    //如果返回值是数组类型，则发生了错误
-                                    if(is_array($resData)){
-                                        $tmpValue = "";
-                                    }else{
-                                        $tmpValue = $resData;	//成功后替换原有地址
-                                    }
-                                }else{
-                                    $tmpValue = "";
-                                }
-                                
-                          	//选择框处理
-                            } else if ($field_type == 'normal' && in_array($addition_type, array('select', 'multiselect'))) {
-                            	$tmpSelectValue = $tmpField['extra']['field_info']['select_value'];
-                            	if($tmpValue){
-                            		//多选框
-                            		if($addition_type=='multiselect'){
-                            			$tmpValue = explode('、', $tmpValue);
-	                            		//检查是否为候选项
-	                            		foreach($tmpValue as $tkey=>$tval){
-	                            			$tval = trim($tval);
-	                            			//若不是预定义的选项则清除该项
-	                            			if(!in_array($tval, $tmpSelectValue)){
-	                            				unset($tmpValue[$tkey]);
-	                            			}
+                        if (isset($dsModel->fields[$field_real])) {
+                            $tmpField = $dsModel->fields[$field_real];		//字段定义
+                            //普通字段
+                            if($tmpField['type']=='field'){
+                            	$itemData[$field_real] = $this->formatFirldData($value, $tmpField, $mcss);	//格式化内容
+                            //字段组
+                            }else if($tmpField['type']=='group'){
+                            	
+                            	//如果有传入组内字段名才处理
+                            	if(isset($group_info[1])){
+	                            	$groupField = $tmpField['fields'][$group_info[1]];				//组字段定义
+	                            	$groupCount = count($tmpField['fields']);						//组内字段数量
+	                            	$value = $this->formatFirldData($value, $groupField, $mcss, false);	//格式化内容
+	                            	
+	                            	//是否是同组的，若是保存到当前组内，不是则保存之前的数据并起一个新组
+	                            	if(empty($group_key) || $group_key === $field_real){
+	                            		if(empty($group_key)){
+	                            			$group_key = $field_real;
 	                            		}
-	                            		ksort($tmpValue);	//重排索引
-	                            	//单选框
-                            		}else{
-                            			//不是预定义的选项则情况值
-                            			if(!in_array($tmpValue, $tmpSelectValue)){
-	                            			$tmpValue = '';
+	                            		$group_one[$group_info[1]] = $value;
+	                            		
+	                            		//检查单组是否填满了
+	                            		if(count($group_one)==$groupCount){
+	                            			$group_arr[] = $group_one;
+	                            			$group_one = array();	//清空单个元素
 	                            		}
-                            		}
+	                            		
+	                            		//循环到了最后一个元素
+	                            		if($key+1>=$field_count){
+	                            			$group_set = true;
+	                            		}
+	                            	}else{
+	                            		$group_set = true;
+	                            	}
                             	}
-                          	
-                          	//关联类型
-                            }elseif ($field_type == 'reference' && $addition_type) {
-                            	if($tmpValue){
-                            		$tmpValue = explode('、', $tmpValue);
-                            		$tmpNew = array();
-                            		foreach($tmpValue as $tkey=>$tval){
-                            			$tval = trim($tval);
-                            			if($tval){
-                            				$tmpNew[] = $tval;
-                            			}
+                            	
+                            	//保存并初始化状态
+                            	if($group_set){
+                            		if($group_one){
+                            			$group_arr[] = $group_one;
+                            			$group_one = array();
                             		}
-                            		$tmpValue = $tmpNew;
-	                            }
+                            		if($group_arr){
+                            			$itemData[$field_real] = $group_arr;		//存入值
+                            		}
+                            		$group_key = $field_real;					//设定新组名
+                            		$group_arr = array($value);					//设置第一个元素
+                            		$group_set = false;
+                            	}
+                            	
                             }
-                            $itemData[$csvHeader[$key]] = $tmpValue;
+                            
                         }
                     }
+                    //echo '<pre>';
+                    //print_r($itemData);exit();
 
                     $itemModel = new CardItem;
                     $saveData['dataset_id'] = (int)$id;
@@ -175,6 +194,125 @@ class CardItemController extends Controller
         $data['dbModel'] = $dbModel;
         $data['datasetId'] = $id;
         $this->renderPartial('_form_import', $data);
+    }
+    
+    /**
+     * 导出模板
+     * @param $id
+     * @return unknown_type
+     */
+    public function actionExportTpl($id){
+    	$itemModel = new CardItem;
+        $dsModel = $this->loadModel($id, 'ds');
+        $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
+    	
+        //拼接文件名
+        $file_name = $dbModel->name.'-'.$dsModel->name.'-'.date('YmdHis').'.csv';
+        
+    	//获取字段和中文的对应关系
+    	$fields_name = array();		//中文名称
+        $fields_keys = array();		//字段名
+       	foreach($dsModel->fields as $field_key=>$field_info){
+       		if($field_info['type'] == 'field'){
+       			$fields_name[] = $field_info['name'];
+       			$fields_keys[] = $field_key;
+       		}else if($field_info['type'] == 'group'){
+       			foreach($field_info['fields'] as $fg_key=>$fg_info){
+       				$fields_name[] = $field_info['name'].'-'.$fg_info['name'];
+       				$fields_keys[] = $field_key.'-'.$fg_key;
+       			}
+       		}
+      	}
+      	$fields_name = implode(',', $fields_name);
+      	$fields_keys = implode(',', $fields_keys);
+      	
+      	$str = $fields_name."\n".$fields_keys;
+    	
+	    header("Content-type:text/csv");   
+	    header("Content-Disposition:attachment;filename=".iconv('utf-8','gb2312',$file_name));   
+	    header('Cache-Control:must-revalidate,post-check=0,pre-check=0');   
+	    header('Expires:0');   
+	    header('Pragma:public');   
+	    echo iconv('utf-8','gb2312',$str);   
+	    exit();
+    }
+    
+	/**
+     * 根据字段定义格式化导入字段数据
+     * @param $value		传入值
+     * @param $tmpField		字段定义
+     * @param $mcss			上传对象
+     * @param $mcss			检查单复选的选项是否是为预定义
+     * @return maxd			处理后的字段值
+     */
+    protected function formatFirldData($value, $tmpField, $mcss, $check_option=true){
+    	//$tmpValue = mb_convert_encoding($value, 'UTF-8', 'GBK,GB2312,UTF-8');
+		$tmpValue = $value;
+        $field_type = $tmpField['extra']['field_info']['field_type'];			//字段类型
+     	$addition_type = $tmpField['extra']['field_info']['addition_type'];		//附加类型
+							
+  		//图片类型处理
+     	if( $addition_type == "image"){
+        	//有地址且文件存在则尝试上传
+          	if($tmpValue != '' && is_file($tmpValue)){
+             	$resData = $mcss->uploadImage($tmpValue);
+              	//如果返回值是数组类型，则发生了错误
+               	if(is_array($resData)){
+               		$tmpValue = "";
+              	}else{
+                   	$tmpValue = $resData;	//成功后替换原有地址
+              	}
+          	}else{
+        		$tmpValue = "";
+           	}
+                                
+      	//选择框处理
+       	} else if ($field_type == 'normal' && in_array($addition_type, array('select', 'multiselect'))) {
+        	$tmpSelectValue = $tmpField['extra']['field_info']['select_value'];
+     		if($tmpValue){
+             	//多选框
+            	if($addition_type=='multiselect'){
+                 	$tmpValue = explode('、', $tmpValue);
+                  	//检查是否为候选项
+                  	
+                  	foreach($tmpValue as $tkey=>$tval){
+                  		$tval = trim($tval);
+                   		//若不是预定义的选项则清除该项
+                    	if($check_option && !in_array($tval, $tmpSelectValue)){
+                        	unset($tmpValue[$tkey]);
+                      	}
+                   	}
+               		ksort($tmpValue);	//重排索引
+              		
+             		//单选框
+            	}else{
+                	//不是预定义的选项则情况值
+               		if($check_option && !in_array($tmpValue, $tmpSelectValue)){
+                       	$tmpValue = '';
+                  	}
+              	}
+      		}else{
+      			$tmpValue = array();
+      		}
+                          
+   		//关联类型
+ 		}elseif ($field_type == 'reference' && $addition_type) {
+            if($tmpValue){
+             	$tmpValue = explode('、', $tmpValue);
+               	$tmpNew = array();
+                   foreach($tmpValue as $tkey=>$tval){
+                     $tval = trim($tval);
+                     if($tval){
+                    	$tmpNew[] = $tval;
+               		}
+              	}
+                $tmpValue = $tmpNew;
+       		}else{
+       			$tmpValue = array();
+       		}
+    	}
+    	
+    	return $tmpValue;                     
     }
 
 

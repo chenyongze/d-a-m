@@ -24,10 +24,11 @@
     
     <!-- Include content pages -->
     <?php
-    	if (Yii::app()->user->name=='publisher' && $this->getId()!='cardItem') {
-	
+    //编辑者只能看见信息页面
+    if (Yii::app()->user->name=='publisher' && $this->getId()!='cardItem') {
+    	
 	} else {
-    		echo $content;
+    	echo $content;
 	}
     ?>
 

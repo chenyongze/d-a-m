@@ -105,7 +105,7 @@ class CardItemController extends Controller
                     	if($key>=$field_count){
                     		continue;
                     	}
-                    	$value = iconv('gbk','utf-8',$value);
+                    	$value = trim(iconv('gbk','utf-8',$value));
                     	$field_key = $field_real = $csvHeader[$key];	//字段名称
                         
                     	//如果是字段组，获取组名
@@ -247,7 +247,7 @@ class CardItemController extends Controller
      */
     protected function formatFirldData($value, $tmpField, $mcss, $check_option=true){
     	//$tmpValue = mb_convert_encoding($value, 'UTF-8', 'GBK,GB2312,UTF-8');
-		$tmpValue = $value;
+		$tmpValue = trim($value);
         $field_type = $tmpField['extra']['field_info']['field_type'];			//字段类型
      	$addition_type = $tmpField['extra']['field_info']['addition_type'];		//附加类型
 							

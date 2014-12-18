@@ -134,6 +134,84 @@ class CardController extends Controller {
 	
 	
 	/**
+	 * 获取选择框的候选项（带缓存）
+	 * @author gavin
+	 */
+	public function actionGetOptionList() {
+		//参数接收
+		//http://db.dev.mofang.com/api/card/getoptionlist/setid/9/field/select1
+		$datasetId = isset($_GET['setid'])?intval($_GET['setid']):0;	//表id
+		$fieldKay  = isset($_GET['field'])?$_GET['field']:'';			//字段名
+		
+		//初始化返回值
+		$info = array();
+		$return = array('code'=>0, 'data'=>array());
+		
+		//参数验证
+		if(empty($datasetId)||empty($fieldKay)){
+			$return['code'] = 1;	//接口参数不足
+		//获取字段定义
+		}else{
+			$options = CardDs::model()->getFieldOption($datasetId, $fieldKay);
+			if(empty($options)){
+				$return['code'] = 2;
+			}else{
+				$return['data'] = $options;
+			}
+		}
+
+		echo CJSON::encode($return);
+	}
+	
+	/**
+	 * 获取选择字段的已使用选项（带缓存）
+	 * @author gavin
+	 */
+	public function actionGetOptionUse() {
+		//参数接收
+		//http://db.dev.mofang.com/api/card/getoptionuse/setid/9/field/select1
+		$datasetId = isset($_GET['setid'])?intval($_GET['setid']):0;	//表id
+		$fieldKay  = isset($_GET['field'])?$_GET['field']:'';			//字段名
+		//初始化返回值
+		$info = array();
+		$return = array('code'=>0, 'data'=>array());
+		
+		//参数验证
+		if(empty($datasetId)||empty($fieldKay)){
+			$return['code'] = 1;	//接口参数不足
+		//获取字段定义
+		}else{
+			$options = CardDs::model()->getFieldOption($datasetId, $fieldKay);
+			if(empty($options)){
+				$return['code'] = 2;
+			}else{
+				$option_group = CardItem::model()->getCollection()->group(
+					array('data.'.$fieldKay => 1), 
+					array('count'=>0), 
+					"function (obj, prev) { 
+						prev.count++; 
+					}",
+					array('condition' => array(
+						"dataset_id" => $datasetId,					//指定实体
+						'data.'.$fieldKay => array('$exists'=>true)	//有该字段
+					))
+				);
+				
+				//若有分组数据，则填入返回值中
+				if($option_group['retval']){
+					foreach($option_group['retval'] as $oval){
+						$return['data'][] = $oval['data.'.$fieldKay];
+					}
+				}
+
+			}
+		}
+		
+		echo CJSON::encode($return);
+		
+	}
+	
+	/**
 	 * 解析传入参数
 	 * @param $str string	字符串条件	
 	 * @return array 		解析好的条件
@@ -169,5 +247,8 @@ class CardController extends Controller {
 		
 		return $str;
 	}
+	
+	
+	
 	
 }

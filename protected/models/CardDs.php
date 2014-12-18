@@ -308,18 +308,32 @@ class CardDs extends EMongoDocument
 		}
 		return $dsList;
 	}
-
-	public function getFieldList($datasetId = 0, $enName = '') {
+	
+	/**
+	 * 获取指定表的字段定义
+	 * @param $id			int		一个参数的时候为setid，两个参数的时候为dbid
+	 * @param $enName		string	表的英文名
+	 * @return array		字段定义
+	 */
+	public function getFieldList($id = 0, $enName = '') {
 		$condition = array();
 		$select = array('fields');
-		if(empty($datasetId) || empty($enName)){
+		if(empty($id)){
 			return false;
 		}
 		
-		$condition = array(
-		  	'database_id' => (int)$datasetId,
-		  	'en_name' => $enName
-		 );
+		if(empty($enName)){
+			//作为表id查询
+			$condition = array(
+		  		'id' => (int)$id,
+			);
+		}else{
+			//作为库id和表名查询
+			$condition = array(
+		  		'database_id' => (int)$id,
+		  		'en_name' => $enName
+		 	);
+		}
 		
 		$fieldList = self::findAllByAttributes(
 			$condition,
@@ -340,6 +354,28 @@ class CardDs extends EMongoDocument
 			$fieldList[$key] = $value;
 		}
 		return $fieldList;
+	}
+	
+	/**
+	 * 获取指定选择字段的候选项
+	 * @author gavin
+	 * @param $setid	int		表id
+	 * @param $field	string	字段英文名
+	 * @return array	获取选项
+	 */
+	public function getFieldOption($setid, $field) {
+		$arr = array();	//返回结果
+		$fields = CardDs::model()->getFieldList($setid);
+		if(!empty($fields) && isset($fields[0]['fields'][$field])){
+			$info = $fields[0]['fields'][$field];
+			if(isset($info['extra']['field_info'])){
+				$info = $info['extra']['field_info'];
+				if($info['field_type']=='normal' && in_array($info['addition_type'], array('select', 'multiselect'))){
+					$arr = $info['select_value'];
+				}
+			}
+		}
+		return $arr;
 	}
 
 	protected function beforeSave() {

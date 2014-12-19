@@ -56,6 +56,7 @@ class CardController extends Controller {
 		//参数接收
 		//http://db.dev.mofang.com/api/card/getitems/setid/4/filter/djfl|珍品::/regex/djname|水/order/xyd|1/page/-2/size/20
 		$datasetId = isset($_GET['setid'])?intval($_GET['setid']):0;				//表id			setid = 4
+		$select = isset($_GET['select'])?$_GET['select']:'';						//返回字段		select = data.name
 		$filter = isset($_GET['filter'])?$this->paramStr2Arr($_GET['filter']):'';	//过滤条件		filter = djfl|珍品::	（多个且关系）
 		$regex = isset($_GET['regex'])?$this->paramStr2Arr($_GET['regex']):'';		//正则匹配		regex = djname|碎片
 		$order = isset($_GET['order'])?$this->paramStr2Arr($_GET['order']):'';		//排序			order = xyd|1
@@ -76,6 +77,16 @@ class CardController extends Controller {
 			
 			//查询器
 			$criteria = new EMongoCriteria();
+			$criteria->addCond('dataset_id', '==', $datasetId);	//指明对象
+			
+			if($select){
+				$select = explode(',', $select);
+				foreach($select as $skey=>$sfield){
+					$select[$skey] = 'data.'.$sfield;
+				}
+				array_unshift($select, 'id');	//压入默认字段
+				$criteria->select($select);
+			}
 			
 			//加入过滤条件
 			if($filter){
@@ -106,6 +117,8 @@ class CardController extends Controller {
 						$criteria->sort('data.'.$okey, $oval);
 					}
 				}
+			}else{
+				$criteria->sort('id', EMongoCriteria::SORT_ASC);	//默认id正序
 			}
 			
 			//构建分页
@@ -121,6 +134,7 @@ class CardController extends Controller {
 			foreach($return['data'] as $rkey=>$rval){
 				$arr_info = $return['data'][$rkey]->toArray();
 				//清除无用的字段
+				unset($arr_info['dataset_id']);
 				unset($arr_info['request_times']);
 				unset($arr_info['last_uid']);
 				unset($arr_info['update_time']);
@@ -156,7 +170,9 @@ class CardController extends Controller {
 			if(empty($options)){
 				$return['code'] = 2;
 			}else{
-				$return['data'] = $options;
+				foreach($options as $oval){
+					$return['data'][] = $oval['value'];
+				}
 			}
 		}
 
@@ -172,6 +188,8 @@ class CardController extends Controller {
 		//http://db.dev.mofang.com/api/card/getoptionuse/setid/9/field/select1
 		$datasetId = isset($_GET['setid'])?intval($_GET['setid']):0;	//表id
 		$fieldKay  = isset($_GET['field'])?$_GET['field']:'';			//字段名
+		$filter = isset($_GET['filter'])?$this->paramStr2Arr($_GET['filter']):'';	//过滤条件		filter = djfl|珍品::	（多个且关系）
+		
 		//初始化返回值
 		$info = array();
 		$return = array('code'=>0, 'data'=>array());
@@ -185,25 +203,39 @@ class CardController extends Controller {
 			if(empty($options)){
 				$return['code'] = 2;
 			}else{
-				$option_group = CardItem::model()->getCollection()->group(
-					array('data.'.$fieldKay => 1), 
-					array('count'=>0), 
-					"function (obj, prev) { 
-						prev.count++; 
-					}",
-					array('condition' => array(
-						"dataset_id" => $datasetId,					//指定实体
-						'data.'.$fieldKay => array('$exists'=>true)	//有该字段
-					))
+				//过滤条件
+				$condition = array(
+					"dataset_id" => $datasetId,					//指定实体
+					'data.'.$fieldKay => array('$exists'=>true)	//有该字段
+				);
+				
+				//加入过滤条件
+				if($filter){
+					foreach($filter as $fkey=>$fval){
+						$condition['data.'.$fkey] = $fval;
+					}
+				}
+				
+				//执行查询
+				$option_dist = CardItem::model()->getCollection()->distinct(
+					'data.'.$fieldKay,
+					$condition
 				);
 				
 				//若有分组数据，则填入返回值中
-				if($option_group['retval']){
-					foreach($option_group['retval'] as $oval){
-						$return['data'][] = $oval['data.'.$fieldKay];
+				if($option_dist){
+					//合并选项并去重
+					foreach($option_dist as $oval){
+						if(is_array($oval)){
+							$return['data'] = array_merge($return['data'], $oval);	//数组合并
+						}else{
+							array_push($return['data'], $oval);						//字符串压入
+						}
 					}
+					$return['data'] = array_unique($return['data']);	//去重
+					$return['data'] = array_filter($return['data']);	//去空
+					$return['data'] = array_merge($return['data'], array());
 				}
-
 			}
 		}
 		

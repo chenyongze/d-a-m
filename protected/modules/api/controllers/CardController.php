@@ -58,7 +58,7 @@ class CardController extends Controller {
 		$datasetId = isset($_GET['setid'])?intval($_GET['setid']):0;				//表id			setid = 4
 		$select = isset($_GET['select'])?$_GET['select']:'';						//返回字段		select = data.name
 		$filter = isset($_GET['filter'])?$this->paramStr2Arr($_GET['filter']):'';	//过滤条件		filter = djfl|珍品::	（多个且关系）
-		$regex = isset($_GET['regex'])?$this->paramStr2Arr($_GET['regex']):'';		//正则匹配		regex = djname|碎片
+		$regex = isset($_GET['regex'])?$this->paramStr2Arr($_GET['regex']):'';		//正则匹配		regex = djname|碎片（目前是不限定头尾匹配，后面需要优化）
 		$order = isset($_GET['order'])?$this->paramStr2Arr($_GET['order']):'';		//排序			order = xyd|1
 		$currPage = (isset($_GET['page'])&&$_GET['page']>=1)?intval($_GET['page']):1;//当前页码		page = 1 
 		$pageSize = isset($_GET['size'])?intval($_GET['size']):0;					//每页数量		size = 20
@@ -94,10 +94,12 @@ class CardController extends Controller {
 					if(in_array($fkey, $fields)){
 						//只查询定义的字段
 						$criteria->addCond('data.'.$fkey, '==', $fval);
+					}else if(in_array($fkey, array('id'))){
+						$criteria->addCond($fkey, '==', intval($fval));
 					}
 				}
 			}
-			
+
 			//加入正则
 			if($regex){
 				foreach($regex as $rkey=>$rval){
@@ -120,6 +122,7 @@ class CardController extends Controller {
 			}else{
 				$criteria->sort('id', EMongoCriteria::SORT_ASC);	//默认id正序
 			}
+			//print_r($criteria);
 			
 			//构建分页
 			$count = CardItem::model()->count($criteria);
@@ -142,7 +145,7 @@ class CardController extends Controller {
 				$return['data'][$rkey] = $arr_info;
 			}
 		}
-
+		//print_r($return['data']);exit();
 	    echo CJSON::encode($return);
 	}
 	

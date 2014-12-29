@@ -72,7 +72,7 @@ return array(
 		'mongodb'=>array(
 			'class'=>'EMongoDB',
 			'connectionString' => 'mongodb://127.0.0.1',
-			'dbName' => 'datadb',
+			'dbName' => 'card_db_v2',
 			'fsyncFlag' => true,
 			'safeFlag' => true,
 			'useCursor' => false,

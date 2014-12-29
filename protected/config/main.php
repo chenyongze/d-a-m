@@ -71,7 +71,7 @@ return array(
 		*/
 		'mongodb'=>array(
 			'class'=>'EMongoDB',
-			'connectionString' => 'mongodb://127.0.0.1',
+			'connectionString' => 'mongodb://10.6.12.25:27017,10.6.13.121:27017,10.6.31.174:27017/?replicaSet=shard1',
 			'dbName' => 'card_db_v2',
 			'fsyncFlag' => true,
 			'safeFlag' => true,

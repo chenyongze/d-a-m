@@ -1,13 +1,14 @@
 <?php
+/**
+ * 供线上正式环境使用
+ */
 
-// uncomment the following to define a path alias
-// Yii::setPathOfAlias('local','path/to/local-folder');
 Yii::setPathOfAlias('pub','/opt/phplib/components');
 
 // This is the main Web application configuration. Any writable
 // CWebApplication properties can be configured here.
 return array(
-	'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
+    'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
 	'name'=>'卡牌数据库',
 	'defaultController' => 'cardDb',
 	'theme' => 'abound',
@@ -77,6 +78,17 @@ return array(
 			'safeFlag' => true,
 			'useCursor' => false,
 		),
+
+		/*
+		'cache' => array(
+			'class' => 'system.caching.CMemCache',
+			'useMemcached' => true,
+			'servers' => array(
+				'01' => array('host' => '127.0.0.1', 'port' => 11211),
+			),
+		),
+		*/
+
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
 			'errorAction'=>'site/error',
@@ -110,8 +122,7 @@ return array(
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	'params'=>array(
-		// this is used in contact page
-		//'adminEmail'=>'webmaster@example.com',
-		//'userInfoApi'=>'http://u.mofang.com/api/get_detail_by_user',
+
 	),
+
 );

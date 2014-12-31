@@ -8,7 +8,7 @@ define('YII_TRACE_LEVEL', 3);
 
 // change the following paths if necessary
 $yii = '/opt/phplib/yii/yii.php';
-$configDir = dirname(__DIR__) . '/db.mofang.com/protected/config/';
+$configDir = __DIR__ . '/protected/config/';
 $config = $configDir . 'production.php';
 
 defined('ENVIRONMENT') || define('ENVIRONMENT', isset($_SERVER['ENVIRONMENT']) ? $_SERVER['ENVIRONMENT'] : 'production');

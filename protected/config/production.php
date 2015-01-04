@@ -99,7 +99,7 @@ return array(
 				array(
 					'class'=>'CFileLogRoute',
 					'levels'=>'error, warning',
-                    'logPath' => '/data/log/www/db.mofang.com',
+                    'logPath' => '/data/log/www/db.admin.mofang.com',
 				),
 				// uncomment the following to show log messages on web pages
 				/*

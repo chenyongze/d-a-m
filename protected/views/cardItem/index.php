@@ -174,14 +174,14 @@ function selectall(name) {
 										break;
 									case 'image':
 										if (isset($valueItem['data'][$key]) && !empty($valueItem['data'][$key])) {
-											echo sprintf('<a href="%1$s" target="_blank"><img class="image-preview-small" src="%1$s"/></a>', $valueItem['data'][$key]);
+											echo sprintf('<a href="%1$s" target="_blank"><img class="image-preview-small" src="%1$s" style="max-height: 150px;"/></a>', $valueItem['data'][$key]);
 										} else {
 											echo "";
 										}
 										break;
 									default :
 										if (isset($valueItem['data'][$key])) {
-											echo mb_strimwidth($valueItem['data'][$key], 0, 180);
+											echo mb_strimwidth($valueItem['data'][$key], 0, 180, '...', 'utf-8');
 										} else {
 											echo "";
 										}

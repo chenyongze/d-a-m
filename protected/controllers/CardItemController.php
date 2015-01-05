@@ -13,12 +13,20 @@ class CardItemController extends Controller
         //$itemModel = $this->loadModel((int)$id, 'item', 'dataset_id', true);
         $dsModel = $this->loadModel((int)$id, 'ds');					//获取表模型
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');	//获取库模型
-
+		$dsModel = $dsModel->sortField();
+		 
         $criteria = new EMongoCriteria();
         $criteria->dataset_id = (int)$id;
+        
+        //添加查询条件
+        if(isset($_GET['sub'])){
+	        $criteria = $this->fillCond($criteria, $dsModel['fields']);
+	       	//var_dump($criteria->getConditions());
+    	}
+    	
         $count = CardItem::model()->count($criteria);
         $pages = new CPagination($count);
-
+        
         $perPage = 20;
         $pages->pageSize = $perPage;
         //$pages->applyLimit($criteria);
@@ -27,7 +35,7 @@ class CardItemController extends Controller
         $criteria->limit($perPage)->offset($offset)->sort('id', EMongoCriteria::SORT_DESC);
         $itemModel = CardItem::model()->findAll($criteria);
 
-        $dsModel = $dsModel->sortField();
+       
         $data = array();
         $data['itemModel'] = $itemModel;
         $data['dbModel'] = $dbModel;
@@ -546,6 +554,69 @@ class CardItemController extends Controller
         } else {
             RestHelper::error('图片上传失败');
         }
+    }
+    
+    /**
+     * 填充提交过来的筛选条件
+     * @param $criteria	EMongoCriteria	填充前的查询器
+     * @param $fields	array	字段定义
+     * @return EMongoCriteria	填充后的查询器
+     */
+    private function fillCond($criteria, $fields){
+    	$kfield = isset($_GET['kfield'])?trim($_GET['kfield']):'';			//字段名
+    	$koperator = isset($_GET['koperator'])?trim($_GET['koperator']):'';	//操作符
+    	$kword = isset($_GET['kword'])?trim($_GET['kword']):'';				//值
+    	//检验-字段名和操作符必选
+    	if(empty($kfield) || empty($koperator)){
+    		return $criteria;
+    	}
+    	//检查-字段有定义，且不是字段组
+    	if($kfield!='id' && (!isset($fields[$kfield]) || $fields[$kfield]['type']=='group')){
+    		return $criteria;
+    	}
+    	
+    	//字段名处理
+    	if($kfield!='id'){
+    		$kfield = 'data.'.$kfield;
+    	}
+    	
+    	//字段定义
+    	$field_info = $fields[$kfield]['extra']['field_info'];
+
+    	//操作符处理
+    	switch($koperator){
+	    	case '==':
+		    case '!=':
+		    	if($kfield=='id'){
+		    		$kword = intval($kword);
+		    	}
+		    	$criteria->addCond($kfield, $koperator, $kword);
+		        break;
+		    case '>':
+			case '<':
+				//数字比较需要先转换类型
+				if($field_info['addition_type']=='number' || $kfield=='id'){
+					$kword = intval($kword);
+				}
+				$criteria->addCond($kfield, $koperator, $kword);
+		        break;
+		  	case 'regex':
+		  		$criteria->$kfield = new MongoRegex('/'.$kword.'/i');
+		        break;
+		   	case 'in':
+		   	case 'notin':
+		   	case 'all':
+		   		echo $kfield;
+		   		//'data.fglx'=>array('$nin'=>array('保暖')
+		   		$kword = explode(',', $kword);
+		   		$criteria->addCond($kfield, $koperator, $kword);
+		        break;
+		    default:
+		        return $criteria;
+    	}
+    	
+    	
+    	return $criteria;
     }
 
 }

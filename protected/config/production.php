@@ -122,7 +122,10 @@ return array(
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	'params'=>array(
-
+		'filter_operator' => array(
+			'=='=>'等于', '!='=>'不等于', '>'=>'大于', '<'=>'小于', 'regex'=>'匹配', 	//简单类型
+			'in'=>'包含', 'notin'=>'不包含', 'all'=>'全包含'	//复合类型
+		),
 	),
 
 );

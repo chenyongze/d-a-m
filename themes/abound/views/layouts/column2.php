@@ -25,7 +25,7 @@
     <!-- Include content pages -->
     <?php
     //编辑者只能看见信息页面
-    if (Yii::app()->user->name=='publisher' && $this->getId()!='cardItem') {
+    if (Yii::app()->user->name=='publisher' && strtolower($this->getId())!='carditem') {
     	
 	} else {
     	echo $content;

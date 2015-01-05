@@ -113,7 +113,30 @@ function selectall(name) {
 </div>
 
 
-	<div class="row">&nbsp;&nbsp;</div>
+	<div class="row list_filter">
+		<form action="<?php echo $this->createUrl('carditem/index', array('id'=>$_GET['id']));?>">
+			<div class="span1" style="width:auto;">
+				<select name="kfield" style="width:100px;" title="请选择查询的字段">
+					<option value="id">序号</option>
+					<?php foreach($dsModel->fields as $key=>$value){ 
+							if ($value['type'] != 'group'){?>
+								<option value="<?php echo $key?>" <?php echo (isset($_GET['kfield'])&&$_GET['kfield']==$key)?' selected="selected" ':''?>><?php echo $value['name']?> </option>
+					<?php 	}
+						  } ?>
+				</select>
+				<select name="koperator" style="width:70px;" title="请选择查询操作符">
+					<?php $operator = Yii::app()->params['filter_operator'];?>
+					<?php foreach($operator as $ko=>$vo){ ?>
+						<option value="<?php echo $ko?>" <?php echo (isset($_GET['koperator'])&&$_GET['koperator']==$ko)?' selected="selected" ':''?>><?php echo $vo?></option>
+					<?php } ?>
+				</select>
+				<input type="text" name="kword" title="请填一个查询字符串" value="<?php echo isset($_GET['kword'])?$_GET['kword']:''?>" style='height:30px'/>
+			</div>
+			<div class="span1">
+				<input type="submit" name="sub" value="查询"/>
+			</div>
+		</form>
+	</div>
 
 	<form action="/CardItem/Delete" method="post" >
 	<div id="card-grid" class="grid-view">
@@ -149,7 +172,7 @@ function selectall(name) {
 					foreach ($dsModel->fields as $key=>$value):
 						if ($value['type'] == 'field') :
 				?>
-					<td style="width:200px;overflow:hidden;height:30px;">
+					<td style="width:200px;overflow:hidden;height:30px;">&nbsp;
 						<?php
 							$fieldType = $value['extra']['field_info']['field_type'];
 							$additionType = $value['extra']['field_info']['addition_type'];

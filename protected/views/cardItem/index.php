@@ -130,7 +130,7 @@ function selectall(name) {
 						<option value="<?php echo $ko?>" <?php echo (isset($_GET['koperator'])&&$_GET['koperator']==$ko)?' selected="selected" ':''?>><?php echo $vo?></option>
 					<?php } ?>
 				</select>
-				<input type="text" name="kword" title="请填一个查询字符串" value="<?php echo isset($_GET['kword'])?$_GET['kword']:''?>" style='height:30px'/>
+				<input type="text" name="kword" title="请填一个查询字符串" value="<?php echo isset($_GET['kword'])?$_GET['kword']:''?>"/>
 			</div>
 			<div class="span1">
 				<input type="submit" name="sub" value="查询"/>

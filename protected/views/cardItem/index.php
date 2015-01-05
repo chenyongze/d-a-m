@@ -114,7 +114,7 @@ function selectall(name) {
 
 
 	<div class="row list_filter">
-		<form action="<?php echo $this->createUrl('carditem/index', array('id'=>$_GET['id']));?>">
+		<form action="<?php echo $this->createUrl('cardItem/index', array('id'=>$_GET['id']));?>">
 			<div class="span1" style="width:auto;">
 				<select name="kfield" style="width:100px;" title="请选择查询的字段">
 					<option value="id">序号</option>

@@ -120,12 +120,9 @@ function selectall(name) {
 		<form action="<?php echo $this->createUrl('cardItem/index', array('id'=>$_GET['id']));?>">
 			<div class="span1" style="width:auto;">
 				<select name="kfield" style="width:100px;" title="请选择查询的字段">
-					<option value="id">序号</option>
-					<?php foreach($dsModel->fields as $key=>$value){ 
-							if ($value['type'] != 'group'){?>
-								<option value="<?php echo $key?>" <?php echo (isset($_GET['kfield'])&&$_GET['kfield']==$key)?' selected="selected" ':''?>><?php echo $value['name']?> </option>
-					<?php 	}
-						  } ?>
+					<?php foreach($dsModel->getFieldNameMap() as $key=>$value){ ?>
+							<option value="<?php echo $key?>" <?php echo (isset($_GET['kfield'])&&$_GET['kfield']==$key)?' selected="selected" ':''?>><?php echo $value?> </option>
+					<?php } ?>
 				</select>
 				<select name="koperator" style="width:70px;" title="请选择查询操作符">
 					<?php $operator = Yii::app()->params['filter_operator'];?>

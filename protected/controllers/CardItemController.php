@@ -220,12 +220,13 @@ class CardItemController extends Controller
     	
         //获取表头
         $dsmap = $dsModel->getFieldNameMap();
+        $rs = array(array_values($dsmap), array_keys($dsmap));
         
         //拼接文件名
         $file_name = $dbModel->name.'-'.$dsModel->name.'-'.date('YmdHis').'tpl';
         
       	//输出csv文件
-      	$this->outputXls($dsmap, $file_name);
+      	$this->outputXls($rs, $file_name);
     }
     
 	/**
@@ -238,7 +239,9 @@ class CardItemController extends Controller
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
     	//获取表头
-        $rs = $dsModel->getFieldNameMap();
+        $dsmap = $dsModel->getFieldNameMap();
+        $rs = array(array_values($dsmap), array_keys($dsmap));
+        
         //获取表数据
         $criteria = new EMongoCriteria();
         $criteria->dataset_id = (int)$id;
@@ -255,7 +258,11 @@ class CardItemController extends Controller
        				$group_do = explode('-', $do);
        				$io_info[$dk] = $io['data'][$group_do[0]][0][$group_do[1]];
        			}else{
-       				$io_info[$dk] = $io['data'][$do];
+       				if(isset($io[$do])){
+       					$io_info[$dk] = $io[$do];
+       				}else{
+       					$io_info[$dk] = $io['data'][$do];
+       				}
        			}
        		} 
        		$rs[] = $io_info;

@@ -45,6 +45,9 @@ function selectall(name) {
 	<input type="button" value="导入数据" id="ImportData">
 </div>
 <div class="span1">
+	<input type="button" value="导出数据" id="ExportData" onClick="location.href='/CardItem/export/id/<?php echo $datasetId;?>?<?php echo $_SERVER['QUERY_STRING']?>'">
+</div>
+<div class="span1">
 	<input type="button" value="导出模板" id="ExportTplData" onClick="location.href='/CardItem/exporttpl/id/<?php echo $datasetId;?>'">
 </div>
 <script type="text/javascript">
@@ -130,7 +133,7 @@ function selectall(name) {
 						<option value="<?php echo $ko?>" <?php echo (isset($_GET['koperator'])&&$_GET['koperator']==$ko)?' selected="selected" ':''?>><?php echo $vo?></option>
 					<?php } ?>
 				</select>
-				<input type="text" name="kword" title="请填一个查询字符串" value="<?php echo isset($_GET['kword'])?$_GET['kword']:''?>"/>
+				<input type="text" name="kword" title="请填一个查询字符串,留空表示空字符串或0，使用符合类型查询时多个元素使用半角逗号隔开" value="<?php echo isset($_GET['kword'])?$_GET['kword']:''?>"/>
 			</div>
 			<div class="span1">
 				<input type="submit" name="sub" value="查询"/>

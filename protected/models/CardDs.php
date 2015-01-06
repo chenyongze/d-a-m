@@ -377,6 +377,29 @@ class CardDs extends EMongoDocument
 		}
 		return $arr;
 	}
+	
+	/**
+	 * 获取当前表结构字段名和英文名的对应关系
+	 * @return 对应
+	 */
+	public function getFieldNameMap(){
+		//获取字段和中文的对应关系
+    	$fields_name = array();		//中文名称
+        $fields_keys = array();		//字段名
+       	foreach($this->fields as $field_key=>$field_info){
+       		if($field_info['type'] == 'field'){
+       			$fields_name[] = $field_info['name'];
+       			$fields_keys[] = $field_key;
+       		}else if($field_info['type'] == 'group'){
+       			foreach($field_info['fields'] as $fg_key=>$fg_info){
+       				$fields_name[] = $field_info['name'].'-'.$fg_info['name'];
+       				$fields_keys[] = $field_key.'-'.$fg_key;
+       			}
+       		}
+      	}
+      	return array($fields_name, $fields_keys);
+	}
+	
 
 	protected function beforeSave() {
 	    if (parent::beforeSave()) {

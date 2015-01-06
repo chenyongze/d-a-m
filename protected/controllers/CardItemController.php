@@ -70,7 +70,7 @@ class CardItemController extends Controller
         $fields_kv = array();
        	foreach($dsModel->fields as $field_key=>$field_info){
          	$fields_kv[$field_key] =  $field_info['name'];
-         	//预处理单选和复选的候选项
+         	//预处理单选和复选的候选项，使其方便判定是否为候选项
          	if(isset($field_info['extra']) && in_array($field_info['extra']['field_info']['addition_type'], array('select', 'multiselect'))){
          		foreach($field_info['extra']['field_info']['select_value'] as $fikey=>$fival){
          			$dsModel->fields[$field_key]['extra']['field_info']['select_value'][$fikey] = $fival['value'];
@@ -79,24 +79,23 @@ class CardItemController extends Controller
       	}
         
         if (isset($_FILES['CardItem'])) {
-            $file = fopen($_FILES['CardItem']['tmp_name'], 'r');
-            $csvHeader = array();
+        	//获取数据
+        	//$file_data = $this->inputCsv($_FILES['CardItem']['tmp_name']);
+        	$file_data = $this->inputXls($_FILES['CardItem']['tmp_name']);
+            $rsHeader = array();
             //往卡牌库Item表导入记录
             //1条1条导入
-            for ($i = 0; ; $i++) {
-            	//跳过第一行中文表头
+            foreach($file_data as $i=>$lineData){
             	if(empty($i)){
-            		fgetcsv($file);
             		continue;
             	//获取对应字段名
-            	}if ($i == 1) {
-                    $csvHeader = fgetcsv($file);
-               	//获取值
-                } elseif ($i >= 2) {
+            	}if ($i == 2) {
+            		$rsHeader = $lineData;
+            	//获取值
+                } elseif ($i >= 3) {
                     $itemData = array();
-                    $csvData = fgetcsv($file);
-                    if (empty($csvData)) {
-                        break;
+                    if (empty($lineData)) {
+                        continue;
                     }
                     
                     //组字段数据临时存放点
@@ -104,17 +103,25 @@ class CardItemController extends Controller
                     $group_info = array();	//字段信息
                     $group_arr = array();	//组数据
                     $group_one = array();	//一个组
-                    $field_count = count($csvHeader);	//字段总数
+                    $field_count = count($rsHeader);	//字段总数
                     $group_set = false;		//是否要进行值设置
                     
                     //逐一处理每个字段
-                    foreach ($csvData as $key => $value) {
+                    foreach ($lineData as $key => $value) {
+                    	//临时：字段位置的编号，若结果集键值不是数字则转ascii后减掉65
+                    	$key_no = $key;	
+                    	if(!is_numeric($key)){
+                    		$key_no = ord($key)-65;
+                    	}
+                    	
                     	//多余的字段的数据不作处理
-                    	if($key>=$field_count){
+                    	if($key_no>=$field_count){
                     		continue;
                     	}
-                    	$value = trim(iconv('gbk','utf-8',$value));
-                    	$field_key = $field_real = $csvHeader[$key];	//字段名称
+                    	
+                    	//$value = trim(iconv('gbk','utf-8',$value));
+                    	$value = trim($value);
+                    	$field_key = $field_real = $rsHeader[$key];	//字段名称
                         
                     	//如果是字段组，获取组名
                     	if(strpos($field_key, '-')){
@@ -152,7 +159,7 @@ class CardItemController extends Controller
 	                            		}
 	                            		
 	                            		//循环到了最后一个元素
-	                            		if($key+1>=$field_count){
+	                            		if($key_no+1>=$field_count){
 	                            			$group_set = true;
 	                            		}
 	                            	}else{
@@ -178,8 +185,6 @@ class CardItemController extends Controller
                             
                         }
                     }
-                    //echo '<pre>';
-                    //print_r($itemData);exit();
 
                     $itemModel = new CardItem;
                     $saveData['dataset_id'] = (int)$id;
@@ -191,7 +196,6 @@ class CardItemController extends Controller
                     }
                 }
             }
-            fclose($file);
             Yii::app()->user->setFlash("success", "导入数据成功!");
             $this->redirect(array('CardItem/index/id/' . $id));
         }
@@ -214,36 +218,56 @@ class CardItemController extends Controller
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
     	
-        //拼接文件名
-        $file_name = $dbModel->name.'-'.$dsModel->name.'-'.date('YmdHis').'.csv';
+        //获取表头
+        $dsmap = $dsModel->getFieldNameMap();
         
-    	//获取字段和中文的对应关系
-    	$fields_name = array();		//中文名称
-        $fields_keys = array();		//字段名
-       	foreach($dsModel->fields as $field_key=>$field_info){
-       		if($field_info['type'] == 'field'){
-       			$fields_name[] = $field_info['name'];
-       			$fields_keys[] = $field_key;
-       		}else if($field_info['type'] == 'group'){
-       			foreach($field_info['fields'] as $fg_key=>$fg_info){
-       				$fields_name[] = $field_info['name'].'-'.$fg_info['name'];
-       				$fields_keys[] = $field_key.'-'.$fg_key;
-       			}
-       		}
-      	}
-      	$fields_name = implode(',', $fields_name);
-      	$fields_keys = implode(',', $fields_keys);
-      	
-      	$str = $fields_name."\n".$fields_keys;
-    	
-	    header("Content-type:text/csv");   
-	    header("Content-Disposition:attachment;filename=".iconv('utf-8','gbk',$file_name));   
-	    header('Cache-Control:must-revalidate,post-check=0,pre-check=0');   
-	    header('Expires:0');   
-	    header('Pragma:public');   
-	    echo iconv('utf-8','gbk',$str);   
-	    exit();
+        //拼接文件名
+        $file_name = $dbModel->name.'-'.$dsModel->name.'-'.date('YmdHis').'tpl';
+        
+      	//输出csv文件
+      	$this->outputXls($dsmap, $file_name);
     }
+    
+	/**
+     * 导出数据
+     * @param $id	表id
+     * @return unknown_type
+     */
+    public function actionExport($id){
+    	$itemModel = new CardItem;
+        $dsModel = $this->loadModel($id, 'ds');
+        $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
+    	//获取表头
+        $rs = $dsModel->getFieldNameMap();
+        //获取表数据
+        $criteria = new EMongoCriteria();
+        $criteria->dataset_id = (int)$id;
+        
+        //添加查询条件
+        if(isset($_GET['sub'])){
+	        $criteria = $this->fillCond($criteria, $dsModel['fields']);
+    	}
+        $itemModel = CardItem::model()->findAll($criteria);
+        foreach($itemModel as $ik=>$io){
+        	$io_info = array();
+       		foreach($rs[1] as $dk=>$do){
+       			if(strpos($do, '-')!==false){
+       				$group_do = explode('-', $do);
+       				$io_info[$dk] = $io['data'][$group_do[0]][0][$group_do[1]];
+       			}else{
+       				$io_info[$dk] = $io['data'][$do];
+       			}
+       		} 
+       		$rs[] = $io_info;
+        }
+        
+        //拼接文件名
+        $file_name = $dbModel->name.'-'.$dsModel->name.'-'.date('YmdHis');
+    	
+      	//输出csv文件
+      	$this->outputXls($rs, $file_name);
+    }
+    
     
 	/**
      * 根据字段定义格式化导入字段数据
@@ -618,5 +642,7 @@ class CardItemController extends Controller
     	
     	return $criteria;
     }
+    
+	
 
 }

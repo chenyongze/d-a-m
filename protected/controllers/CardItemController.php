@@ -61,7 +61,6 @@ class CardItemController extends Controller
     public function actionImport($id)
     {
         set_time_limit(0); //防止执行超时
-        $itemModel = new CardItem;
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
         $mcss = Yii::app()->mcss;
@@ -106,6 +105,8 @@ class CardItemController extends Controller
                     $field_count = count($rsHeader);	//字段总数
                     $group_set = false;		//是否要进行值设置
                     
+                    $saveData = array();	//保存数据集
+                    
                     //逐一处理每个字段
                     foreach ($lineData as $key => $value) {
                     	//临时：字段位置的编号，若结果集键值不是数字则转ascii后减掉65
@@ -130,8 +131,11 @@ class CardItemController extends Controller
                     			$field_real = $group_info[0];
                     		}
                         }
+                        
                         //只导入元素集有的字段
-                        if (isset($dsModel->fields[$field_real])) {
+                        if($field_real=='id'){
+                        	$saveData['id'] = intval($value);
+                        }else if (isset($dsModel->fields[$field_real])) {
                             $tmpField = $dsModel->fields[$field_real];		//字段定义
                             //普通字段
                             if($tmpField['type']=='field'){
@@ -185,9 +189,16 @@ class CardItemController extends Controller
                             
                         }
                     }
-
-                    $itemModel = new CardItem;
-                    $saveData['dataset_id'] = (int)$id;
+					
+                    //若存在id则更新，否则新加一条记录
+                    if(isset($saveData['id']) && $saveData['id']){
+                    	$itemModel = $this->loadModel($saveData['id'], 'item');
+                    }else{
+                   	 	$itemModel = new CardItem;
+                   	 	$saveData['dataset_id'] = (int)$id;	//设置表类型
+                    }
+                    
+                    //填入数据
                     $saveData['data'] = $itemData;
                     $itemModel->attributes = $saveData;
                     if (!$itemModel->save()) {

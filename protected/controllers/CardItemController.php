@@ -98,13 +98,8 @@ class CardItemController extends Controller
                     }
                     
                     //组字段数据临时存放点
-                    $group_key = '';		//组键值
                     $group_info = array();	//字段信息
-                    $group_arr = array();	//组数据
-                    $group_one = array();	//一个组
                     $field_count = count($rsHeader);	//字段总数
-                    $group_set = false;		//是否要进行值设置
-                    
                     $saveData = array();	//保存数据集
                     
                     //逐一处理每个字段
@@ -126,7 +121,7 @@ class CardItemController extends Controller
                         
                     	//如果是字段组，获取组名
                     	if(strpos($field_key, '-')){
-                    		$group_info = explode('-', $field_key, 2);
+                    		$group_info = explode('-', $field_key, 3);
                     		if(isset($group_info[0])){
                     			$field_real = $group_info[0];
                     		}
@@ -144,47 +139,16 @@ class CardItemController extends Controller
                             }else if($tmpField['type']=='group'){
                             	
                             	//如果有传入组内字段名才处理
-                            	if(isset($group_info[1])){
+                            	if(isset($group_info[2])){
+                            		if(empty($value)){
+                            			continue;
+                            		}
 	                            	$groupField = $tmpField['fields'][$group_info[1]];				//组字段定义
-	                            	$groupCount = count($tmpField['fields']);						//组内字段数量
 	                            	$value = $this->formatFirldData($value, $groupField, $mcss, false);	//格式化内容
 	                            	
-	                            	//是否是同组的，若是保存到当前组内，不是则保存之前的数据并起一个新组
-	                            	if(empty($group_key) || $group_key === $field_real){
-	                            		if(empty($group_key)){
-	                            			$group_key = $field_real;
-	                            		}
-	                            		$group_one[$group_info[1]] = $value;
-	                            		
-	                            		//检查单组是否填满了
-	                            		if(count($group_one)==$groupCount){
-	                            			$group_arr[] = $group_one;
-	                            			$group_one = array();	//清空单个元素
-	                            		}
-	                            		
-	                            		//循环到了最后一个元素
-	                            		if($key_no+1>=$field_count){
-	                            			$group_set = true;
-	                            		}
-	                            	}else{
-	                            		$group_set = true;
-	                            	}
+	                            	//直接根据索引进行赋值，避免异常的自动组合
+	                            	$itemData[$field_real][$group_info[1]][$group_info[2]] = $value;
                             	}
-                            	
-                            	//保存并初始化状态
-                            	if($group_set){
-                            		if($group_one){
-                            			$group_arr[] = $group_one;
-                            			$group_one = array();
-                            		}
-                            		if($group_arr){
-                            			$itemData[$field_real] = $group_arr;		//存入值
-                            		}
-                            		$group_key = $field_real;					//设定新组名
-                            		$group_arr = array($value);					//设置第一个元素
-                            		$group_set = false;
-                            	}
-                            	
                             }
                             
                         }
@@ -250,7 +214,7 @@ class CardItemController extends Controller
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
     	//获取表头
-        $dsmap = $dsModel->getFieldNameMap();
+        $dsmap = $dsModel->getFieldNameMap(false);
         $rs = array(array_values($dsmap), array_keys($dsmap));
         
         //获取表数据
@@ -267,7 +231,7 @@ class CardItemController extends Controller
        		foreach($rs[1] as $dk=>$do){
        			if(strpos($do, '-')!==false){
        				$group_do = explode('-', $do);
-       				$io_info[$dk] = $io['data'][$group_do[0]][0][$group_do[1]];
+       				$io_info[$dk] = $io['data'][$group_do[0]][$group_do[1]][$group_do[2]];
        			}else{
        				if(isset($io[$do])){
        					$io_info[$dk] = $io[$do];

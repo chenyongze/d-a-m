@@ -93,6 +93,41 @@ class CardItem extends EMongoDocument {
 		}
 		return $itemList;
 	}
+	
+	/**
+	 * 获取某个字段当前最大元素数
+	 * @author gavin
+	 * @param $dsid			int		表id
+	 * @param $field_key 	string	字段英文名
+	 * @return int	最大元素数
+	 */
+	public function getFieldMaxSize($dsid, $field_key){
+		$max = 1;
+		//思路一：array('$size'=>10~2)，使用第一个有结果的
+			//太有局限性，废除
+		//思路二：分组统计所有
+		$group = $this->getCollection()->group(
+			array('id' => 1),
+			array('size'=>0),	//, 'list'
+			"function (obj, prev) {
+				prev.size = obj.data.".$field_key.".length;
+				//prev.list = obj.data.".$field_key.";
+			}",
+			array('condition' => array(
+				"dataset_id" => $dsid,					//指定实体
+				'data.'.$field_key => array('$exists'=>true)	//有该字段
+			))
+		);
+		//若分组成功，从其中选取size最大的
+		if($group['ok']){
+			foreach($group['retval'] as $gv){
+				if($gv['size'] > $max){
+					$max = $gv['size'];
+				}
+			}
+		}
+		return $max;
+	}
 
 	protected function beforeSave() {
 	    if (parent::beforeSave()) {

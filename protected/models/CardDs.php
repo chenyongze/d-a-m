@@ -380,18 +380,30 @@ class CardDs extends EMongoDocument
 	
 	/**
 	 * 获取当前表结构字段名和英文名的对应关系
+	 * @author gavin
+	 * @param $istpl	bool	是否为模板，若是组合框只导出一组（默认），若不是则按照当前最大元素数来生成
 	 * @return 对应
 	 */
-	public function getFieldNameMap(){
+	public function getFieldNameMap($istpl=true){
 		//获取字段和中文的对应关系
     	$fields = array('id'=>'序号');
        	foreach($this->fields as $field_key=>$field_info){
        		if($field_info['type'] == 'field'){
        			$fields[$field_key] = $field_info['name'];
        		}else if($field_info['type'] == 'group'){
-       			foreach($field_info['fields'] as $fg_key=>$fg_info){
-       				$fields[$field_key.'-'.$fg_key] = $field_info['name'].'-'.$fg_info['name'];
+       			//确认组数
+       			$size = 1;
+       			if(empty($istpl)){
+       				//获取当前元素的最大值
+       				$size = CardItem::model()->getFieldMaxSize($this->id, $field_key);
        			}
+       			//按组数生成
+       			for($i=0; $i<$size; $i++){
+	       			foreach($field_info['fields'] as $fg_key=>$fg_info){
+	       				$fields[$field_key.'-'.$i.'-'.$fg_key] = $field_info['name'].'-'.$fg_info['name'];
+	       			}
+       			}
+       			
        		}
       	}
       	return $fields;

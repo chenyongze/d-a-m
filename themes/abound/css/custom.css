@@ -21,5 +21,6 @@ td .row.label {
 .list_filter{
 	padding-left:30px;
 }
-
-
+.clear{
+	 clear: both;
+}

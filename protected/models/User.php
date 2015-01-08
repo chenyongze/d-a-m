@@ -1,6 +1,6 @@
 <?php
 
-class User extends EMongoDocument {
+class User extends DBModel {
 	/**
 	 * The followings are the available columns in table 'tbl_user':
 	 * @var integer $id

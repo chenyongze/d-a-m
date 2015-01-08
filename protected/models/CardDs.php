@@ -1,6 +1,6 @@
 <?php
 
-class CardDs extends EMongoDocument
+class CardDs extends DBModel
 {
 	public $id;
 	public $database_id;
@@ -407,6 +407,33 @@ class CardDs extends EMongoDocument
        		}
       	}
       	return $fields;
+	}
+	
+	/**
+	 * 获取库与实体对应关系表
+	 * @return unknown_type
+	 */
+	public function getDBDSMap(){
+		$map = array();
+		$dblist = CardDb::model()->findAll();
+		$dslist = CardDs::model()->findAll();
+		foreach($dblist as $dv){
+			$map[$dv['id']] = array(
+				'en_name'=>$dv['en_name'], 
+				'name'=>$dv['name'], 
+				'list'=>array(),
+			);
+		}
+		foreach($dslist as $tv){
+			if(isset($map[$tv['database_id']])){
+				$map[$tv['database_id']]['list'][$tv['id']] = array(
+					'en_name'=>$tv['en_name'],
+					'name'=>$tv['name'],
+				);
+			}
+		}
+		
+		return $map;
 	}
 	
 

@@ -88,3 +88,21 @@ else
 setStylesheet(getCookie("mysheet_r")) //just activate random alt stylesheet stored in cookie
 } 
 }
+
+
+//通用功能js脚本
+
+$(function(){
+	$('.select_all_click').live('click', function(){selectAll();});					//绑定全选
+})
+
+//全选
+function selectAll(){
+	$('input.all_input').each(function(){
+		if($(this).prop('checked')==false){		//prop('checked')或 is(':checked')
+			$(this).attr('checked', true);
+		}else{
+			$(this).attr('checked', false);
+		}
+    }); 
+}

@@ -1,6 +1,6 @@
 <?php
 
-class CardItem extends EMongoDocument {
+class CardItem extends DBModel {
 
 	public $id;
 	public $dataset_id;

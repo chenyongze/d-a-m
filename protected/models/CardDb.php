@@ -1,6 +1,6 @@
 <?php
 
-class CardDb extends EMongoDocument
+class CardDb extends DBModel
 //class CardDb extends EMongoUniqueValidator
 {
 	public $id;

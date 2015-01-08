@@ -290,7 +290,21 @@ class Controller extends CController
 		return $objPHPExcel->setActiveSheetIndex(0)->toArray(null,true,true,true);	//获取第一个工作表信息
 	}
 	
-	
+	/**
+	 * 返回上一页
+	 * @return null
+	 */
+	public function redirect_back($data=array()){
+		$url = array('index');		//控制器首页
+		if(isset($_SERVER['HTTP_REFERER'])){
+			Yii::app()->user->returnUrl = $_SERVER['HTTP_REFERER'];
+			if($data){
+				Yii::app()->user->returnUrl .= '?&'.http_build_query($data);
+			}
+			$url = Yii::app()->user->returnUrl;
+		}
+     	$this->redirect($url);	//返回上一页
+	}
 	
 	
 	

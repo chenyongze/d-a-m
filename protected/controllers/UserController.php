@@ -29,6 +29,10 @@ class UserController extends Controller {
 	public function actionCreate(){
 		$model = new User();
 		if(isset($_POST['User'])){
+			//admin管理员不能手动添加
+			if($_POST['User']['username']=='admin'){
+				$this->redirect_back();exit();
+			}
 			//添加默认密码
 			if($_POST['User']['password']==''){
 				$_POST['User']['password'] = Yii::app()->params['def_password'];
@@ -58,6 +62,10 @@ class UserController extends Controller {
 	*/
 	public function actionUpdate($id){
 		$model = $this->loadModel((int)$id, 'user');
+		//admin管理员不能被被其他人修改
+		if($model->username=='admin' && $this->get_login_user('username')!='admin'){
+			$this->redirect_back();exit();
+		}
 		if(isset($_POST['User'])){
 			//若没有填密码则忽略该项
 			if($_POST['User']['password']==''){

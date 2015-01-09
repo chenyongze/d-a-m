@@ -173,11 +173,6 @@ class DBModel extends EMongoDocument{
 		}
 		return $rs;
 	}
-	
-	//判断是否是特定权限
-    protected function isAdmin($user=array()){	//其中$user代表Yii::app()->user即登录用户。
-        return intval($this->get_login_user('role'))===10;
-    }
     
     /**
      * 根据表名获取记录总数

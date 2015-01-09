@@ -38,18 +38,26 @@ function selectall(name) {
 </script>
 
 <?php $this->widget('application.extensions.FancyBox.EFancyBox', array()); ?>
+<?php if($this->actCheck('item-add')){ ?>
 <div class="span1">
 	<input type="button" onclick="ItemInfo()" value="发布新数据" id="CreateItem">
 </div>
+<?php } ?>
+<?php if($this->actCheck('item-import')){ ?>
 <div class="span1">
 	<input type="button" value="导入数据" id="ImportData">
 </div>
+<?php } ?>
+<?php if($this->actCheck('item-export')){ ?>
 <div class="span1">
 	<input type="button" value="导出数据" id="ExportData" onClick="location.href='/CardItem/export/id/<?php echo $datasetId;?>?<?php echo $_SERVER['QUERY_STRING']?>'">
 </div>
+<?php } ?>
+<?php if($this->actCheck('item-import')){ ?>
 <div class="span1">
 	<input type="button" value="导出模板" id="ExportTplData" onClick="location.href='/CardItem/exporttpl/id/<?php echo $datasetId;?>'">
 </div>
+<?php } ?>
 <script type="text/javascript">
 	function ItemInfo() {
 		var itemId = arguments[0] ? arguments[0] : 0;
@@ -225,8 +233,9 @@ function selectall(name) {
 				?>
 				<td class="button-column" style="width:200px;overflow:hidden;height:30px;">
 					<a title="修改" onclick="ItemInfo(<?php echo $valueItem->id;?>)" href="#">修改</a>
-					- 
-					<a class="delete" title="删除" href="javascript:confirmurl('<?php echo Yii::app()->createUrl("CardItem/Delete", array("id"=>$valueItem->id));?>', '确认要删除这条记录吗？');">删除</a>
+					<?php if($this->actCheck('item-del')){ ?>- 
+						<a class="delete" title="删除" href="javascript:confirmurl('<?php echo Yii::app()->createUrl("CardItem/Delete", array("id"=>$valueItem->id));?>', '确认要删除这条记录吗？');">删除</a>
+					<?php } ?>
 				</td>
 			</tr>
 			<?php endforeach;?>

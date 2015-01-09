@@ -14,15 +14,6 @@ class CardItem extends DBModel {
 		return 'item';
 	}
 
-	/**
-	 * If we override this method to return something different than '_id',
-	 * internal methods as findByPk etc. will be using returned field name as a primary key
-	 * @return string|array field name of primary key, or array for composited key
-	 */
-	public function primaryKey() {
-		return 'id';
-	}
-
 	public function rules() {
 		return array(
 			array('dataset_id', 'required'),
@@ -131,17 +122,11 @@ class CardItem extends DBModel {
 
 	protected function beforeSave() {
 	    if (parent::beforeSave()) {
-		if($this->isNewRecord){
-		    $this->id = $this->getAutoIncreaseId(false);
-		}
-
-		$this->id = (int)$this->id;
-		$this->dataset_id = (int)$this->dataset_id;
-		
-		$this->update_time = time();
-		return true;
+			$this->id = (int)$this->id;
+			$this->dataset_id = (int)$this->dataset_id;
+			return true;
 	    } else {
-		return false;
+			return false;
 	    }
 	}
 

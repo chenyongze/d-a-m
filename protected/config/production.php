@@ -132,6 +132,35 @@ return array(
 			'item'=>'全数据表',
 			'user'=>'用户表',
 		),
+		
+		//角色与权限
+		'role'=>array(
+			'10'=>array(
+				'name'=>'管理员',
+				'actions'=>array('item', 'dbset', 'user'),
+			),
+			'20'=>array(
+				'name'=>'数据员',
+				'actions'=>array('item'),
+			),
+			'30'=>array(
+				'name'=>'录入员',
+				'actions'=>array('item-add'),
+			),
+		),
+		//权限点
+		'action_point'=>array(
+			'item'		=> '数据操作',	//拥有旗下所有权限
+			'item-add'	=> '数据操作-添加/编辑',
+			'item-del'	=> '数据操作-删除',
+			'item-import'=> '数据操作-导入',	//导出模板+导入
+			'item-export'=> '数据操作-导出',
+			'dbset'		=> '结构定义',
+			'dump'		=> '备份恢复',
+			'user'		=> '用户管理',
+		),
+		//用户默认密码
+		'def_password'=> 'mofang888',
 	),
 
 );

@@ -1,7 +1,11 @@
 <?php
 
 class CardDsController extends Controller {
-
+	
+	public function init(){
+		$this->actCheck('dbset', false);
+	}
+	
 	/**
 	* 元素集列表
 	* @author gentle

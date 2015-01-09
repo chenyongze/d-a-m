@@ -31,24 +31,32 @@ class UserIdentity extends CUserIdentity
 		
 		//内置用户定义
 		$init_user = array(
-			'creator'=>array(
-				'id'=>1,
-				'password'=>'123456',
-			),
-			'publisher'=>array(
-				'id'=>2,
-				'password'=>'654321',
-			),
+			'username'	=> 'admin',
+			'password'	=> md5('gavin'),
+			'role'		=> '10',
 		);
 		
 		//登录信息验证
-		$this->username = strtolower($this->username);
-		if(isset($init_user[$this->username])){
-			$login_info = $init_user[$this->username];
+		$user_info = User::model()->findByAttributes(array('username'=>$this->username));
+		
+		//内置admin
+		if($this->username=='admin'){
+			$user_model = new User();
+			$user_model->attributes = $init_user;
+			if ($user_model->save()) {
+				$user_info = $user_model;
+				unset($user_model);
+			}
+		}
+
+		if($user_info){
 			//验证密码
-			if ($this->password == $login_info['password']) {
-				$this->_id = $login_info['id'];
-				$this->username = $this->username;
+			if (md5($this->password) == $user_info['password']) {
+				$this->_id = $user_info->id;
+				$this->username = $user_info->username;
+				$user_info = $user_info->toArray();
+				$user_info['actions'] = $this->getActionPoint($user_info['role']);
+				$this->setState('info', $user_info);	//用户登录信息
 				$this->errorCode = self::ERROR_NONE;
 			}else{
 				$this->errorCode=self::ERROR_PASSWORD_INVALID;
@@ -66,5 +74,26 @@ class UserIdentity extends CUserIdentity
 	public function getId()
 	{
 		return $this->_id;
+	}
+	
+	/**
+	 * 获取指定角色对应的权限列表
+	 * @param $no 	string	角色编号
+	 * @return 权限点列表
+	 */
+	public function getActionPoint($no){
+		$actions = array();
+		$role = Yii::app()->params['role'];
+		$point = array_keys(Yii::app()->params['action_point']);
+		if(isset($role[$no])){
+			foreach($role[$no]['actions'] as $ao){
+				foreach($point as $ro){
+					if(preg_match('/^'.$ao.'/i', $ro)){
+						$actions[] = $ro;
+					}
+				}
+			}
+		}
+		return $actions;
 	}
 }

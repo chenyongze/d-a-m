@@ -15,15 +15,6 @@ class CardDb extends DBModel
 		return 'database';
 	}
 
-	/**
-	 * If we override this method to return something different than '_id',
-	 * internal methods as findByPk etc. will be using returned field name as a primary key
-	 * @return string|array field name of primary key, or array for composited key
-	 */
-	public function primaryKey() {
-		return 'id';
-	}
-
 	public function rules() {
 		return array(
 			array('name, en_name', 'required'),
@@ -98,18 +89,6 @@ class CardDb extends DBModel
 			$dbList[$key] = $value;
 		}
 		return $dbList;
-	}
-
-	protected function beforeSave() {
-	    if (parent::beforeSave()) {
-		if($this->isNewRecord){
-		    $this->id = $this->getAutoIncreaseId(false);
-		}
-		
-		$this->update_time = time();
-		return true;
-	    } else
-		return false;
 	}
 
 }

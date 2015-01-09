@@ -83,15 +83,6 @@ class CardDs extends DBModel
 		return $field;
 	}
 
-	/**
-	 * If we override this method to return something different than '_id',
-	 * internal methods as findByPk etc. will be using returned field name as a primary key
-	 * @return string|array field name of primary key, or array for composited key
-	 */
-	public function primaryKey() {
-		return 'id';
-	}
-
 	public function rules() {
 		return array(
 			//array('name, en_name, database_id', 'required'),
@@ -435,19 +426,14 @@ class CardDs extends DBModel
 		
 		return $map;
 	}
-	
 
 	protected function beforeSave() {
 	    if (parent::beforeSave()) {
-		if ($this->isNewRecord) {
-		    $this->id = $this->getAutoIncreaseId(false);
-		}
-		$this->id = (int)$this->id;
-		$this->database_id = (int)$this->database_id;
-		$this->update_time = time();
-		return true;
+			$this->id = (int)$this->id;
+			$this->database_id = (int)$this->database_id;
+			return true;
 	    } else {
-		return false;
+			return false;
 	    }
 	}
 

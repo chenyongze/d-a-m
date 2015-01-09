@@ -2,6 +2,10 @@
 
 class CardDbController extends Controller {
 
+	public function init(){
+		$this->actCheck('dbset', false);
+	}
+	
 	/**
 	* 卡牌库列表
 	* @author gentle

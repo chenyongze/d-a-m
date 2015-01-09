@@ -60,6 +60,7 @@ class CardItemController extends Controller
      */
     public function actionImport($id)
     {
+    	$this->actCheck('item-import', false);
         set_time_limit(0); //防止执行超时
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
@@ -189,6 +190,7 @@ class CardItemController extends Controller
      * @return unknown_type
      */
     public function actionExportTpl($id){
+    	$this->actCheck('item-import', false);
     	$itemModel = new CardItem;
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
@@ -210,6 +212,7 @@ class CardItemController extends Controller
      * @return unknown_type
      */
     public function actionExport($id){
+    	$this->actCheck('item-export', false);
     	$itemModel = new CardItem;
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
@@ -338,6 +341,7 @@ class CardItemController extends Controller
      */
     public function actionCreate($id, $preview = false)
     {
+    	$this->actCheck('item-add', false);
         $dsModel = $this->loadModel($id, 'ds');
         if (isset($_POST['CardItem'])) {
             $itemModel = new CardItem;
@@ -472,7 +476,7 @@ class CardItemController extends Controller
      */
     public function actionUpdate($id)
     {
-
+		$this->actCheck('item-add', false);
         $itemModel = $this->loadModel($id, 'item');
         $dsId = (int)$itemModel->dataset_id;
         $dsModel = $this->loadModel($dsId, 'ds');
@@ -526,7 +530,7 @@ class CardItemController extends Controller
      */
     public function actionDelete()
     {
-
+		$this->actCheck('item-del', false);
         if (isset($_GET['id'])) {
             $id = $_GET['id'];
             $model = $this->loadModel($id, 'item');

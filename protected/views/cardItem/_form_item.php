@@ -22,12 +22,6 @@
 	<div class="row">
 		<?php echo $form->errorSummary($model); ?>
 		<?php echo $form->hiddenField($model,'id'); ?>
-		<?php 
-			if (isset($update)) {
-			
-				echo $form->hiddenField($model,'dataset_id');
-			}
-		?>
 	</div>
 
 	<?php

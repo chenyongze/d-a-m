@@ -34,10 +34,6 @@ class Controller extends CController
 		if (Yii::app()->user->name=='Guest' && !in_array($controller, $noCheck)) {
 			$this->redirect(array('Site/login'));
 		}
-		//如果是建库人员，则使用column1布局
-		if (Yii::app()->user->name == 'creator') {
-			$this->layout = '//layouts/column1';
-		}
 	}
 
 	/**
@@ -76,18 +72,15 @@ class Controller extends CController
 	 */
 	public function loadModel($id, $type, $fieldType = 'id', $all = false) {
 	    //$model = CardDs::model()->findByPk(new MongoID($id));
-	    $modelClass = '';
-	    switch ($type) {
-	    	case 'db':
-			$modelClass = 'CardDb';
-			break;
-		case 'ds':
-			$modelClass = 'CardDs';
-			break;
-		case 'item':
-			$modelClass = 'CardItem';
-			break;
-	    }
+	    //缩写对照表（特殊）
+	    $map = array(
+	    	'db'=>'CardDb',
+	    	'ds'=>'CardDs',
+	    	'item'=>'CardItem',
+	    );
+	    
+	    //使用缩写的转换为类名，其它大写首字母直接使用
+	    $modelClass = isset($map[$type])?$map[$type]:ucfirst($type);
 	    
 	    if ($all) {
 	    	$model = $modelClass::model()->findAllByAttributes(array($fieldType=>(int)$id));
@@ -295,7 +288,7 @@ class Controller extends CController
 	 * @return null
 	 */
 	public function redirect_back($data=array()){
-		$url = array('index');		//控制器首页
+		$url = array('CardDb/index');		//控制器首页
 		if(isset($_SERVER['HTTP_REFERER'])){
 			Yii::app()->user->returnUrl = $_SERVER['HTTP_REFERER'];
 			if($data){
@@ -306,7 +299,81 @@ class Controller extends CController
      	$this->redirect($url);	//返回上一页
 	}
 	
+	/**
+	 * 将数组转为一维列表
+	 * @param $rs	array	数据集
+	 * @param $val	str		做为值的数据键值
+	 * @param $key	str		做为键的数据键值
+	 * @return array 一维列表
+	 */
+	public function list_from_rs($rs,$val='id',$key=''){
+		$list = array();
+		if(empty($rs)){
+			return $list;
+		}
+		
+		foreach($rs as $k => $v){
+			if(is_object($v)){
+				$v = $v->toArray();
+			}
+			
+			if(isset($v[$val])){
+				if(empty($key)){
+					$list[$k] = $v[$val];
+				}else{
+					$list[''.$v[$key]] = $v[$val];
+				}
+			}
+		}
+		
+		return $list;
+	}
 	
+	/**
+	 * 获取登录用户信息
+	 * @param $key 属性值
+	 * @param $key1 二级属性值
+	 * @return unknown_type
+	 */
+	public static function get_login_user($key='',$key1=false){
+		$rs = 0;
+		if(!Yii::app()->user->isGuest){
+			$rs = Yii::app()->user->getState('info');
+			if(!empty($key)){
+				$rs = isset($rs[$key])?$rs[$key]:'';
+				if($key1!==false){
+					$rs = isset($rs[$key1])?$rs[$key1]:'';
+				}
+			}
+		}
+		return $rs;
+	}
 	
+	/**
+	 * 权限验证方法
+	 * @param $action_no	string	权限代码
+	 * @param $rebool		bool	是否返回布尔值，false时会跳转到上一页
+	 * @return 
+	 */
+	public function actCheck($action_no, $rebool=true){
+		$rs = false;
+		if(Yii::app()->user->id){
+			$username = $this->get_login_user('username');
+			$role = $this->get_login_user('role');
+			$actions = $this->get_login_user('actions');
+			
+			//当前用户拥有该权限，名为admin的管理员拥有所有权限
+			if(in_array($action_no, $actions)||$role=='10'&&$username=='admin'){
+				$rs = true;
+			}
+		}
+		
+		//未通过验证且不返回bool的时候进行跳转
+		if($rs==false && $rebool==false){
+			$this->redirect_back();
+		}
+		
+		return $rs;
+	}
 
 }

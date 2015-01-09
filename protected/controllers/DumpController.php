@@ -4,14 +4,20 @@
  * @author Gavin
  */
 class DumpController extends Controller {
+	
 	public $dirpath = 'webroot.file.dump';
+	
+	public function init(){
+		$this->actCheck('dump', false);
+		$this->layout = '//layouts/column1';
+	}
 	
 	/**
 	 * 游戏数据管理
 	 * 用来管理所有游戏的数据备份
 	 */
 	public function actionIndex(){
-		header("Location: export");exit();
+		header("Location: /dump/export");exit();
 		$rs = $this->findDir($this->dirpath, 'js');
 		$exe_msg = $this->_exe_message();
 		$this->render('index', array('rs'=>$rs, 'exe_msg'=>$exe_msg));

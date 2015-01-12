@@ -1,7 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-	'游戏数据库' => array('CardDb/index'),
-	'数据库管理' => array('CardDb/index'),
+	'结构定义' => array('CardDb/index'),
 	$dbModel->name => array('CardDs/index/id/'.$dbModel->id),
 	$dsModel->name,
 );

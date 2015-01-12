@@ -1,6 +1,5 @@
 <?php
 $this->breadcrumbs = array(
-	'游戏数据库' => array('index'),
 	'用户管理',
 );
 

@@ -1,7 +1,6 @@
 <?php
 $this->breadcrumbs=array(
-	'游戏数据库' => array('site/index'),
-	'数据管理',
+	'备份恢复',
 );
 ?>
 <style>

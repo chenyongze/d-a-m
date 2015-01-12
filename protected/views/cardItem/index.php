@@ -3,21 +3,11 @@
 * Item列表页
 * @author gentle
 */
-if (Yii::app()->user->name=='creator') {
-	$this->breadcrumbs = array(
-		'卡牌库' => array('CardDb/index'),
-		$dbModel->name => array('CardDs/index/id/'.$datasetId),
-		$dsModel->name,
-		'数据列表',
-	);
-} else {
-	$this->breadcrumbs = array(
-		'游戏数据库' => array('CardDb/index'),
-		'数据库管理' => array('CardDb/index'),
-		$dbModel->name,
-		$dsModel->name,
-	);
-}
+$this->breadcrumbs = array(
+	'数据操作' => array('cardItem/index', 'id'=>1),
+	$dbModel->name,
+	$dsModel->name,
+);
 
 $this->leftTree = $dataTree;
 ?>

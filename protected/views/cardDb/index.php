@@ -1,7 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-	'游戏数据库' => array('index'),
-	'数据库管理',
+	'结构定义',
 );
 
 $this->leftTree = $dataTree;

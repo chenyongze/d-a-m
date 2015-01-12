@@ -1,18 +1,9 @@
 <?php
 
-if (Yii::app()->user->name=='creator') {
-	$this->breadcrumbs = array(
-		'游戏数据库' => array('CardDb/index'),
-		'数据库管理' => array('CardDb/index'),
-		$dbModel->name => array('CardDs/index/id/'.$databaseId),
-	);
-} else {
-	$this->breadcrumbs = array(
-		'卡牌库' => array('CardDb/index'),
-		$dbModel->name,
-		'元素集列表',
-	);
-}
+$this->breadcrumbs = array(
+	'结构定义' => array('CardDb/index'),
+	$dbModel->name => array('CardDs/index/id/'.$databaseId),
+);
 
 $this->leftTree = $dataTree;
 

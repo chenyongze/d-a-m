@@ -25,11 +25,24 @@ class SiteController extends Controller
 	 * This is the default 'index' action that is invoked
 	 * when an action is not explicitly requested by users.
 	 */
-	public function actionIndex()
-	{
-		// renders the view file 'protected/views/site/index.php'
-		// using the default layout 'protected/views/layouts/main.php'
-		$this->render('index');
+	public function actionIndex(){
+		//未登录跳到“登陆页面”
+		if(empty(Yii::app()->user->id)){
+			$this->redirect(array('site/login'));
+		}else{
+			//有结构定义权限则跳入“结构定义”
+			if($this->actCheck('dbset')){
+				$this->redirect(array('cardDb/index'));
+			//有数据管理权限则跳入“数据操作”
+			}else if($this->actCheck('item-add')){
+				$this->redirect(array('cardItem/index/1'));
+			}else{
+				//若当前有登录但没有dbset或item-add权限则踢出重新登录
+				Yii::app()->user->logout();
+				$this->redirect(array('site/login'));
+			}
+		}
+		exit();
 	}
 
 	/**
@@ -51,6 +64,12 @@ class SiteController extends Controller
 	* @author gentle
 	*/
 	public function actionLogin() {
+		//禁止重复登录
+		if(Yii::app()->user->id){
+			$this->redirect(array('site/index'));
+			exit();
+		}
+		
 		$model=new LoginForm;
 		if (isset($_POST['LoginForm'])) {
 			$model->attributes=$_POST['LoginForm'];

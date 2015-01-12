@@ -10,7 +10,7 @@ Yii::setPathOfAlias('pub','/opt/phplib/components');
 return array(
     'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
 	'name'=>'卡牌数据库',
-	'defaultController' => 'cardDb',
+	'defaultController' => 'site',
 	'theme' => 'abound',
 	'language'=>'zh_cn',		//启用中文语言包
 

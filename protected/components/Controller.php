@@ -29,10 +29,10 @@ class Controller extends CController
 	* @author gentle
 	*/
 	public function init() {
-		$controller = Yii::app()->controller->id;
-		$noCheck = array('site', 'card');
-		if (Yii::app()->user->name=='Guest' && !in_array($controller, $noCheck)) {
-			$this->redirect(array('Site/login'));
+		$controller = strtolower(Yii::app()->controller->id);
+		$noCheck = array('site');
+		if (empty(Yii::app()->user->id) && !in_array($controller, $noCheck)) {
+			$this->redirect(array('site/login'));
 		}
 	}
 
@@ -288,7 +288,7 @@ class Controller extends CController
 	 * @return null
 	 */
 	public function redirect_back($data=array()){
-		$url = array('CardDb/index');		//控制器首页
+		$url = array('site/index');		//控制器首页
 		if(isset($_SERVER['HTTP_REFERER'])){
 			Yii::app()->user->returnUrl = $_SERVER['HTTP_REFERER'];
 			if($data){

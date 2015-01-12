@@ -122,7 +122,7 @@ function selectall(name) {
 							<option value="<?php echo $key?>" <?php echo (isset($_GET['kfield'])&&$_GET['kfield']==$key)?' selected="selected" ':''?>><?php echo $value?> </option>
 					<?php } ?>
 				</select>
-				<select name="koperator" style="width:70px;" title="请选择查询操作符">
+				<select name="koperator" style="width:75px;" title="请选择查询操作符">
 					<?php $operator = Yii::app()->params['filter_operator'];?>
 					<?php foreach($operator as $ko=>$vo){ ?>
 						<option value="<?php echo $ko?>" <?php echo (isset($_GET['koperator'])&&$_GET['koperator']==$ko)?' selected="selected" ':''?>><?php echo $vo?></option>

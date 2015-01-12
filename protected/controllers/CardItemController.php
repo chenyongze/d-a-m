@@ -616,7 +616,7 @@ class CardItemController extends Controller
 		   	case 'in':
 		   	case 'notin':
 		   	case 'all':
-		   		echo $kfield;
+		   		//echo $kfield;
 		   		//'data.fglx'=>array('$nin'=>array('保暖')
 		   		$kword = explode(',', $kword);
 		   		$criteria->addCond($kfield, $koperator, $kword);

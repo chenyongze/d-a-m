@@ -4,7 +4,7 @@
 * @author gentle
 */
 $this->breadcrumbs = array(
-	'数据操作' => array('cardItem/index', 'id'=>1),
+	'数据操作' => array('cardItem/index', 'id'=>0),
 	$dbModel->name,
 	$dsModel->name,
 );

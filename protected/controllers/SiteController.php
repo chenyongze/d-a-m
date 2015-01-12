@@ -78,7 +78,7 @@ class SiteController extends Controller
 				if($this->actCheck('dbset')){
 					$this->redirect(array('CardDb/index'));
 				}else{
-					$this->redirect(array('CardItem/index', 'id'=>1));
+					$this->redirect(array('CardItem/index', 'id'=>0));
 				}
 			}
 		}

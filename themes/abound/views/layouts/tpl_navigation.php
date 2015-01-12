@@ -18,7 +18,7 @@
 			    'encodeLabel'=>false,
 			    'items'=>array(
 				array('label'=>'首页', 'url'=>array('/')),
-				array('label'=>'数据操作', 'url'=>array('/cardItem/index/1'), 'visible'=>$this->actCheck('item-add')),
+				array('label'=>'数据操作', 'url'=>array('/cardItem/index/0'), 'visible'=>$this->actCheck('item-add')),
 				array('label'=>'结构定义', 'url'=>array('/cardDb'), 'visible'=>$this->actCheck('dbset')),
 				array('label'=>'备份恢复', 'url'=>array('/dump'), 'visible'=>$this->actCheck('dump')),
 				array('label'=>'用户管理', 'url'=>array('/user'), 'visible'=>$this->actCheck('user')),

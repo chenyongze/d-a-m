@@ -10,6 +10,15 @@ class CardItemController extends Controller
     public function actionIndex($id)
     {
         set_time_limit(0); //防止执行超时
+        
+        //获取一个可用id
+        if(empty($id)){
+        	$def_ds = CardDs::model()->find();
+        	if($def_ds->id){
+        		$id = $def_ds->id;
+        	}
+        }
+        
         //$itemModel = $this->loadModel((int)$id, 'item', 'dataset_id', true);
         $dsModel = $this->loadModel((int)$id, 'ds');					//获取表模型
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');	//获取库模型

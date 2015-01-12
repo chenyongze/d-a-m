@@ -13,7 +13,7 @@ class CardDbController extends Controller {
 	public function actionIndex() {
 		$data = array();
 		$data['model'] = new CardDb;
-		$data['dataTree'] = $this->dataTree(0);
+		$data['dataTree'] = $this->dataTree(0, 'datasetField/index');
 		$data['info'] = $this->promptInfo();
 		$this->render('index', $data);
 	}

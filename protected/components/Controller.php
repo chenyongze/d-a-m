@@ -40,7 +40,7 @@ class Controller extends CController
 	* 左侧栏树形结构
 	* @author gentle
 	*/
-	public function dataTree($databaseId = 0) {
+	public function dataTree($databaseId = 0, $action='cardItem/Index') {
 		$data = array();
 		$databases = CardDb::model()->findAll();
 		foreach ($databases as $key => $value) {
@@ -56,7 +56,7 @@ class Controller extends CController
 				continue;
 			}
 			foreach($datasets as $k => $v) {
-				$data[$key]['children'][$k] = array('text' => '<a href="'.$this->createUrl('/CardItem/Index/id/'.$v->id).'">'.$v->name.'</a>');
+				$data[$key]['children'][$k] = array('text' => '<a href="'.$this->createUrl('/'.$action.'/id/'.$v->id).'">'.$v->name.'</a>');
 			}
 		}
 		return $data;

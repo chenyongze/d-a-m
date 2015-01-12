@@ -11,8 +11,8 @@ class CardDsController extends Controller {
 	* @author gentle
 	*/
 	public function actionIndex($id) {
-	    	$model = new CardDs;
-	    	$model->database_id = $id;
+	    $model = new CardDs;
+	    $model->database_id = $id;
 
 		$dbModel = $this->loadModel($id, 'db');
 
@@ -20,7 +20,7 @@ class CardDsController extends Controller {
 		$data['model'] = $model;
 		$data['dbModel'] = $dbModel;
 		$data['databaseId'] = $id;
-		$data['dataTree'] = $this->dataTree($id);
+		$data['dataTree'] = $this->dataTree($id, 'datasetField/index');
 		$data['info'] = $this->promptInfo();
 		$this->render('index', $data);
 	}

@@ -28,7 +28,7 @@ class DatasetFieldController extends Controller {
 		$data['dbModel'] = $dbModel;
 		$data['dsModel'] = $dsModel;
 		$data['datasetId'] = $id;
-		$data['dataTree'] = $this->dataTree($dsModel->database_id);
+		$data['dataTree'] = $this->dataTree($dsModel->database_id, 'datasetField/index');
 		$data['info'] = $this->promptInfo();
 		$this->render('index', $data);
 	}

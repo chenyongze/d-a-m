@@ -16,10 +16,10 @@
 			<td style="text-align: right;padding-right:5%"><?php echo number_format(ceil($vo['size']));?></td>
 			<td style="text-align: center;"><?php echo $vo['edittime'];?></td>
 			<td style="text-align: center;">
-				<a href="/file/dump/<?php echo $vo['name'];?>" target="_blank">查看</a>
-				<a href="/dump/downfile/name/<?php echo $vo['name'];?>">下载</a>
-		    	<a href="/dump/deletefile/name/<?php echo $vo['name'];?>" onClick="return confirm('确认删除该文件么?');">删除</a>
-		    	<a href="/dump/synjstodb/name/<?php echo $vo['name'];?>" onClick="return confirm('确认使用该数据文件更新现有数据么？旧数据将无法恢复！');">导入</a>
+				<a href="/dump/viewfile/id/<?php echo $vo['id'];?>" target="_blank">查看</a>
+				<a href="/dump/downfile/id/<?php echo $vo['id'];?>">下载</a>
+		    	<a href="/dump/deletefile/id/<?php echo $vo['id'];?>" onClick="return confirm('确认删除该文件么?');">删除</a>
+		    	<a href="/dump/synjstodb/id/<?php echo $vo['id'];?>" onClick="return confirm('确认使用该数据文件更新现有数据么？旧数据将无法恢复！');">导入</a>
 			</td>
 		</tr>
 		<?php } ?>

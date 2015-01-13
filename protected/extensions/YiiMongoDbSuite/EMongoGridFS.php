@@ -182,12 +182,13 @@ abstract class EMongoGridFS extends EMongoDocument
 	 * All loaded attributes will be saved to the database.
 	 * Note, validation is not performed in this method. You may call {@link validate} to perform the validation.
 	 * @param array $attributes list of attributes that need to be saved. Defaults to null,
+	 * @param boolean 仅为了保持和父类的声明格式一致，本模型中无用
 	 * meaning all attributes that are loaded from DB will be saved.
 	 * @return boolean whether the update is successful
 	 * @throws CException if the record is new
 	 * @since v1.3
 	 */
-	public function update(array $attributes=null)
+	public function update(array $attributes=null, $modify = false)
 	{
 		Yii::trace('Trace: '.__CLASS__.'::'.__FUNCTION__.'()', 'ext.MongoDb.EMongoGridFS');
 		if($this->getIsNewRecord())

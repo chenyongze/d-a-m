@@ -30,8 +30,10 @@ class Controller extends CController
 	*/
 	public function init() {
 		$controller = strtolower(Yii::app()->controller->id);
+		$module = $this->module->id;
 		$noCheck = array('site');
-		if (empty(Yii::app()->user->id) && !in_array($controller, $noCheck)) {
+		//用户未登录，且当前访问不是匿名允许的控制器或模块，则跳回登陆页
+		if (empty(Yii::app()->user->id) && !in_array($controller, $noCheck) && $module!=='api') {
 			$this->redirect(array('site/login'));
 		}
 	}

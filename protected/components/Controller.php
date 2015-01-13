@@ -377,5 +377,20 @@ class Controller extends CController
 		
 		return $rs;
 	}
+	
+	/**
+	 * 添加一条操作日志
+	 * @param $obj_cate		string	对象类型
+	 * @param $obj_id		string	对象id	
+	 * @param $txt			string	操作备注
+	 * @return unknown_type
+	 */
+	public function addLog($obj_cate, $obj_id, $txt){
+		$mod = new Log();
+		$mod->obj_cate = $obj_cate;
+		$mod->obj_id = (int)$obj_id;
+		$mod->txt = $txt;
+		return $mod->save();
+	}
 
 }

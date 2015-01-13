@@ -27,6 +27,7 @@ class CardDbController extends Controller {
 		if(isset($_POST['CardDb'])){
 			$model->attributes = $_POST['CardDb'];
 			if ($model->save()) {
+				$this->addLog('db', $model->id, '添加新库“'.$model->name.'”');
 				Yii::app()->user->setFlash("success", "新建 <b>{$model->name}</b> 数据库成功!");
 			} else {
 				$errorMsg = '';
@@ -58,6 +59,7 @@ class CardDbController extends Controller {
 		if(isset($_POST['CardDb'])){
 			$model->attributes = $_POST['CardDb'];
 			if($model->save()){
+				$this->addLog('db', $model->id, '修改了“'.$model->name.'”');
 				Yii::app()->user->setFlash("success", "修改 <b>{$model->name}</b> 数据库成功!");
 				$this->redirect(array('CardDb/index'));
 			}else{
@@ -79,7 +81,10 @@ class CardDbController extends Controller {
 		if ($dsModel != NULL) {
 			Yii::app()->user->setFlash("error", "<b>{$model->name}</b> 下仍存在数据!");
 		} else {
+			$old_id = $model->id;
+			$old_name = $model->name;
 			if ($model->delete()) {
+				$this->addLog('db', $old_id, '清理了“'.$old_name.'”');
 				Yii::app()->user->setFlash("success", "删除 <b>{$model->name}</b> 数据库成功!");
 			} else {
 				Yii::app()->user->setFlash("error", "删除 <b>{$model->name}</b> 数据库失败!");

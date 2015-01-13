@@ -40,6 +40,7 @@ class UserController extends Controller {
 			$_POST['User']['password'] = md5($_POST['User']['password']);
 			$model->attributes = $_POST['User'];
 			if ($model->save()) {
+				$this->addLog('user', $model->id, '添加了名为“'.$model->username.'”的“'.Yii::app()->params["role"][$model->role]["name"].'”');
 				Yii::app()->user->setFlash("success", "新建 <b>{$model->username}</b> 用户成功!");
 			} else {
 				$errorMsg = '';
@@ -75,6 +76,7 @@ class UserController extends Controller {
 			}
 			$model->attributes = $_POST['User'];
 			if($model->save()){
+				$this->addLog('user', $model->id, '修改了名为“'.$model->username.'”的“'.Yii::app()->params["role"][$model->role]["name"].'”');
 				Yii::app()->user->setFlash("success", "修改 <b>{$model->username}</b> 数据库成功!");
 				$this->redirect(array('user/index'));
 			}else{
@@ -92,7 +94,12 @@ class UserController extends Controller {
 	*/
 	public function actionDelete($id) {
 		$model = $this->loadModel($id, 'user');
+		$id = $model->id;
+		$username = $model->username;
+		$role = $model->role;
+		
 		if ($model->delete()) {
+			$this->addLog('user', $id, '清理了名为“'.$username.'”的“'.Yii::app()->params["role"][$role]["name"].'”');
 			Yii::app()->user->setFlash("success", "删除 <b>{$model->username}</b> 数据库成功!");
 		} else {
 			Yii::app()->user->setFlash("error", "删除 <b>{$model->username}</b> 数据库失败!");

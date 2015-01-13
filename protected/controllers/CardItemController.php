@@ -88,6 +88,8 @@ class CardItemController extends Controller
       	}
         
         if (isset($_FILES['CardItem'])) {
+        	$this->addLog('ds', $dsModel->id, '批量导入了“'.$dbModel->name.'”中“'.$dsModel->name.'”表的数据');
+        	
         	//获取数据
         	//$file_data = $this->inputCsv($_FILES['CardItem']['tmp_name']);
         	$file_data = $this->inputXls($_FILES['CardItem']['tmp_name']);
@@ -165,8 +167,10 @@ class CardItemController extends Controller
                     }
 					
                     //若存在id则更新，否则新加一条记录
+                    $is_update = false;
                     if(isset($saveData['id']) && $saveData['id']){
                     	$itemModel = $this->loadModel($saveData['id'], 'item');
+                    	$is_update = true;
                     }else{
                    	 	$itemModel = new CardItem;
                    	 	$saveData['dataset_id'] = (int)$id;	//设置表类型
@@ -178,6 +182,12 @@ class CardItemController extends Controller
                     if (!$itemModel->save()) {
                         Yii::app()->user->setFlash("error", "导入数据失败! 停止行数：" . $i);
                         $this->redirect(array('CardItem/index/id/' . $id));
+                    }else{
+                    	if($is_update){
+                    		$this->addLog('item', $itemModel->id, '修改了“'.$dsModel->name.'”中的一条数据(xls)');
+                    	}else{
+                    		$this->addLog('item', $itemModel->id, '发布了“'.$dsModel->name.'”的新数据(xls)');
+                    	}
                     }
                 }
             }
@@ -203,6 +213,8 @@ class CardItemController extends Controller
     	$itemModel = new CardItem;
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
+        
+        $this->addLog('ds', $dsModel->id, '导出了“'.$dbModel->name.'”中“'.$dsModel->name.'”表的模板');
     	
         //获取表头
         $dsmap = $dsModel->getFieldNameMap();
@@ -225,6 +237,9 @@ class CardItemController extends Controller
     	$itemModel = new CardItem;
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
+        
+        $this->addLog('ds', $dsModel->id, '导出了“'.$dbModel->name.'”中“'.$dsModel->name.'”中所有的数据');
+        
     	//获取表头
         $dsmap = $dsModel->getFieldNameMap(false);
         $rs = array(array_values($dsmap), array_keys($dsmap));
@@ -368,6 +383,7 @@ class CardItemController extends Controller
             }
 
             if ($itemModel->save()) {
+            	$this->addLog('item', $itemModel->id, '发布了“'.$dsModel->name.'”的新数据');
                 Yii::app()->user->setFlash("success", "发布数据成功!");
             } else {
                 Yii::app()->user->setFlash("error", "发布数据失败!");
@@ -492,6 +508,7 @@ class CardItemController extends Controller
         if (isset($_POST['CardItem'])) {
             $itemModel->attributes = $_POST['CardItem'];
             if ($itemModel->save()) {
+            	$this->addLog('item', $itemModel->id, '修改了“'.$dsModel->name.'”中的一条数据');
                 Yii::app()->user->setFlash("success", "修改数据成功!");
                 $this->redirect(array('CardItem/index/id/' . $dsId));
             } else {
@@ -543,17 +560,27 @@ class CardItemController extends Controller
         if (isset($_GET['id'])) {
             $id = $_GET['id'];
             $model = $this->loadModel($id, 'item');
+            $dsModel = $this->loadModel($model->dataset_id, 'ds');
+            $old_id = $model->id;
             if ($model->delete()) {
+            	$this->addLog('item', $old_id, '清理了“'.$dsModel->name.'”中的一条数据');
                 Yii::app()->user->setFlash("success", "删除数据成功!");
             } else {
                 Yii::app()->user->setFlash("error", "删除数据失败!");
             }
         } else {
             $ids = $_POST['CardItem']['id'];
+            $dsModel = '';
             foreach ($ids as $value) {
                 $model = $this->loadModel($value, 'item');
+                if(empty($dsModel)){
+                	$dsModel = $this->loadModel($model->dataset_id, 'ds');
+                }
+                $old_id = $model->id;
                 if (!$model->delete()) {
                     Yii::app()->user->setFlash("error", "删除数据失败!");
+                }else{
+                	$this->addLog('item', $old_id, '清理了“'.$dsModel->name.'”中的一条数据');
                 }
             }
             Yii::app()->user->setFlash("success", "删除数据成功!");

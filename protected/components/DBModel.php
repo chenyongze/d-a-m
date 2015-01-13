@@ -27,8 +27,12 @@ class DBModel extends EMongoDocument{
 			if($this->isNewRecord){
 			    $this->id = $this->getAutoIncreaseId(false);
 			}
-			$this->last_uid = Yii::app()->user->id;	//添加操作者
-			$this->update_time = time();
+			if(isset($this['last_uid'])){
+				$this->last_uid = Yii::app()->user->id;	//添加操作者
+			}
+			if(isset($this['update_time'])){
+				$this->update_time = time();
+			}
 			return true;
 	    } else
 			return false;

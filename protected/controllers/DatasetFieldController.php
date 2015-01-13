@@ -117,6 +117,7 @@ class DatasetFieldController extends Controller {
 			$create = $dsModel->changeField($_POST['fields'], 'create');
 			if ($create['code']==0) {
 				if ($create['data']->save()) {
+					$this->addLog('ds', $dsModel->id, '在表“'.$dsModel->name.'”中新加了字段“'.$_POST['fields']['name'].'”');
 					Yii::app()->user->setFlash("success", "创建 <b>{$_POST['fields']['name']}</b> 字段成功!");
 				} else {
 					Yii::app()->user->setFlash("error", "保存失败!");
@@ -157,6 +158,7 @@ class DatasetFieldController extends Controller {
 			} else {
 				$model->fields[$en_name] = $fields;
 				if($model->save()) {
+					$this->addLog('ds', $dsModel->id, '在表“'.$dsModel->name.'”中新加了字段组“'.$_POST['fields']['name'].'”');
 					//Ajax结束app
 					$this->redirect(array('DatasetField/index/id/'.$model->id));
 				} else {
@@ -183,6 +185,7 @@ class DatasetFieldController extends Controller {
 				$create = $dsModel->changeField($_POST['fields'], 'update');
 				if ($create['code']==0) {
 					if ($create['data']->save()) {
+						$this->addLog('ds', $dsModel->id, '修改了“'.$dsModel->name.'”中的字段“'.$_POST['fields']['name'].'”');
 						Yii::app()->user->setFlash("success", "修改 <b>{$_POST['fields']['name']}</b> 字段成功!");
 					} else {
 						Yii::app()->user->setFlash("error", "保存失败!");
@@ -205,6 +208,7 @@ class DatasetFieldController extends Controller {
 				} else {
 					$model->fields[$en_name] = $fields;
 					if($model->save()) {
+						$this->addLog('ds', $dsModel->id, '修改了“'.$dsModel->name.'”中的字段组“'.$_POST['fields']['name'].'”');
 						Yii::app()->user->setFlash("success", "新建字段成功!");
 						$this->redirect(array('DatasetField/index/id/'.$model->id));
 					} else {
@@ -245,6 +249,7 @@ class DatasetFieldController extends Controller {
 	public function actionDelete($id, $enName, $group = '') {
 		$dsModel = $this->loadModel((int)$id, 'ds');
 		$itemModel = $this->loadModel((int)$id, 'item', 'dataset_id', true);
+		$old_name = '';
 		//删除字段下数据
 		foreach ($itemModel as $key=>$value) {
 			if ($group) {
@@ -258,8 +263,17 @@ class DatasetFieldController extends Controller {
 			}
 			$value->save();
 		}
+		
+		$old_name = $dsModel['fields'][$enName]['name'];
+		$old_type = $dsModel['fields'][$enName]['type'];
 		$fieldInfo = $dsModel->deleteField($enName, $group);
 		if ($dsModel->save()) {
+			//根据字段类型记录不同日志
+			if ($old_type=='group') {
+				$this->addLog('ds', $dsModel->id, '清理了“'.$dsModel->name.'”中的字段组“'.$old_name.'”');
+			}else{
+				$this->addLog('ds', $dsModel->id, '清理了“'.$dsModel->name.'”中的字段“'.$old_name.'”');
+			}
 			Yii::app()->user->setFlash("success", "删除 <b>{$fieldInfo['name']}</b> 字段成功!");
 		} else {
 			Yii::app()->user->setFlash("error", "删除 <b>{$fieldInfo['name']}</b> 字段失败!");

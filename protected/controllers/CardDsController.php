@@ -32,6 +32,7 @@ class CardDsController extends Controller {
 	public function actionCreate($id) {
 		$model = new CardDs("Create");
 		$model->database_id = $id;
+		$db_model = $this->loadModel($id, 'db');
 		if(isset($_POST['CardDs'])) {
 			$CardDsArray = array();
 			$CardDsArray[0]['database_id'] = (int)$_POST['CardDs']['database_id'];
@@ -61,6 +62,8 @@ class CardDsController extends Controller {
 					Yii::app()->user->setFlash("error", $errorMsg);
 					$this->redirect(array('CardDs/index/id/'.$id));
 					Yii::app()->end();
+				}else{
+					$this->addLog('ds', $model->id, '在“'.$db_model->name.'”中新加了表“'.$model->name.'”');
 				}
 			}
 			Yii::app()->user->setFlash("success", "新建 <b>{$model->name}</b> 数据表成功!");
@@ -104,9 +107,11 @@ class CardDsController extends Controller {
 	*/
 	public function actionUpdate($id) {
 		$model = $this->loadModel($id, 'ds');
+		$db_model = $this->loadModel($model->database_id, 'db');
 		if(isset($_POST['CardDs'])){
 			$model->attributes = $_POST['CardDs'];
 			if($model->save()){
+				$this->addLog('ds', $model->id, '修改了“'.$db_model->name.'”中的“'.$model->name.'”');
 				Yii::app()->user->setFlash("success", "修改 <b>{$model->name}</b> 数据表成功!");
 				$this->redirect(array('CardDs/index?id='.$model->database_id));
 			}else{
@@ -135,11 +140,15 @@ class CardDsController extends Controller {
 	*/
 	public function actionDelete($id) {
 		$model = $this->loadModel($id, 'ds');
+		$db_model = $this->loadModel($model->database_id, 'db');
 		$itemModel = $this->loadModel($id, 'item', 'dataset_id');
 		if ($itemModel != NULL) {
 			Yii::app()->user->setFlash("error", "<b>{$model->name}</b> 下仍存在数据!");
 		} else {
+			$old_id = $model->id;
+			$old_name = $model->name;
 			if ($model->delete()) {
+				$this->addLog('ds', $old_id, '清理了“'.$db_model->name.'”中的“'.$old_name.'”');
 				Yii::app()->user->setFlash("success", "删除 <b>{$model->name}</b> 数据表成功!");
 			} else {
 				Yii::app()->user->setFlash("error", "删除 <b>{$model->name}</b> 数据表失败!");
@@ -156,6 +165,7 @@ class CardDsController extends Controller {
 	* @author gentle
 	*/
 	public function actionClearData($id) {
+		$model = $this->loadModel($id, 'ds');
 		$itemModel = $this->loadModel($id, 'item', 'dataset_id');
 		$data = array();
 		if ($itemModel == NULL) {
@@ -168,6 +178,7 @@ class CardDsController extends Controller {
 			}
 			$data['type'] = 'success';
 			$data['msg'] = '清空数据!';
+			$this->addLog('ds', $model->id, '清空了“'.$model->name.'”中所有的数据');
 		}
 		echo json_encode($data);
 	}

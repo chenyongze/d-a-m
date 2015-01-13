@@ -64,6 +64,7 @@ class SiteController extends Controller
 	* @author gentle
 	*/
 	public function actionLogin() {
+		
 		//禁止重复登录
 		if(Yii::app()->user->id){
 			$this->redirect(array('site/index'));
@@ -75,6 +76,7 @@ class SiteController extends Controller
 			$model->attributes=$_POST['LoginForm'];
 			//if($model->validate() && $model->login()) {
 			if ($model->validate() && $model->login()) {
+				$this->addLog('user', Yii::app()->user->id, '“'.Yii::app()->user->name.'”登陆系统');
 				if($this->actCheck('dbset')){
 					$this->redirect(array('CardDb/index'));
 				}else{
@@ -90,6 +92,7 @@ class SiteController extends Controller
 	* @author gentle
 	*/
 	public function actionLogout() {
+		$this->addLog('user', Yii::app()->user->id, '“'.Yii::app()->user->name.'”退出系统');
 		Yii::app()->user->logout();
 		$this->redirect(array('Site/login'));
 	}

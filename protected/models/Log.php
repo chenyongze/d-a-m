@@ -45,7 +45,7 @@ class Log extends DBModel {
 			'obj_cate' 	=> '对象类型',
 			'obj_id'	=> '对象id',
 			'acttime'	=> '操作时间',
-			'txt'		=> '描述信息',
+			'txt'		=> '备注信息',
 		);
 	}
 	

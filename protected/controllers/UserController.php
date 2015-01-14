@@ -17,7 +17,6 @@ class UserController extends Controller {
 	public function actionIndex() {
 		$data = array();
 		$data['model'] = new User();
-		$data['dataTree'] = $this->dataTree(0);
 		$data['info'] = $this->promptInfo();
 		$this->render('index', $data);
 	}

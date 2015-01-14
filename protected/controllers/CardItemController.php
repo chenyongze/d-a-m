@@ -625,44 +625,13 @@ class CardItemController extends Controller
     	if($kfield!='id'){
     		$kfield = 'data.'.$kfield;
     	}
-    	
+    	 
     	//字段定义
     	$field_info = $fields[$kfield]['extra']['field_info'];
-
-    	//操作符处理
-    	switch($koperator){
-	    	case '==':
-		    case '!=':
-		    	if($kfield=='id'){
-		    		$kword = intval($kword);
-		    	}
-		    	$criteria->addCond($kfield, $koperator, $kword);
-		        break;
-		    case '>':
-			case '<':
-				//数字比较需要先转换类型
-				if($field_info['addition_type']=='number' || $kfield=='id'){
-					$kword = intval($kword);
-				}
-				$criteria->addCond($kfield, $koperator, $kword);
-		        break;
-		  	case 'regex':
-		  		$criteria->$kfield = new MongoRegex('/'.$kword.'/i');
-		        break;
-		   	case 'in':
-		   	case 'notin':
-		   	case 'all':
-		   		//echo $kfield;
-		   		//'data.fglx'=>array('$nin'=>array('保暖')
-		   		$kword = explode(',', $kword);
-		   		$criteria->addCond($kfield, $koperator, $kword);
-		        break;
-		    default:
-		        return $criteria;
-    	}
+		$type = $field_info['addition_type'];
     	
-    	
-    	return $criteria;
+		//根据提交参数添加条件    	
+    	return $this->makeCond($criteria, $type, $kfield, $koperator, $kword);
     }
     
 	

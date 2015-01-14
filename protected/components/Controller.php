@@ -392,5 +392,48 @@ class Controller extends CController
 		$mod->txt = $txt;
 		return $mod->save();
 	}
-
+	
+	/**
+	 * 为查询器生成一个查询条件
+	 * @param $criteria	过滤器
+	 * @param $type		字段类型
+	 * @param $kfield	字段英文名
+	 * @param $koperator操作符号
+	 * @param $kword	筛选值
+	 * @return $criteria 添加后的过滤器
+	 */
+	public function makeCond($criteria, $type, $kfield, $koperator, $kword){
+		//操作符处理
+    	switch($koperator){
+	    	case '==':
+		    case '!=':
+		    	if($kfield=='id'){
+		    		$kword = intval($kword);
+		    	}
+		    	$criteria->addCond($kfield, $koperator, $kword);
+		        break;
+		    case '>':
+			case '<':
+				//数字比较需要先转换类型
+				if($type=='number' || $kfield=='id'){
+					$kword = intval($kword);
+				}
+				$criteria->addCond($kfield, $koperator, $kword);
+		        break;
+		  	case 'regex':
+		  		$criteria->$kfield = new MongoRegex('/'.$kword.'/i');
+		        break;
+		   	case 'in':
+		   	case 'notin':
+		   	case 'all':
+		   		//echo $kfield;
+		   		//'data.fglx'=>array('$nin'=>array('保暖')
+		   		$kword = explode(',', $kword);
+		   		$criteria->addCond($kfield, $koperator, $kword);
+		        break;
+		    default:
+		        return $criteria;
+    	}
+    	return $criteria;
+	}
 }

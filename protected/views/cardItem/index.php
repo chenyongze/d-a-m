@@ -133,6 +133,11 @@ function selectall(name) {
 			<div class="span1">
 				<input type="submit" name="sub" value="查询"/>
 			</div>
+			<?php if(isset($_GET['kfield'])){?>
+			<div class="span1">
+				<input type="button" name="clear" value="清除" onClick="location.href='/cardItem/index/<?php echo $_GET['id']?>'"/>
+			</div>
+			<?php }?>
 		</form>
 	</div>
 

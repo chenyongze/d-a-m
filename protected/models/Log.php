@@ -39,7 +39,7 @@ class Log extends DBModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'id' 		=> 'ID',
+			'id' 		=> '序号',
 			'uid' 		=> '操作者id',
 			'uname' 	=> '操作者姓名',
 			'obj_cate' 	=> '对象类型',
@@ -60,6 +60,7 @@ class Log extends DBModel {
 	}
 	
 	public function search($caseSensitive = false) {
+		
 		$criteria = new EMongoCriteria;
     	//$criteria->conditions['id'] = $this->id;
 

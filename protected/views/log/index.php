@@ -37,7 +37,7 @@ $this->breadcrumbs = array(
 	<div class="row list_filter">
 		<form action="<?php echo $this->createUrl('log/index');?>">
 			<div class="span1" style="width:auto;">
-				<select name="kfield" style="width:100px;" title="请选择查询的字段">
+				<select name="kfield" style="width:110px;" title="请选择查询的字段">
 					<?php foreach($attr as $key=>$value){ ?>
 							<option value="<?php echo $key?>" <?php echo (isset($_GET['kfield'])&&$_GET['kfield']==$key)?' selected="selected" ':''?>><?php echo $value?> </option>
 					<?php } ?>
@@ -85,7 +85,7 @@ $this->breadcrumbs = array(
 					<td><?php echo $valueItem->uname ?></td>
 					<td><?php echo $valueItem->obj_cate ?></td>
 					<td><?php echo $valueItem->obj_id ?></td>
-					<td><?php echo $valueItem->acttime ?></td>
+					<td><?php echo date('Y-m-d H:i:s', $valueItem->acttime) ?></td>
 					<td><?php echo $valueItem->txt ?></td>
 				</tr>
 			<?php

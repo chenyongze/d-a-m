@@ -21,6 +21,11 @@ class LogController extends Controller {
 		$attr = $model->attributeLabels();
 		$criteria = new EMongoCriteria;
 		
+		//其他人无法看见admin的操作记录
+		if(Yii::app()->user->name != 'admin'){
+			$criteria->addCond('uname', '!=', 'admin');
+		}
+		
 	 	//添加查询条件
         if(isset($_GET['sub'])){
 	        $criteria = $this->fillCond($criteria, Log::model()->attributeLabels());
@@ -34,7 +39,7 @@ class LogController extends Controller {
         $offset = ($offset - 1) * $perPage;
         $criteria->limit($perPage)->offset($offset)->sort('id', EMongoCriteria::SORT_DESC);
         $logModel = Log::model()->findAll($criteria);
-		
+        
       	$data['logModels'] = $logModel;
         $data['pages'] = $pages;
         $data['attr'] = $attr;	//模型属性
@@ -58,8 +63,10 @@ class LogController extends Controller {
     	}
     	//检查-字段有定义，且不是字段组
     	$type = 'text';
-    	if(in_array($kfield, array('id', 'uid', 'obj_id', 'acttime'))){
+    	if(in_array($kfield, array('id', 'uid', 'obj_id'))){
     		$type = 'number';
+    	}else if(in_array($kfield, array('acttime'))){
+    		$type = 'date';
     	}
     	
 		//根据提交参数添加条件    	

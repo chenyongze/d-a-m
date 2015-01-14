@@ -417,6 +417,8 @@ class Controller extends CController
 				//数字比较需要先转换类型
 				if($type=='number' || $kfield=='id'){
 					$kword = intval($kword);
+				}else if($type=='date'){
+					$kword = strtotime($kword);
 				}
 				$criteria->addCond($kfield, $koperator, $kword);
 		        break;

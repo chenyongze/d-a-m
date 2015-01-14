@@ -137,7 +137,7 @@ return array(
 		'role'=>array(
 			'10'=>array(
 				'name'=>'管理员',
-				'actions'=>array('item', 'dbset', 'user'),
+				'actions'=>array('item', 'dbset', 'user', 'log'),
 			),
 			'20'=>array(
 				'name'=>'数据员',
@@ -156,8 +156,9 @@ return array(
 			'item-import'=> '数据操作-导入',	//导出模板+导入
 			'item-export'=> '数据操作-导出',
 			'dbset'		=> '结构定义',
-			'dump'		=> '备份恢复',
 			'user'		=> '用户管理',
+			'log'		=> '操作日志',
+			'dump'		=> '备份恢复',
 		),
 		//用户默认密码
 		'def_password'=> 'mofang888',

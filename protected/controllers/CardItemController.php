@@ -415,8 +415,11 @@ class CardItemController extends Controller
         $data['datasetId'] = $id;
         $data['fieldHtml'] = $fieldHtml;
         $data['preview'] = $preview;
-        //$this->renderPartial('_form_item', $data);
-        $this->render('_form_item', $data);
+        if($preview){
+        	$this->renderPartial('_form_item', $data);
+        }else{
+        	$this->render('_form_item', $data);
+        } 
     }
 
     public function actionGroupItemHtml($id, $group, $index = '[key]', $itemData = array())

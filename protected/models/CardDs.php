@@ -161,27 +161,18 @@ class CardDs extends DBModel
 	*/
 	public function sortField() {
 		$sortArray = array();
-		//$this->fields = array_reverse($this->fields);
-		//$n = 0;
-		//foreach ($this->fields as $key=>$value) {
-			//$this->fields[$key]['fieldId'] = $n;
-			//$n++;
-		//}
-		//print_r($this->fields);
-		//exit();
+		
 		foreach ($this->fields as $key=>$value) {
-			//$sortArrayId[] = $value['fieldId'];
 			$sortArray[] = isset($value['listorder'])?intval($value['listorder']):0;
 			if ($value['type'] == 'group' && !empty($value['fields'])) {
 				$groupSortArray = array();
 				foreach ($value['fields'] as $gkey => $gvalue) {
 					$groupSortArray[] = isset($gvalue['listorder'])?intval($gvalue['listorder']):0;
 				}
-				array_multisort($groupSortArray, SORT_ASC, $this->fields[$key]['fields']);
+				$this->fields[$key]['fields'] = $this->my_multisort($groupSortArray, SORT_ASC, $this->fields[$key]['fields'], 'listorder');
 			}
 		}
-		//array_multisort($sortArrayId, SORT_DESC, $this->fields);
-		array_multisort($sortArray, SORT_ASC, $this->fields);
+		$this->fields = $this->my_multisort($sortArray, SORT_ASC, $this->fields, 'listorder');
 		return $this;
 	}
 
@@ -435,6 +426,35 @@ class CardDs extends DBModel
 	    } else {
 			return false;
 	    }
+	}
+	
+	/**
+	 * 为了防止array__multisort重排数字索引，所以自己实现一份
+	 * @param $vals	array	排序字段的数据
+	 * @param $arg	int		方式SORT_ASC	，SORT_DESC
+	 * @param $arr	array	需要排序的数组
+	 * @param $key	string	键值
+	 * @return array	排好后的结果
+	 */
+	protected function my_multisort($vals, $arg = null, $arr, $key){
+		if($arg==SORT_ASC){
+			sort($vals);
+		}else if($arg==SORT_DESC){
+			rsort($vals);
+		}
+		
+		$tem = array();
+		foreach($vals as $val){
+			foreach($arr as $ka=>$va){
+				if($va[$key]==$val){
+					$tem[$ka] = $va;
+				}
+			}
+		}
+		$arr = $tem;
+		unset($tem);
+		
+		return $arr;
 	}
 
 }

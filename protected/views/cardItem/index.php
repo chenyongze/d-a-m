@@ -146,7 +146,7 @@ function selectall(name) {
 		<table class="table table-hover table-striped table-bordered table-condensed">
 			<thead>
 				<tr>
-					<th class="button-column" style="width:50px;">
+					<th class="button-column" style="width:20px">
 						<input type="checkbox" id="check_box" onclick="selectall('CardItem[id][]');">
 					</th>
 					<?php 
@@ -162,7 +162,7 @@ function selectall(name) {
 							endif;
 						endforeach;
 					?>
-					<th class="button-column" id="card-grid_c<?=($i+1)?>">操作</th>
+					<th class="button-column" id="card-grid_c<?=($i+1)?>" style="width:100px">操作</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -226,7 +226,7 @@ function selectall(name) {
 						endif;
 					endforeach;
 				?>
-				<td class="button-column" style="width:200px;overflow:hidden;height:30px;">
+				<td class="button-column" style="height:30px;">
 					<a title="修改" onclick="ItemInfo(<?php echo $valueItem->id;?>)" href="#">修改</a>
 					<?php if($this->actCheck('item-del')){ ?>- 
 						<a class="delete" title="删除" href="javascript:confirmurl('<?php echo Yii::app()->createUrl("CardItem/Delete", array("id"=>$valueItem->id));?>', '确认要删除这条记录吗？');">删除</a>
@@ -239,8 +239,8 @@ function selectall(name) {
 	</div>
 
 	<div class="row">
-		<div class="span1"><label for="check_box">全选/反选</label></div>
-		<div class="span1"><input type="submit" value="删除" ></div>
+		<div class="span1" style="width:70px;margin-left: 30px;"><label for="check_box">全选/反选</label></div>
+		<div class="span1" style="width:50px;margin-left: 0px;"><input type="submit" value="删除" ></div>
 	</div>
 	</form>
 	<div class="row" style="padding-top:5px;">

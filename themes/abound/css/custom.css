@@ -27,3 +27,6 @@ td .row.label {
 .row-fluid .span3{
 	max-width:200px;
 }
+.row-fluid [class*="span"]{
+	margin-left: 20px;
+}

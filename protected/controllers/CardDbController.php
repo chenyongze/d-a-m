@@ -79,7 +79,7 @@ class CardDbController extends Controller {
 		$model = $this->loadModel($id, 'db');
 		$dsModel = $this->loadModel($id, 'ds', 'database_id');
 		if ($dsModel != NULL) {
-			Yii::app()->user->setFlash("error", "<b>{$model->name}</b> 下仍存在数据!");
+			Yii::app()->user->setFlash("error", "<b>{$model->name}</b> 下仍存在数据表!");
 		} else {
 			$old_id = $model->id;
 			$old_name = $model->name;

@@ -29,22 +29,22 @@ function selectall(name) {
 
 <?php $this->widget('application.extensions.FancyBox.EFancyBox', array()); ?>
 <?php if($this->actCheck('item-add')){ ?>
-<div class="span1">
+<div class="span1" style="width:73px">
 	<input type="button" onclick="ItemInfo()" value="发布新数据" id="CreateItem">
 </div>
 <?php } ?>
 <?php if($this->actCheck('item-import')){ ?>
-<div class="span1">
+<div class="span1" style="width:60px">
 	<input type="button" value="导入数据" id="ImportData">
 </div>
 <?php } ?>
 <?php if($this->actCheck('item-export')){ ?>
-<div class="span1">
+<div class="span1" style="width:60px">
 	<input type="button" value="导出数据" id="ExportData" onClick="location.href='/CardItem/export/id/<?php echo $datasetId;?>?<?php echo $_SERVER['QUERY_STRING']?>'">
 </div>
 <?php } ?>
 <?php if($this->actCheck('item-import')){ ?>
-<div class="span1">
+<div class="span1" style="width:60px">
 	<input type="button" value="导出模板" id="ExportTplData" onClick="location.href='/CardItem/exporttpl/id/<?php echo $datasetId;?>'">
 </div>
 <?php } ?>

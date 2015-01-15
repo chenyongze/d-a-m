@@ -24,3 +24,6 @@ td .row.label {
 .clear{
 	 clear: both;
 }
+.row-fluid .span3{
+	max-width:200px;
+}

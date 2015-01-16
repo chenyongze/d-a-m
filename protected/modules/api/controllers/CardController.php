@@ -47,7 +47,76 @@ class CardController extends Controller {
 	    $return['data'] = CardDs::model()->getFieldList($datasetId, $enName);
 	    echo CJSON::encode($return);
 	}
-
+	
+	/**
+	 * 获取一条内容
+	 * @author gavin
+	 */
+	public function actionGetItem() {
+		//参数接收
+		//http://db.dev.mofang.com/api/card/getitem?id=7836&select=name,ms
+		//http://db.dev.mofang.com/api/card/getitem?setid=1&name=冬梦&select=name,ms
+		$id = isset($_GET['id'])?intval($_GET['id']):0;				//数据id			setid = 4
+		$datasetId = isset($_GET['setid'])?intval($_GET['setid']):0;//实体id
+		$name = isset($_GET['name'])?$_GET['name']:'';				//数据name		setid = 4
+		
+		$select = isset($_GET['select'])?$_GET['select']:'';		//返回字段		select = data.name
+		$return = array('code'=>0, 'data'=>array());
+		
+		//参数验证
+		if(empty($id)&&empty($name)){
+			 $return['code'] = 1;	//接口参数不足
+		}
+		
+		//开始查询
+		if(empty($return['code'])){
+			
+			//查询器
+			$criteria = new EMongoCriteria();
+			if($id){
+				$criteria->addCond('id', '==', $id);		//按id查询
+			}else{
+				$dsModel = $this->loadModel($datasetId, 'ds');
+				$fields = $dsModel->getFieldNameMap();
+				$fname = 'name';
+				//查找第一个名字中有'name'的字段
+				foreach($fields as $fk=>$fv){
+					if(preg_match('/name/i', $fk)){
+						$fname = $fk;
+						break;
+					}
+				}
+				$criteria->addCond('dataset_id', '==', $datasetId);	//名称查询需要限定实体，防止实体间有重名
+				$criteria->addCond('data.'.$fname, '==', $name);	//按name查询
+			}
+			
+			//加入字段
+			if($select){
+				$select = explode(',', $select);
+				foreach($select as $skey=>$sfield){
+					$select[$skey] = 'data.'.$sfield;
+				}
+				array_unshift($select, 'id');	//压入默认字段
+				$criteria->select($select);
+			}
+			//查询
+			$return['data'] = CardItem::model()->find($criteria);
+			if($return['data']){
+				$arr_info = $return['data']->toArray();
+				//清除无用的字段
+				unset($arr_info['dataset_id']);
+				unset($arr_info['request_times']);
+				unset($arr_info['last_uid']);
+				unset($arr_info['update_time']);
+				unset($arr_info['_id']);
+				$return['data'] = $arr_info;
+			}
+			
+		}
+		//print_r($return['data']);exit();
+	    echo CJSON::encode($return);
+	}
+	
 	/**
 	 * 获取内容列表
 	 * @author gavin

@@ -79,15 +79,13 @@ return array(
 			'useCursor' => false,
 		),
 
-		/*
 		'cache' => array(
 			'class' => 'system.caching.CMemCache',
 			'useMemcached' => true,
 			'servers' => array(
-				'01' => array('host' => '127.0.0.1', 'port' => 11211),
+				'01' => array('host' => '127.0.0.1', 'port' => 11212),
 			),
 		),
-		*/
 
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
@@ -122,6 +120,7 @@ return array(
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	'params'=>array(
+		'cache_expire'	=> 120,			//缓存时间
 		'filter_operator' => array(
 			'=='=>'等于', '!='=>'不等于', '>'=>'大于', '<'=>'小于', 'regex'=>'匹配', 	//简单类型
 			'in'=>'包含', 'notin'=>'不包含', 'all'=>'全包含'	//复合类型

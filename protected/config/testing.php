@@ -31,7 +31,6 @@ return CMap::mergeArray(
 				'useCursor' => false,
 			),
 
-			/*
             'cache' => array(
                 'class' => 'system.caching.CMemCache',
                 'useMemcached' => true,
@@ -39,13 +38,12 @@ return CMap::mergeArray(
                     '01' => array('host' => '127.0.0.1', 'port' => 11211),
                 ),
             ),
-			*/
         ),
 
         // application-level parameters that can be accessed
         // using Yii::app()->params['paramName']
         'params'=>array(
-
+			'cache_expire'	=> 20,		//缓存时间
         ),
     )
 );

@@ -44,7 +44,7 @@ class Controller extends CController
 	*/
 	public function dataTree($databaseId = 0, $action='cardItem/Index') {
 		$data = array();
-		$databases = CardDb::model()->findAll();
+		$databases = CardDb::model()->findAll(User::model()->getScopeDbCriteria());
 		foreach ($databases as $key => $value) {
 			$data[$key]['text'] = '<span>'.$value->name.'</span>';
 			if ($databaseId == $value->id) {
@@ -53,7 +53,10 @@ class Controller extends CController
 				$data[$key]['expanded'] = false;
 			}
 			$data[$key]['children'] = array();
-			$datasets = CardDs::model()->findAllByAttributes(array('database_id'=>(int)$value->id));
+			
+			$dscriteria = User::model()->getScopeDsCriteria();
+			$dscriteria->addCond('database_id', '==', (int)$value->id);
+			$datasets = CardDs::model()->findAll($dscriteria);
 			if (empty($datasets)) {
 				continue;
 			}
@@ -379,6 +382,45 @@ class Controller extends CController
 	}
 	
 	/**
+	 * 权限验证方法
+	 * @param $action_no	string	权限代码
+	 * @param $rebool		bool	是否返回布尔值，false时会跳转到上一页
+	 * @return 
+	 */
+	public function scopeCheck($db, $ds=null){
+		$rs = false;
+		
+		//名为admin的管理员拥有所有权限
+		if($this->get_login_user('role')=='10'&&$this->get_login_user('username')=='admin'){
+			return true;
+		}
+		
+		$dbInfo = $this->get_login_user('scopeInfo', 'db');
+		$dsInfo = $this->get_login_user('scopeInfo', 'ds');
+		
+		//若拥有所有db，则直接获取所有范围
+		if($dbInfo=='all'){
+			$rs = true;
+		}
+		
+		if($ds==null){
+			//库对应
+			if(in_array($db, $dbInfo)){
+				$rs = true;
+			}
+		}else{
+			//库对应且，表也对应
+			if(in_array($db, $dbInfo) && ($dsInfo=='all' || in_array($ds, $dsInfo))){
+				$rs = true;
+			}
+		}
+		
+		if($rs==false){
+			$this->redirect_back();
+		}
+	}
+	
+	/**
 	 * 添加一条操作日志
 	 * @param $obj_cate		string	对象类型
 	 * @param $obj_id		string	对象id	
@@ -461,5 +503,53 @@ class Controller extends CController
 			return $c;
 		'), $json);
 		return $json;
+	}
+	
+	/**
+	 * 将一维列表转为下拉框选项
+	 * @param $list	array	数据源
+	 * @param $def	str		默认选中值
+	 * @return str		下拉框选项html
+	 */
+	public function option_from_list($list, $def='0'){
+		$str = '<option value="0">请选择</option>';
+		//为空则返回提示
+		if(empty($list)){
+			return '<option value="0">没有数据</option>';
+		}
+
+		foreach($list as $k => $v){
+			$isg = false;	//二维标示
+			//二维处理
+			if(is_array($v)){
+				$str .= '<optgroup label="'.$k.'">';
+				foreach($v as $kk=>$vv){
+					$str .= $this->_option_select($kk, $vv, $def);
+				}
+				$str .= '</optgroup>';
+			}else{
+				$str .= $this->_option_select($k, $v, $def);
+			}
+			
+		}
+		return $str;
+	}
+	
+	/**
+	 * 下拉框选中判定
+	 * @param string $key	选项键值
+	 * @param string $val 	选项名称
+	 * @param string/array	$def	以选中的默认值
+	 * @return string 一个选项的html
+	 */
+	public function _option_select($key, $val,$def='0'){
+		if(empty($key)&&empty($val)){
+			return '';
+		}
+		$sub_html = '';
+		if((!is_array($def)&&''.$def==$key) || (is_array($def) && in_array($key, $def))){
+			$sub_html = ' selected="selected" ';		
+		}
+		return '<option '.$sub_html.' value="'.$key.'">'.$val.'</option>';
 	}
 }

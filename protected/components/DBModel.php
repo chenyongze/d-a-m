@@ -241,7 +241,35 @@ class DBModel extends EMongoDocument{
    		}
 		return $rs;
 	}
-    
-    
+	
+	/**
+	 * 将数组转为一维列表
+	 * @param $rs	array	数据集
+	 * @param $val	str		做为值的数据键值
+	 * @param $key	str		做为键的数据键值
+	 * @return array 一维列表
+	 */
+	public function list_from_rs($rs,$val='id',$key=''){
+		$list = array();
+		if(empty($rs)){
+			return $list;
+		}
+		
+		foreach($rs as $k => $v){
+			if(is_object($v)){
+				$v = $v->toArray();
+			}
+			
+			if(isset($v[$val])){
+				if(empty($key)){
+					$list[$k] = $v[$val];
+				}else{
+					$list[''.$v[$key]] = $v[$val];
+				}
+			}
+		}
+		
+		return $list;
+	}
 
 }

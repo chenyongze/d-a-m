@@ -55,7 +55,8 @@ class UserIdentity extends CUserIdentity
 				$this->_id = $user_info->id;
 				$this->username = $user_info->username;
 				$user_info = $user_info->toArray();
-				$user_info['actions'] = $this->getActionPoint($user_info['role']);
+				$user_info['actions'] = $this->getActionPoint($user_info['role']);	//获取指定角色对应的权限列表
+				$user_info['scopeInfo'] = $this->getParseScope($user_info['scope'], ($user_info['username']=='admin'&&$user_info['role']=='10')?1:0);	//解析范围
 				$this->setState('info', $user_info);	//用户登录信息
 				$this->errorCode = self::ERROR_NONE;
 			}else{
@@ -96,4 +97,33 @@ class UserIdentity extends CUserIdentity
 		}
 		return $actions;
 	}
+	
+	/**
+	 * 解析用户数据范围，便于直接使用
+	 * @param $scope 	string	范围信息
+	 * @return 权限点列表
+	 */
+	public function getParseScope($scope, $isAdmin=0){
+		if(empty($scope)){
+			$scope = array();
+		}
+
+		$rs = array('db'=>array(), 'ds'=>array());
+		if($scope=='all' || $isAdmin){
+			$rs = array('db'=>'all', 'ds'=>'all');
+		}else{
+			foreach($scope as $key=>$vo){
+				if(is_array($vo)){
+					$rs['db'][] = intval($key);
+					$rs['ds'] = array_merge($rs['ds'], $vo);
+				}else{
+					$rs['db'][] = intval($vo);
+					$rs['ds'] = 'all';
+				}
+			}
+		}
+		return $rs;
+	}
+	
+	
 }

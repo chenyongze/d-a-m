@@ -1,0 +1,32 @@
+.image-preview {
+	max-width: 80px;
+	max-height: 80px;
+}
+.image-preview {
+	max-width: 150px;
+	max-height: 150px;
+}
+.row.label {
+	margin: 10px 0;
+	font-size: 16px;
+	line-height: 20px;
+}
+.row.label .span2 {
+	margin-left: 0;
+}
+td .row.label {
+	margin: 10px 0 10px -30px;
+}
+
+.list_filter{
+	padding-left:30px;
+}
+.clear{
+	 clear: both;
+}
+.row-fluid .span3{
+	max-width:200px;
+}
+.row-fluid [class*="span"]{
+	margin-left: 20px;
+}

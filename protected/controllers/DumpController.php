@@ -5,7 +5,8 @@
  */
 class DumpController extends Controller {
 	
-	public $dirpath = 'webroot.file.dump';
+	public $dirpath = 'webroot.file.dump';	//临时文件存放路径
+	public $expire = 30;					//库内存放有效期
 	
 	public function init(){
 		$this->actCheck('dump', false);
@@ -70,6 +71,8 @@ class DumpController extends Controller {
 				//多文件无法循环下载，暂时在服务器上生成文件
 				//$this->_output_json();
 			}
+			//清理过期备份文件
+			$this->cleanFile($this->expire);
 		}
 		
 		//扫描导出文件并获取列表
@@ -141,12 +144,20 @@ class DumpController extends Controller {
 	public function findDir($url, $ext=false, $order=false){
 		$rs = array();		//初始化结果集
 		$dir = yiiBase::getPathOfAlias($url);	//文件夹路径
+		$expire_time = $this->expire*24*3600;		//过期时间
+		$expire_warn = floor($this->expire*24*3600*2/3);	//警告时间
 		
 		//数据库查询
 		$criteria = new EMongoCriteria();
 		$criteria->filename = new MongoRegex('#^'.$dir.'.*\.'.$ext.'$#i');	//按目录前缀查询
+		$criteria->sort('metadata.addTime', EMongoCriteria::SORT_DESC);
 		$files = File::model()->findAll($criteria);
 		foreach($files as $fv){
+			//标记快失效的备份文件
+			if($fv->metadata['addTime'] < time()-$expire_warn){	//还剩下1/3的时间时给予提示
+				$fv->metadata['name'] = '<span style="color:#faa" title="文件将在'.date('Y-m-d H:i:s', $fv->metadata['addTime']+$expire_time).'失效！">'.$fv->metadata['name'].' [Fast Expire]</span>';
+			}
+			
 			$rs[$fv->_id.''] = array(
 				'id'=>$fv->_id.'',				//名称
         		'name'=>$fv->metadata['name'],		//全名
@@ -439,27 +450,14 @@ class DumpController extends Controller {
 	}
 	
 	/**
-	 * 转换编码从 json 到 utf-8
-	 * @param string $json string to convert
-	 * @return string utf-8 string
+	 * 批量清理指定天数之前的备份
+	 * @param $days		int		有效期的天数，默认30（之前的都会被清理掉）
+	 * @return 清理结果 true
 	 */
-	public function json_unicode_utf8($json){
-		$json = preg_replace_callback("/\\\u([0-9a-f]{4})/", create_function('$match', '
-			$val = intval($match[1], 16);
-			$c = "";
-			if($val < 0x7F){        // 0000-007F
-				$c .= chr($val);
-			} elseif ($val < 0x800) { // 0080-0800
-				$c .= chr(0xC0 | ($val / 64));
-				$c .= chr(0x80 | ($val % 64));
-			} else {                // 0800-FFFF
-				$c .= chr(0xE0 | (($val / 64) / 64));
-				$c .= chr(0x80 | (($val / 64) % 64));
-				$c .= chr(0x80 | ($val % 64));
-			}
-			return $c;
-		'), $json);
-		return $json;
+	protected function cleanFile($days=30){
+		$criteria = new EMongoCriteria();
+		$criteria->addCond('metadata.addTime', '<', time()-$days*24*3600);	//指明对象
+		return File::model()->deleteAll($criteria);
 	}
 	
 }

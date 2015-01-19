@@ -53,10 +53,26 @@ if (isset($update) && $update == true) {
 			<?php echo $form->labelEx($model,'role'); ?>
 		</div>
 		<div class="span3">
-			<?php echo $form->listBox($model,'role', $this->list_from_rs(Yii::app()->params['role'],'name')); ?>
+			<?php echo $form->dropDownList($model,'role', $this->list_from_rs(Yii::app()->params['role'],'name')); ?>
 			<?php echo $form->error($model,'role'); ?>
 		</div>
 		<div class="span2">用户角色</div>
+	</div>
+	
+	<div class="row">
+		<div class="span1" style="width:80px;">
+			<?php echo $form->labelEx($model,'scope'); ?>
+		</div>
+		<div class="span3">
+			<select style="width:120px;height:150px;" multiple="multiple" name="User[onescope][]" id="User_onescope">
+				<?php echo $this->option_from_list($yxlist[1], $scopeinfo);?>
+			</select>
+			<select style="width:120px;height:150px;" multiple="multiple" name="User[scope][]" id="User_scope">
+				<?php echo $this->option_from_list($yxlist[0], $scopeinfo);?>
+			</select>
+			<?php echo $form->error($model,'scope'); ?>
+		</div>
+		<div class="span2">数据的管理范围</div>
 	</div>
 
 	<div class="row buttons">
@@ -85,4 +101,23 @@ $(this).keydown( function(e) {
 		return false;
 	}
 });
+$(function(){
+	$(".scopes").hide();
+	$("#User_role").live('change',function(){
+		 selectrole($(this).val());
+	});
+	$("#User_role").change();
+});
+function selectrole($data){
+	if ( $data == 10 || $data == 20 ) {
+		$(".scopes,#User_onescope").show();
+		$("#User_scope").hide();
+		//$("#User_onescope").find('option').removeAttr("selected");
+	 }else if ( $data == 30 ) {
+		$(".scopes,#User_scope").show();
+		$("#User_onescope").hide();
+	 }else{
+		$(".scopes").hide();
+	 }
+}
 </script>

@@ -10,7 +10,7 @@ class UserController extends Controller {
 		$this->layout = '//layouts/column1';
 	}
 	
-	/**
+   /**
 	* 卡牌库列表
 	* @author gentle
 	*/
@@ -36,6 +36,9 @@ class UserController extends Controller {
 			if($_POST['User']['password']==''){
 				$_POST['User']['password'] = Yii::app()->params['def_password'];
 			}
+			
+			//接收范围权限并预处理
+			$_POST['User']['scope'] = User::model()->makeScope();
 			$_POST['User']['password'] = md5($_POST['User']['password']);
 			$model->attributes = $_POST['User'];
 			if ($model->save()) {
@@ -52,7 +55,8 @@ class UserController extends Controller {
 			}
 			$this->redirect(array('user/index'));
 		}
-		$this->renderPartial('_form', array('model' => $model));
+		$yxlist = User::model()->getScope();
+		$this->renderPartial('_form', array('model' => $model, 'yxlist'=>$yxlist));
 	}
 	
 	/**
@@ -73,6 +77,7 @@ class UserController extends Controller {
 			}else{
 				$_POST['User']['password'] = md5($_POST['User']['password']);
 			}
+			$_POST['User']['scope'] = User::model()->makeScope();	//接收范围
 			$model->attributes = $_POST['User'];
 			if($model->save()){
 				$this->addLog('user', $model->id, '修改了名为“'.$model->username.'”的“'.Yii::app()->params["role"][$model->role]["name"].'”');
@@ -83,7 +88,9 @@ class UserController extends Controller {
 			}
 		}
 		$model->password = '';
-		$this->renderPartial('_form', array('model' => $model, 'update' => true));
+		$scopeinfo = User::model()->decodeScope($model->scope);	//获取选中范围
+		$yxlist = User::model()->getScope();
+		$this->renderPartial('_form', array('model' => $model, 'update' => true, 'yxlist'=>$yxlist, 'scopeinfo'=>$scopeinfo));
 	}
 
 	/**

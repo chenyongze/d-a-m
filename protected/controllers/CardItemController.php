@@ -13,7 +13,7 @@ class CardItemController extends Controller
         
         //获取一个可用id
         if(empty($id)){
-        	$def_ds = CardDs::model()->find();
+        	$def_ds = CardDs::model()->find(User::model()->getScopeDsCriteria());
         	if($def_ds->id){
         		$id = $def_ds->id;
         	}
@@ -23,6 +23,9 @@ class CardItemController extends Controller
         $dsModel = $this->loadModel((int)$id, 'ds');					//获取表模型
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');	//获取库模型
 		$dsModel = $dsModel->sortField();
+		
+		//范围验证
+		$this->scopeCheck($dsModel->database_id, $id);
 		 
         $criteria = new EMongoCriteria();
         $criteria->dataset_id = (int)$id;
@@ -74,6 +77,9 @@ class CardItemController extends Controller
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
         $mcss = Yii::app()->mcss;
+        
+        //范围验证
+		$this->scopeCheck($dsModel->database_id, $id);
 
     	//获取字段和中文的对应关系
         $fields_kv = array();
@@ -214,6 +220,9 @@ class CardItemController extends Controller
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
         
+        //范围验证
+		$this->scopeCheck($dsModel->database_id, $id);
+        
         $this->addLog('ds', $dsModel->id, '导出了“'.$dbModel->name.'”中“'.$dsModel->name.'”表的模板');
     	
         //获取表头
@@ -237,6 +246,9 @@ class CardItemController extends Controller
     	$itemModel = new CardItem;
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
+        
+        //范围验证
+		$this->scopeCheck($dsModel->database_id, $id);
         
         $this->addLog('ds', $dsModel->id, '导出了“'.$dbModel->name.'”中“'.$dsModel->name.'”中所有的数据');
         
@@ -367,6 +379,10 @@ class CardItemController extends Controller
     {
     	$this->actCheck('item-add', false);
         $dsModel = $this->loadModel($id, 'ds');
+        
+        //范围验证
+		$this->scopeCheck($dsModel->database_id, $id);
+        
         if (isset($_POST['CardItem'])) {
             $itemModel = new CardItem;
             $itemModel->dataset_id = (int)$id;
@@ -508,6 +524,10 @@ class CardItemController extends Controller
         $itemModel = $this->loadModel($id, 'item');
         $dsId = (int)$itemModel->dataset_id;
         $dsModel = $this->loadModel($dsId, 'ds');
+        
+        //范围验证
+		$this->scopeCheck($dsModel->database_id, $dsId);
+        
         if (isset($_POST['CardItem'])) {
             $itemModel->attributes = $_POST['CardItem'];
             if ($itemModel->save()) {
@@ -564,6 +584,10 @@ class CardItemController extends Controller
             $id = $_GET['id'];
             $model = $this->loadModel($id, 'item');
             $dsModel = $this->loadModel($model->dataset_id, 'ds');
+            
+            //范围验证
+			$this->scopeCheck($dsModel->database_id, $model->dataset_id);
+            
             $old_id = $model->id;
             if ($model->delete()) {
             	$this->addLog('item', $old_id, '清理了“'.$dsModel->name.'”中的一条数据');
@@ -579,6 +603,10 @@ class CardItemController extends Controller
                 if(empty($dsModel)){
                 	$dsModel = $this->loadModel($model->dataset_id, 'ds');
                 }
+                
+                //范围验证
+				$this->scopeCheck($dsModel->database_id, $model->dataset_id);
+                
                 $old_id = $model->id;
                 if (!$model->delete()) {
                     Yii::app()->user->setFlash("error", "删除数据失败!");

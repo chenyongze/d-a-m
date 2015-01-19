@@ -56,6 +56,10 @@ class CardDbController extends Controller {
 	*/
 	public function actionUpdate($id){
 		$model = $this->loadModel((int)$id, 'db');
+		
+		//范围验证
+		$this->scopeCheck($model->id);
+		
 		if(isset($_POST['CardDb'])){
 			$model->attributes = $_POST['CardDb'];
 			if($model->save()){
@@ -78,6 +82,9 @@ class CardDbController extends Controller {
 	public function actionDelete($id) {
 		$model = $this->loadModel($id, 'db');
 		$dsModel = $this->loadModel($id, 'ds', 'database_id');
+		//范围验证
+		$this->scopeCheck($id);
+		
 		if ($dsModel != NULL) {
 			Yii::app()->user->setFlash("error", "<b>{$model->name}</b> 下仍存在数据表!");
 		} else {

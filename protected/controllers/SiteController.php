@@ -35,7 +35,7 @@ class SiteController extends Controller
 				$this->redirect(array('cardDb/index'));
 			//有数据管理权限则跳入“数据操作”
 			}else if($this->actCheck('item-add')){
-				$this->redirect(array('cardItem/index/1'));
+				$this->redirect(array('cardItem/index/0'));
 			}else{
 				//若当前有登录但没有dbset或item-add权限则踢出重新登录
 				Yii::app()->user->logout();

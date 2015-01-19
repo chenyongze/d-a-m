@@ -13,9 +13,9 @@ class CardItemController extends Controller
         
         //获取一个可用id
         if(empty($id)){
-        	$def_ds = CardDs::model()->find(User::model()->getScopeDsCriteria());
-        	if($def_ds->id){
-        		$id = $def_ds->id;
+        	$def_ds = CardDs::model()->findAll(User::model()->getScopeDsCriteria());
+        	if($def_ds && $def_ds[0]->id){
+        		$id = $def_ds[0]->id;
         	}
         }
         

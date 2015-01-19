@@ -401,17 +401,17 @@ class Controller extends CController
 		//若拥有所有db，则直接获取所有范围
 		if($dbInfo=='all'){
 			$rs = true;
-		}
-		
-		if($ds==null){
-			//库对应
-			if(in_array($db, $dbInfo)){
-				$rs = true;
-			}
 		}else{
-			//库对应且，表也对应
-			if(in_array($db, $dbInfo) && ($dsInfo=='all' || in_array($ds, $dsInfo))){
-				$rs = true;
+			if($ds==null){
+				//库对应
+				if(in_array($db, $dbInfo)){
+					$rs = true;
+				}
+			}else{
+				//库对应且，表也对应
+				if(in_array($db, $dbInfo) && ($dsInfo=='all' || in_array($ds, $dsInfo))){
+					$rs = true;
+				}
 			}
 		}
 		

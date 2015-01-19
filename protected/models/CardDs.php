@@ -396,25 +396,33 @@ class CardDs extends DBModel
 	 * @return unknown_type
 	 */
 	public function getDBDSMap(){
-		$map = array();
-		$dblist = CardDb::model()->findAll();
-		$dslist = CardDs::model()->findAll();
-		foreach($dblist as $dv){
-			$map[$dv['id']] = array(
-				'en_name'=>$dv['en_name'], 
-				'name'=>$dv['name'], 
-				'list'=>array(),
-			);
-		}
-		foreach($dslist as $tv){
-			if(isset($map[$tv['database_id']])){
-				$map[$tv['database_id']]['list'][$tv['id']] = array(
-					'en_name'=>$tv['en_name'],
-					'name'=>$tv['name'],
+		//添加统一前缀
+    	$cache_key = strtolower('db.admin.'.__FUNCTION__);
+    	
+    	//调用，有缓存则用缓存
+		if(($map = Yii::app()->cache->get($cache_key)) === false){
+			$dblist = CardDb::model()->findAll(User::model()->getScopeDbCriteria());
+			$dslist = CardDs::model()->findAll(User::model()->getScopeDsCriteria());
+			foreach($dblist as $dv){
+				$map[$dv['id']] = array(
+					'en_name'=>$dv['en_name'], 
+					'name'=>$dv['name'], 
+					'list'=>array(),
 				);
 			}
+			foreach($dslist as $tv){
+				if(isset($map[$tv['database_id']])){
+					$map[$tv['database_id']]['list'][$tv['id']] = array(
+						'en_name'=>$tv['en_name'],
+						'name'=>$tv['name'],
+					);
+				}
+			}
+			
+			if(!Yii::app()->cache->set($cache_key, $map, Yii::app()->params['cache_expire'])){
+	    		Yii::log('设置缓存失败：key='.$cache_key, CLogger::LEVEL_WARNING, 'system.cache');
+	    	}
 		}
-		
 		return $map;
 	}
 

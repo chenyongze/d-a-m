@@ -33,7 +33,7 @@
 	?>
 	<div class="row buttons">
 		<div class="span1">
-		<?php echo CHtml::submitButton('发布新数据'); ?>
+		<?php echo CHtml::submitButton($update?'更新数据':'发布新数据'); ?>
 		</div>
 	</div>
 	<?php

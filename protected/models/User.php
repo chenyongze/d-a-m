@@ -177,6 +177,7 @@ class User extends DBModel {
         if($this->get_login_user('scopeInfo', 'db') != 'all'){
         	$criteria->addCond('id', 'in', $this->get_login_user('scopeInfo', 'db'));
         }
+        $criteria->sort('id', EMongoCriteria::SORT_ASC);
         return $criteria;
 	}
 	
@@ -189,6 +190,7 @@ class User extends DBModel {
         if($this->get_login_user('scopeInfo', 'ds') != 'all'){
         	$criteria->addCond('id', 'in', $this->get_login_user('scopeInfo', 'ds'));
         }
+        $criteria->sort('id', EMongoCriteria::SORT_ASC);
         return $criteria;
 	}
 

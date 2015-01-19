@@ -1,6 +1,0 @@
-assets/*
-protected/runtime/*
-.buildpath
-.settings
-.project
-!.gitkeep

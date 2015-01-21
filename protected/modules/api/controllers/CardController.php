@@ -50,6 +50,8 @@ class CardController extends Controller {
 	
 	/**
 	 * 获取一条内容
+	 * http://db.admin.mofang.com/api/card/getitem?id=7836
+	 * http://db.admin.mofang.com/api/card/getitem?setid=1&name=冬梦
 	 * @author gavin
 	 */
 	public function actionGetItem() {
@@ -70,7 +72,7 @@ class CardController extends Controller {
 		
 		//开始查询
 		if(empty($return['code'])){
-			
+			//$this->checkCache();	//检查缓存
 			//查询器
 			$criteria = new EMongoCriteria();
 			if($id){
@@ -111,7 +113,7 @@ class CardController extends Controller {
 				unset($arr_info['_id']);
 				$return['data'] = $arr_info;
 			}
-			
+			//$this->writeCache(CJSON::encode($return));	//设置缓存
 		}
 		//print_r($return['data']);exit();
 	    echo CJSON::encode($return);
@@ -119,6 +121,7 @@ class CardController extends Controller {
 	
 	/**
 	 * 获取内容列表
+	 * http://db.admin.mofang.com/api/card/getitems?setid=1&select=name
 	 * @author gavin
 	 */
 	public function actionGetItems() {
@@ -141,6 +144,7 @@ class CardController extends Controller {
 		
 		//开始查询
 		if(empty($return['code'])){
+			$this->checkCache();	//检查缓存
 			$dsModel = $this->loadModel($datasetId, 'ds');
 			$fields = array_keys($dsModel->fields);
 			
@@ -213,6 +217,7 @@ class CardController extends Controller {
 				unset($arr_info['_id']);
 				$return['data'][$rkey] = $arr_info;
 			}
+			$this->writeCache(CJSON::encode($return));	//设置缓存
 		}
 		//print_r($return['data']);exit();
 	    echo CJSON::encode($return);
@@ -221,6 +226,7 @@ class CardController extends Controller {
 	
 	/**
 	 * 获取选择框的候选项（带缓存）
+	 * http://db.admin.mofang.com/api/card/getoptionlist?setid=1&field=xj
 	 * @author gavin
 	 */
 	public function actionGetOptionList() {
@@ -238,6 +244,7 @@ class CardController extends Controller {
 			$return['code'] = 1;	//接口参数不足
 		//获取字段定义
 		}else{
+			//$this->checkCache();	//检查缓存
 			$options = CardDs::model()->getFieldOption($datasetId, $fieldKay);
 			if(empty($options)){
 				$return['code'] = 2;
@@ -246,6 +253,7 @@ class CardController extends Controller {
 					$return['data'][] = $oval['value'];
 				}
 			}
+			//$this->writeCache(CJSON::encode($return));	//设置缓存
 		}
 
 		echo CJSON::encode($return);
@@ -253,6 +261,7 @@ class CardController extends Controller {
 	
 	/**
 	 * 获取选择字段的已使用选项（带缓存）
+	 * http://db.admin.mofang.com/api/card/getoptionuse?setid=1&field=fglx
 	 * @author gavin
 	 */
 	public function actionGetOptionUse() {
@@ -271,6 +280,7 @@ class CardController extends Controller {
 			$return['code'] = 1;	//接口参数不足
 		//获取字段定义
 		}else{
+			$this->checkCache();	//检查缓存
 			$options = CardDs::model()->getFieldOption($datasetId, $fieldKay);
 			if(empty($options)){
 				$return['code'] = 2;
@@ -308,6 +318,7 @@ class CardController extends Controller {
 					$return['data'] = array_filter($return['data']);	//去空
 					$return['data'] = array_merge($return['data'], array());
 				}
+				$this->writeCache(CJSON::encode($return));	//设置缓存
 			}
 		}
 		
@@ -352,7 +363,30 @@ class CardController extends Controller {
 		return $str;
 	}
 	
+	/**
+	 * 检查缓存，若已经存在则直接打印并终止
+	 * @return null
+	 */
+	protected function checkCache(){
+		//现尝试从缓存中获取
+        $cache_key = 'db.admin.'.$_SERVER['REQUEST_URI'];	//db.admin./api/card/getitems?setid=1&select=name
+        if(($cache_data = Yii::app()->cache->get($cache_key)) !== false){
+        	echo $cache_data;exit();
+        }
+	}
 	
+	/**
+	 * 添加或更新缓存
+	 * @param $data	array	待缓存的数据
+	 * @return unknown_type
+	 */
+	protected function writeCache($data){
+		//添加缓存
+		$cache_key = 'db.admin.'.$_SERVER['REQUEST_URI'];
+      	if(!Yii::app()->cache->set($cache_key, $data, Yii::app()->params['cache_expire'])){
+    		Yii::log('设置缓存失败：key='.$cache_key, CLogger::LEVEL_WARNING, 'system.cache');
+    	};
+	}
 	
 	
 }

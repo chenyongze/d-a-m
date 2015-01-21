@@ -83,7 +83,7 @@ return array(
 			'class' => 'system.caching.CMemCache',
 			'useMemcached' => true,
 			'servers' => array(
-				'01' => array('host' => '127.0.0.1', 'port' => 11212),
+				'01' => array('host' => '10.6.16.194', 'port' => 11211),
 			),
 		),
 

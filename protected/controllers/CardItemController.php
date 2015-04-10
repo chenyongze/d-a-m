@@ -77,6 +77,9 @@ class CardItemController extends Controller
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
         $mcss = Yii::app()->mcss;
+        $import_rs = array('c'=>0, 'e'=>0, 'a'=>0, 'u'=>0);	//分别对应总行数，错误行数，新增行数，更新行数
+        $rs_error = array();    //错误记录
+        $data_error = array();  //若出错的导出数据
         
         //范围验证
 		$this->scopeCheck($dsModel->database_id, $id);
@@ -103,13 +106,16 @@ class CardItemController extends Controller
             //往卡牌库Item表导入记录
             //1条1条导入
             foreach($file_data as $i=>$lineData){
-            	if(empty($i)){
-            		continue;
+            	if($i<2){
+                    $data_error[] = ($lineData['A'] != '出错行号') ? (array('出错行号','错误提示')+$lineData) : $lineData;    //添加错误列
+                    continue;
             	//获取对应字段名
             	}if ($i == 2) {
             		$rsHeader = $lineData;
+                    $data_error[] = ($lineData['A'] != '') ? (array('','')+$lineData) : $lineData;     //添加错误列
             	//获取值
                 } elseif ($i >= 3) {
+                    $import_rs['c']++;      //累加获得总的导入量
                     $itemData = array();
                     if (empty($lineData)) {
                         continue;
@@ -119,15 +125,17 @@ class CardItemController extends Controller
                     $group_info = array();	//字段信息
                     $field_count = count($rsHeader);	//字段总数
                     $saveData = array();	//保存数据集
-                    
+
                     //逐一处理每个字段
+                    print_r($lineData);
                     foreach ($lineData as $key => $value) {
+
                     	//临时：字段位置的编号，若结果集键值不是数字则转ascii后减掉65
                     	$key_no = $key;	
                     	if(!is_numeric($key)){
                     		$key_no = ord($key)-65;
                     	}
-                    	
+
                     	//多余的字段的数据不作处理
                     	if($key_no>=$field_count){
                     		continue;
@@ -136,7 +144,6 @@ class CardItemController extends Controller
                     	//$value = trim(iconv('gbk','utf-8',$value));
                     	$value = trim($value);
                     	$field_key = $field_real = $rsHeader[$key];	//字段名称
-                        
                     	//如果是字段组，获取组名
                     	if(strpos($field_key, '-')){
                     		$group_info = explode('-', $field_key, 3);
@@ -155,7 +162,6 @@ class CardItemController extends Controller
                             	$itemData[$field_real] = $this->formatFirldData($value, $tmpField, $mcss);	//格式化内容
                             //字段组
                             }else if($tmpField['type']=='group'){
-                            	
                             	//如果有传入组内字段名才处理
                             	if(isset($group_info[2])){
                             		if(empty($value)){
@@ -168,41 +174,74 @@ class CardItemController extends Controller
 	                            	$itemData[$field_real][$group_info[1]][$group_info[2]] = $value;
                             	}
                             }
-                            
+                        //删除字段名为空的数据字段
+                        }else if(empty($field_real)){
+                            unset($lineData[$key]);
                         }
                     }
 					
                     //若存在id则更新，否则新加一条记录
                     $is_update = false;
                     if(isset($saveData['id']) && $saveData['id']){
-                    	$itemModel = $this->loadModel($saveData['id'], 'item');
+                        echo '111111';
+                        $itemModel = CardItem::model()->findByAttributes(array('id'=>(int)$saveData['id'], 'dataset_id'=>(int)$id));
+                        //如果带id但没有对应记录则报错
+                        if(empty($itemModel)){
+                            $import_rs['e']++;
+                            $rs_error[$i] = array(		//记录错误信息
+                                'msg'	=> '没有这条记录',
+                                'vo'	=> $lineData,
+                            );
+                            continue;
+                        }
                     	$is_update = true;
                     }else{
+                        echo '22222';
                    	 	$itemModel = new CardItem;
                    	 	$saveData['dataset_id'] = (int)$id;	//设置表类型
                     }
-                    
+
                     //填入数据
                     $saveData['data'] = $itemData;
                     $itemModel->attributes = $saveData;
-                    if (!$itemModel->save()) {
-                        Yii::app()->user->setFlash("error", "导入数据失败! 停止行数：" . $i);
-                        $this->redirect(array('CardItem/index/id/' . $id));
+                    if ($itemModel->save()) {
+                        if($is_update){
+                            $this->addLog('item', $itemModel->id, '修改了“'.$dsModel->name.'”中的一条数据(xls)');
+                            $import_rs['u']++;
+                        }else{
+                            $this->addLog('item', $itemModel->id, '发布了“'.$dsModel->name.'”的新数据(xls)');
+                            $import_rs['a']++;
+                        }
                     }else{
-                    	if($is_update){
-                    		$this->addLog('item', $itemModel->id, '修改了“'.$dsModel->name.'”中的一条数据(xls)');
-                    	}else{
-                    		$this->addLog('item', $itemModel->id, '发布了“'.$dsModel->name.'”的新数据(xls)');
-                    	}
+                        $import_rs['e']++;
+                        $rs_error[$i] = array(		//记录错误信息
+                            'msg'	=> '插入失败！',
+                            'vo'	=> $saveData,
+                        );
                     }
                 }
             }
-            Yii::app()->user->setFlash("success", "导入数据成功!");
-            $this->redirect(array('CardItem/index/id/' . $id));
+
+            //未出问题则跳转，出了问题则导出错误列表
+            if(empty($rs_error)){
+                Yii::app()->user->setFlash("success", "导入数据完成! 导入记录总数". $import_rs['c'] ."条".
+                    ($import_rs['a']?", 插入新纪录".$import_rs['a']."条":"").
+                    ($import_rs['u']?", 更新原有记录".$import_rs['u']."条":"").
+                    ($import_rs['e']?", 出错记录".$import_rs['e']."条":"")."。");
+                $this->redirect(array('CardItem/index/id/' . $id));
+            }else{
+                //获取项目任务列表
+                foreach($rs_error as $line_no => $tv){
+                    $row_info = array($line_no, $tv['msg']);		//加入提醒字段
+                    $row_info += $tv['vo'];			//追加排期信息
+                    $data_error[] = $row_info;
+                }
+                $this->outputXls($data_error, $dbModel->name.'-'.$dsModel->name.'-'.date('YmdHis').'error-'."总". $import_rs['c'] ."新".$import_rs['a']."改".$import_rs['u']."错".$import_rs['e']);
+                exit();
+            }
         }
 
         $data = array();
-        $data['model'] = $itemModel;
         $data['dsModel'] = $dsModel;
         $data['dbModel'] = $dbModel;
         $data['datasetId'] = $id;

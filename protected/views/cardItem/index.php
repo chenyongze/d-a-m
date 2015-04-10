@@ -96,7 +96,7 @@ function selectall(name) {
 	<div class="row"></div>
 <!-- 提示信息 -->
 <div class="row">
-<div class="span6">
+<div style="padding-left: 30px;">
 <?php if (!empty($info)): ?>
 	<?php if ($info['type'] == 'success'): ?>
 	<div class="alert alert-success">

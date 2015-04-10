@@ -149,6 +149,7 @@ function selectall(name) {
 					<th class="button-column" style="width:20px">
 						<input type="checkbox" id="check_box" onclick="selectall('CardItem[id][]');">
 					</th>
+                    <th style="width:80px;">编号</th>
 					<?php 
 						$i = 1;
 						foreach ($dsModel->fields as $key=>$value):
@@ -171,6 +172,7 @@ function selectall(name) {
 			?>
 			<tr class="odd">
 				<td><input type="checkbox" name="CardItem[id][]" value="<?=$valueItem['id'];?>" > </td>
+                <td style="width:80px;"><?php echo $valueItem['id'] ?></td>
 				<?php 
 					foreach ($dsModel->fields as $key=>$value):
 						if ($value['type'] == 'field') :

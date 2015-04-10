@@ -86,13 +86,28 @@ class CardDs extends DBModel
 	public function rules() {
 		return array(
 			//array('name, en_name, database_id', 'required'),
-			array('name, en_name, database_id', 'required'),
-			//array('name', 'EMongoUniqueValidator'),
-			array('name, en_name', 'EMongoUniqueValidator', 'on'=>'Create'),
-			array('id, database_id', 'numerical', 'integerOnly' => true),
-			array('fields', 'safe'),
+            array('name, en_name, database_id', 'required'),
+            //array('name', 'EMongoUniqueValidator'),
+            array('name, en_name', 'dsUniqueValidator', 'on'=>'Create'),
+            array('id, database_id', 'numerical', 'integerOnly' => true),
+            array('fields', 'safe'),
 		);
 	}
+
+    /**
+     * 自定义重复验证
+     * @param $attribute string 待验证字段名
+     * @param $params  array  附加属性
+     */
+    public function dsUniqueValidator($attribute, $params){
+        $criteria = new EMongoCriteria;
+        $criteria->database_id = $this->database_id;
+        $criteria->{$attribute} = $this->$attribute;
+        $count = CardDs::model()->count($criteria);
+        if($count !== 0){
+            $this->addError($attribute, $this->getAttributeLabel($attribute).' 为 "'.$this->$attribute.'" 的记录已经存在！');
+        }
+    }
 
 	public function attributeLabels() {
 		return array(

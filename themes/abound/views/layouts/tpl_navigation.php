@@ -23,7 +23,7 @@
 				array('label'=>'备份恢复', 'url'=>array('/dump'), 'visible'=>$this->actCheck('dump')),
 				array('label'=>'用户管理', 'url'=>array('/user'), 'visible'=>$this->actCheck('user')),
 				array('label'=>'操作日志', 'url'=>array('/log'), 'visible'=>$this->actCheck('log')),
-				/*array('label'=>'Gii generated', 'url'=>array('customer/index')),*/
+// 				array('label'=>'Gii generated', 'url'=>array('customer/index'),'visible'=>$this->actCheck('customer')),
 				array('label'=>'登陆', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
 				array('label'=>'退出 ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest),
 			    ),

@@ -9,7 +9,8 @@ class DatasetFieldController extends Controller {
 	public function actionIndex($id) {
 		$dsModel = $this->loadModel((int)$id, 'ds');
 		$dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
-		
+// 		print_r($dsModel);
+// 		print_r($dbModel);
 		//范围验证
 		$this->scopeCheck( $dbModel->id, $dsModel->id);
 		

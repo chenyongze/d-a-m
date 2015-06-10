@@ -17,8 +17,7 @@ class LogController extends Controller {
 	public function actionIndex() {
 		$data = array();
 		
-		$model = new Log();
-		$attr = $model->attributeLabels();
+		$attr = Log::model()->attributeLabels();
 		$criteria = new EMongoCriteria;
 		
 		//其他人无法看见admin的操作记录
@@ -30,7 +29,7 @@ class LogController extends Controller {
         if(isset($_GET['sub'])){
 	        $criteria = $this->fillCond($criteria, Log::model()->attributeLabels());
     	}
-
+//     	print_r($criteria);
         $count = Log::model()->count($criteria);
         $pages = new CPagination($count);
         $perPage = 20;

@@ -13,9 +13,7 @@ class CardDsController extends Controller {
 	public function actionIndex($id) {
 	    $model = new CardDs;
 	    $model->database_id = $id;
-
 		$dbModel = $this->loadModel($id, 'db');
-		
 		//范围验证
 		$this->scopeCheck($id);
 

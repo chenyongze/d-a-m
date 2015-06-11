@@ -29,7 +29,7 @@ class LogController extends Controller {
         if(isset($_GET['sub'])){
 	        $criteria = $this->fillCond($criteria, Log::model()->attributeLabels());
     	}
-        FunctionUTL::Debug($criteria);
+//         FunctionUTL::Debug($criteria);
         $count = Log::model()->count($criteria);
         $pages = new CPagination($count);
         $perPage = 20;

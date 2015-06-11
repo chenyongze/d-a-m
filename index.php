@@ -1,7 +1,6 @@
 <?php
 // remove the following lines when in production mode
 define('YII_DEBUG', 1);
-
 // specify how many levels of call stack should be shown in each log message
 define('YII_TRACE_LEVEL', 3);
 // change the following paths if necessary

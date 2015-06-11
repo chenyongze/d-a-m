@@ -85,7 +85,8 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'header'=>$labels['username'],
 		),
 		array(
-			'name'=>'role', 'header'=>$labels['role'],
+			'name'=>'role', 
+		    'header'=>$labels['role'],
 			'value' => 'Yii::app()->params["role"][$data->role]["name"]',
 		),
 		array('name'=>'last_uid', 'header'=>$labels['last_uid'], 'type'=>'raw'),

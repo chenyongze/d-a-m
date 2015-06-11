@@ -11,6 +11,8 @@ class CardDbController extends Controller {
 	* @author gentle
 	*/
 	public function actionIndex() {
+// 	    $cmapObj = new CMap(array(1,3,4));
+// 	    print_r( $cmapObj->count()) ;
 		$data = array();
 		$data['model'] = CardDb::model();
 		$data['dataTree'] = $this->dataTree(0, 'datasetField/index');

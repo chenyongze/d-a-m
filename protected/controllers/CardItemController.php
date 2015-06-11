@@ -416,6 +416,7 @@ class CardItemController extends Controller
      */
     public function actionCreate($id, $preview = false)
     {
+//        echo MCDomain::MGA;
     	$this->actCheck('item-add', false);
         $dsModel = $this->loadModel($id, 'ds');
         

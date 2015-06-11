@@ -7,37 +7,30 @@
  */
 
 class ApiController extends Controller {
-
+    
+    private $_id = null;//表模型ID
 	public function init(){
 	    $arr = [
 	        ["name"=>'cyz'],
 	        2,
 	        5,
 	    ];
+	    $this->_id = 19;//卡牌
 	    
 	}
 	
 	public function actionIndex() {
 	    
-	   $id = FunctionUTL::GetRequestParam('id',FILTER_NUMBER);
 	   $info = array();
-	   if(empty($id))
-	   {
-	       echo FunctionUTL::ToJson($info);
-	       return '';
-	   }
-// 	   $itemModel = $this->loadModel((int)$id, 'item', 'dataset_id', true);
-
-	   $dsModel = $this->loadModel((int)$id, 'ds');					//获取表模型
+// 	   $itemModel = $this->loadModel((int)$this->_id, 'item', 'dataset_id', true);
+	   $dsModel = $this->loadModel((int)$this->_id, 'ds');					//获取表模型
 	   $dsModel = $dsModel->sortField();
 	   $criteria = new EMongoCriteria();
-	   $criteria->dataset_id = $id;
+	   $criteria->dataset_id = $this->_id;
 // 	   FunctionUTL::Debug($dsModel['fields']);
 	   //添加查询条件
-	   if(isset($_GET['sub'])){
-	       $criteria = $this->fillCond($criteria, $dsModel['fields']);
-	   }
-	   
+	   $this->fillCond($criteria, $dsModel['fields']);
+// 	   FunctionUTL::Debug($criteria);
 // 	   FunctionUTL::Debug($criteria->getConditions());
 	   $count = CardItem::model()->count($criteria);
 	   $pages = new CPagination($count);
@@ -85,30 +78,43 @@ class ApiController extends Controller {
 	 * @param $fields	array	字段定义
 	 * @return EMongoCriteria	填充后的查询器
 	 */
-	private function fillCond($criteria, $fields){
-	    $kfield = isset($_GET['kfield'])?trim($_GET['kfield']):'';			//字段名
-	    $koperator = isset($_GET['koperator'])?trim($_GET['koperator']):'';	//操作符
-	    $kword = isset($_GET['kword'])?trim($_GET['kword']):'';				//值
-	    //检验-字段名和操作符必选
-	    if(empty($kfield) || empty($koperator)){
-	        return $criteria;
+	private function fillCond(&$criteria, $fields){
+	    
+	    parse_str($_SERVER['QUERY_STRING']);
+// 	    FunctionUTL::Debug($fields);
+	    $_fieldKey = array_keys($fields);
+// 	    FunctionUTL::Debug($_fieldKey);
+	    foreach ($_fieldKey as $val)
+	    {
+	        $kfield = $val;			//字段名
+	        $koperator = '==';	//操作符
+	        $kword = $$val;				//值
+	        //检验-字段名和操作符必选
+	        if(empty($kfield) || empty($kword)){
+	            continue;
+	        }
+	        
+	        //检查-字段有定义，且不是字段组
+	        if($kfield!='id' && (!isset($fields[$kfield]) || $fields[$kfield]['type']=='group')){
+	            continue;
+	        }
+	        
+// 	        FunctionUTL::Debug($kfield);
+	        //字段定义
+	        $field_info = $fields[$kfield]['extra']['field_info'];
+	        $type = $field_info['addition_type'];
+	        //字段名处理
+	        if($kfield!='id'){
+	            $kfield = 'data.'.$kfield;
+	         }
+	        
+// 	        FunctionUTL::Debug($type);
+	        //根据提交参数添加条件
+	        $this->makeCond($criteria, $type, $kfield, $koperator, $kword);
 	    }
-	    //检查-字段有定义，且不是字段组
-	    if($kfield!='id' && (!isset($fields[$kfield]) || $fields[$kfield]['type']=='group')){
-	        return $criteria;
-	    }
-	     
-	    //字段名处理
-	    if($kfield!='id'){
-	        $kfield = 'data.'.$kfield;
-	    }
-	
-	    //字段定义
-	    $field_info = $fields[$kfield]['extra']['field_info'];
-	    $type = $field_info['addition_type'];
+	    
+	    return '';
 
-	    //根据提交参数添加条件
-	    return $this->makeCond($criteria, $type, $kfield, $koperator, $kword);
 	}
 
 }

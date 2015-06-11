@@ -45,10 +45,6 @@ class Controller extends CController
 	public function dataTree($databaseId = 0, $action='cardItem/Index') {
 		$data = array();
 		$databases = CardDb::model()->findAll();
-		
-// 		echo "<pre>";
-// 		print_r($databases);
-		
 		foreach ($databases as $key => $value) {
 			$data[$key]['text'] = '<span>'.$value->name.'</span>';
 			if ($databaseId == $value->id) {
@@ -61,11 +57,6 @@ class Controller extends CController
 			$dscriteria = User::model()->getScopeDsCriteria();
 			$dscriteria->addCond('database_id', '==', (int)$value->id);
 			$datasets = CardDs::model()->findAll($dscriteria);
-			if($value->id == 10)
-			{
-// 			    print_r($dscriteria);
-// 			    print_r($datasets);
-			}
 			if (empty($datasets)) {
 				continue;
 			}
@@ -452,7 +443,7 @@ class Controller extends CController
 	 * @param $kword	筛选值
 	 * @return $criteria 添加后的过滤器
 	 */
-	public function makeCond($criteria, $type, $kfield, $koperator, $kword){
+	public function makeCond(&$criteria, $type, $kfield, $koperator, $kword){
 		//操作符处理
     	switch($koperator){
 	    	case '==':

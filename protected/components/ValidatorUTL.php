@@ -1,6 +1,7 @@
 <?php
 /**
- *字段检查类
+ *@info:字段检查类
+ *@yongze
  */
 
 class ValidatorUTL

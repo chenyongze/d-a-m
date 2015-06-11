@@ -10,7 +10,7 @@ class CardItemController extends Controller
     public function actionIndex($id)
     {
         set_time_limit(0); //防止执行超时
-        
+
         //获取一个可用id
         if(empty($id)){
         	$def_ds = CardDs::model()->findAll(User::model()->getScopeDsCriteria());
@@ -47,7 +47,6 @@ class CardItemController extends Controller
         $criteria->limit($perPage)->offset($offset)->sort('id', EMongoCriteria::SORT_DESC);
         $itemModel = CardItem::model()->findAll($criteria);
 
-       
         $data = array();
         $data['itemModel'] = $itemModel;
         $data['dbModel'] = $dbModel;

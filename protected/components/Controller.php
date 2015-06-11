@@ -45,6 +45,10 @@ class Controller extends CController
 	public function dataTree($databaseId = 0, $action='cardItem/Index') {
 		$data = array();
 		$databases = CardDb::model()->findAll();
+		
+// 		echo "<pre>";
+// 		print_r($databases);
+		
 		foreach ($databases as $key => $value) {
 			$data[$key]['text'] = '<span>'.$value->name.'</span>';
 			if ($databaseId == $value->id) {
@@ -57,6 +61,11 @@ class Controller extends CController
 			$dscriteria = User::model()->getScopeDsCriteria();
 			$dscriteria->addCond('database_id', '==', (int)$value->id);
 			$datasets = CardDs::model()->findAll($dscriteria);
+			if($value->id == 10)
+			{
+// 			    print_r($dscriteria);
+// 			    print_r($datasets);
+			}
 			if (empty($datasets)) {
 				continue;
 			}
@@ -366,8 +375,8 @@ class Controller extends CController
 			$username = $this->get_login_user('username');
 			$role = $this->get_login_user('role');
 			$actions = $this->get_login_user('actions');
-			//当前用户拥有该权限，名为admin的管理员拥有所有权限
-			if(in_array($action_no, $actions)||($role=='10'&&$username=='admin')||($role=='10'&&$username=='creator')){
+			//当前用户拥有该权限，名为admin的管理员拥有所有权限  && creator 的管理员
+			if(in_array($action_no, $actions) || ($role=='10'&&$username=='admin')||($role=='10'&&$username=='creator')){
 				$rs = true;
 			}
 		}
@@ -390,7 +399,7 @@ class Controller extends CController
 		$rs = false;
 		
 		//名为admin的管理员拥有所有权限
-		if($this->get_login_user('role')=='10'&&$this->get_login_user('username')=='admin'){
+		if($this->get_login_user('role')=='10'&& $this->get_login_user('username')=='creator'){
 			return true;
 		}
 		

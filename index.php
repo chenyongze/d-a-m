@@ -7,6 +7,14 @@ define('YII_TRACE_LEVEL', 3);
 $yii = '/opt/phplib/yii/yii.php';
 $configDir = __DIR__ . '/protected/config/';
 $config = $configDir . 'production.php';
+
+define("HTTP_REQUEST",		'REQUEST');
+define("HTTP_POST",			'POST');
+define("HTTP_GET",			'GET');
+define("FILTER_STRING",		'FILTER_STRING');
+define("FILTER_NUMBER",		'FILTER_NUMBER');
+define("FILTER_FLOAT",		'FILTER_FLOAT');
+
 defined('ENVIRONMENT') || define('ENVIRONMENT', isset($_SERVER['ENVIRONMENT']) ? $_SERVER['ENVIRONMENT'] : 'production');
 switch (ENVIRONMENT) {
     case 'development' :
@@ -21,9 +29,9 @@ switch (ENVIRONMENT) {
         break;
 
     case 'testing' :
-        echo time();
         define('YII_ENABLE_ERROR_HANDLER',false);
         define('YII_ENABLE_EXCEPTION_HANDLER',false);
+        define('ENABLE_DEBUGLOG',true);//log日志
         error_reporting(E_ALL & ~E_NOTICE);
         ini_set('display_errors', 'on');
         

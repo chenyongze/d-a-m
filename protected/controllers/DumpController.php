@@ -235,7 +235,7 @@ class DumpController extends Controller {
 			//$names = $db->execute('function (){ return db.getCollectionNames(); }');	//生产线不支持js格式mongo指令
 			$names = $db->getCollectionNames();
 		} catch(Exception $e) {
-			print_r($names);
+// 			print_r($names);
 			echo $e->errorMessage();exit();
 		}
 		

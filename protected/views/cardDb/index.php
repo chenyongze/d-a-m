@@ -93,7 +93,8 @@ echo CHtml::ajaxButton('新建数据库', array('//CardDb/create'),
 </div>
 
 
-<?php $this->widget('zii.widgets.grid.CGridView', array(
+<?php
+ $this->widget('zii.widgets.grid.CGridView', array(
 	'id' => 'card-grid',
 	/*'type'=>'striped bordered condensed',*/
 	'itemsCssClass'=>'table table-hover table-striped table-bordered table-condensed',

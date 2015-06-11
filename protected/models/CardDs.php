@@ -416,8 +416,10 @@ class CardDs extends DBModel
     	
     	//调用，有缓存则用缓存
 		if(($map = Yii::app()->cache->get($cache_key)) === false){
-			$dblist = CardDb::model()->findAll(User::model()->getScopeDbCriteria());
-			$dslist = CardDs::model()->findAll(User::model()->getScopeDsCriteria());
+// 			$dblist = CardDb::model()->findAll(User::model()->getScopeDbCriteria());
+// 			$dslist = CardDs::model()->findAll(User::model()->getScopeDsCriteria());
+			$dblist = CardDb::model()->findAll();
+			$dslist = CardDs::model()->findAll();
 			foreach($dblist as $dv){
 				$map[$dv['id']] = array(
 					'en_name'=>$dv['en_name'], 

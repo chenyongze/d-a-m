@@ -1,6 +1,6 @@
 <?php
 
-class CardDbController extends Controller {
+class TestController extends Controller {
 
 	public function init(){
 		$this->actCheck('dbset', false);
@@ -10,12 +10,64 @@ class CardDbController extends Controller {
 	* 卡牌库列表
 	* @author gentle
 	*/
-	public function actionIndex() {
-		$data = array();
-		$data['model'] = CardDb::model();
-		$data['dataTree'] = $this->dataTree(0, 'datasetField/index');
-		$data['info'] = $this->promptInfo();
-		$this->render('index', $data);
+	public function actionIndex($id) {
+	    
+// 	    die('----function:'.__FUNCTION__.'<hr>----class::'.__CLASS__);
+
+        //获取一个可用id
+        if(empty($id)){
+        	$def_ds = CardDs::model()->findAll(User::model()->getScopeDsCriteria());
+        	if($def_ds && $def_ds[0]->id){
+        		$id = $def_ds[0]->id;
+        	}
+        }
+        
+        //$itemModel = $this->loadModel((int)$id, 'item', 'dataset_id', true);
+        $dsModel = $this->loadModel((int)$id, 'ds');					//获取表模型
+        $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');	//获取库模型
+		$dsModel = $dsModel->sortField();
+		
+		//范围验证
+		$this->scopeCheck($dsModel->database_id, $id);
+		 
+        $criteria = new EMongoCriteria();
+        $criteria->dataset_id = (int)$id;
+        
+        //添加查询条件
+        if(isset($_GET['sub'])){
+	        $criteria = $this->fillCond($criteria, $dsModel['fields']);
+	       	//var_dump($criteria->getConditions());
+    	}
+    	
+        $count = CardItem::model()->count($criteria);
+        $pages = new CPagination($count);
+        
+        $perPage = 20;
+        $pages->pageSize = $perPage;
+        //$pages->applyLimit($criteria);
+        $offset = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $offset = ($offset - 1) * $perPage;
+        $criteria->limit($perPage)->offset($offset)->sort('id', EMongoCriteria::SORT_DESC);
+        $itemModel = CardItem::model()->findAll($criteria);
+
+        
+        
+        print_r($itemModel);exit;
+        $data = array();
+        $data['itemModel'] = $itemModel;
+        $data['dbModel'] = $dbModel;
+        $data['dsModel'] = $dsModel;
+        $data['datasetId'] = $dsModel->id;
+        $data['dataTree'] = $this->dataTree($dbModel->id);
+        $data['info'] = $this->promptInfo();
+        $data['pages'] = $pages;
+        
+        
+        
+        print_r($data);exit;
+		
+		
+// 		$this->render('index', $data);
 	}
 
 	/**

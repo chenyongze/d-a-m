@@ -12,7 +12,7 @@ class DatasetFieldController extends Controller {
 // 		print_r($dsModel);
 // 		print_r($dbModel);
 		//范围验证
-		$this->scopeCheck( $dbModel->id, $dsModel->id);
+// 		$this->scopeCheck( $dbModel->id, $dsModel->id);
 		
 		$info = Yii::app()->user->getFlash("info");
 

@@ -11,7 +11,7 @@ class LogController extends Controller {
 	}
 	
 	/**
-	* 卡牌库列表
+	* 操作日志列表
 	* @author gentle
 	*/
 	public function actionIndex() {
@@ -38,11 +38,9 @@ class LogController extends Controller {
         $offset = ($offset - 1) * $perPage;
         $criteria->limit($perPage)->offset($offset)->sort('id', EMongoCriteria::SORT_DESC);
         $logModel = Log::model()->findAll($criteria);
-        
       	$data['logModels'] = $logModel;
         $data['pages'] = $pages;
         $data['attr'] = $attr;	//模型属性
-	 	
 		$this->render('index', $data);
 	}
 	

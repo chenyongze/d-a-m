@@ -1,16 +1,29 @@
+<!-- 多行文本 -->
+<?php
+if (!empty($group)) {
+	$fieldLabelId = "numItemName{$group}_{$key}_{$enName}";
+	$fieldId = "numItem{$group}_{$key}_{$enName}";
+	$fieldName = "CardItem[data][{$group}][{$key}][$enName]";
+} else {
+	$fieldLabelId = "numItemName{$enName}";
+	$fieldId = "numItem{$enName}";
+	$fieldName = "CardItem[data][$enName]";
+}
+?>
+
 <!-- 数值字段 -->
 <div class="row label">
-	<div class="span2" id="numItemName<?=$enName?>" ><?php echo $data['name'];?></div>
+	<div class="span2" id="<?=$fieldLabelId?>" ><?php echo $data['name'];?></div>
 </div>
-<div class="row" style="color:red;display:none;" id="numItemName<?=$enName?>Error" >
-	<div class="span3" id="numItemName<?=$enName?>ErrorTxt"></div>
+<div class="row" style="color:red;display:none;" id="<?=$fieldLabelId?>Error" >
+	<div class="span3" id="<?=$fieldLabelId?>ErrorTxt"></div>
 </div>
 <div class="row">
 	<div>
 	<div class="span5">
 	<?php
 		$value = isset($itemData[$enName]) ? $itemData[$enName] : '';
-		echo(CHtml::textField("CardItem[data][$enName]", $value, array('class'=>'input-xxlarge', 'id'=>'numItem'.$enName)));
+		echo(CHtml::textField($fieldName, $value, array('class'=>'input-xxlarge', 'id'=>$fieldId)));
 	?>
 	</div>
 	</div>
@@ -46,7 +59,7 @@
 	</div>
 </div>
 <script type="text/javascript">
-	$("#numItem<?=$enName?>").blur(function(e) {
+	$("#<?=$fieldId?>").blur(function(e) {
 		//var str_len = getStrLen($(this).val());
 		var str_val = $(this).val();
 		if (str_val.indexOf('.') >= 0) {
@@ -59,36 +72,36 @@
 		var num_type = <?php echo $data['extra']['field_info']['num_type'];?>;
 
 		if (num_type==0 && num_len!=0) {
-			$("#numItemName<?=$enName?>").css("color", "red");
+			$("#<?=$fieldLabelId?>").css("color", "red");
 			$(this).focus();
 			permitSubmit = 0;
 			e.preventDefault();
-			$("#numItemName<?=$enName?>ErrorTxt").text('所填数值非整数!');
-			$("#numItemName<?=$enName?>Error").show();
+			$("#<?=$fieldLabelId?>ErrorTxt").text('所填数值非整数!');
+			$("#<?=$fieldLabelId?>Error").show();
 		} else if (num_type==1 && num_len!=1) {
-			$("#numItemName<?=$enName?>").css("color", "red");
+			$("#<?=$fieldLabelId?>").css("color", "red");
 			$(this).focus();
 			permitSubmit = 0;
 			e.preventDefault();
-			$("#numItemName<?=$enName?>ErrorTxt").text('小数位数异常,请检查!');
-			$("#numItemName<?=$enName?>Error").show();
+			$("#<?=$fieldLabelId?>ErrorTxt").text('小数位数异常,请检查!');
+			$("#<?=$fieldLabelId?>Error").show();
 		} else if (num_type==2 && num_len!=2) {
-			$("#numItemName<?=$enName?>").css("color", "red");
+			$("#<?=$fieldLabelId?>").css("color", "red");
 			$(this).focus();
 			permitSubmit = 0;
 			e.preventDefault();
-			$("#numItemName<?=$enName?>ErrorTxt").text('小数位数异常,请检查!');
-			$("#numItemName<?=$enName?>Error").show();
+			$("#<?=$fieldLabelId?>ErrorTxt").text('小数位数异常,请检查!');
+			$("#<?=$fieldLabelId?>Error").show();
 		} else if (limit_to!=0 && (str_val<limit_from || str_val>limit_to)) {
-			$("#numItemName<?=$enName?>").css("color", "red");
+			$("#<?=$fieldLabelId?>").css("color", "red");
 			$(this).focus();
 			permitSubmit = 0;
 			e.preventDefault();
-			$("#numItemName<?=$enName?>ErrorTxt").text('数值范围异常,请检查!');
-			$("#numItemName<?=$enName?>Error").show();
+			$("#<?=$fieldLabelId?>ErrorTxt").text('数值范围异常,请检查!');
+			$("#<?=$fieldLabelId?>Error").show();
 		} else {
-			$("#numItemName<?=$enName?>Error").hide();
-			$("#numItemName<?=$enName?>").css("color", "black");
+			$("#<?=$fieldLabelId?>Error").hide();
+			$("#<?=$fieldLabelId?>").css("color", "black");
 			permitSubmit = 1;
 		}
 	})

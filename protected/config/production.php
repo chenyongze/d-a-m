@@ -28,14 +28,14 @@ return array(
 
 	'modules'=>array(
 		// uncomment the following to enable the Gii tool
-		/*
 		'gii'=>array(
 			'class'=>'system.gii.GiiModule',
 			'password'=>'123456',
 			// If removed, Gii defaults to localhost only. Edit carefully to taste.
 			'ipFilters'=>array('124.207.174.198','::1'),
-		),*/
+		),
 		'api',
+	    't'=>array(),
 	),
 
 	// application components
@@ -86,7 +86,12 @@ return array(
 				'01' => array('host' => '127.0.0.1', 'port' => 11211),
 			),
 		),
-
+// 	    'redis'=>array(
+// 	        'class'=>'system.caching.CRedisCache',     //对应caching/CredisCache.php
+// 	        'hostname'=>'127.0.0.1',
+// 	        'port'=>6379,
+// 	        'database'=>0,
+// 	    ),
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
 			'errorAction'=>'site/error',

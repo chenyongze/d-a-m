@@ -417,6 +417,8 @@ class CardItemController extends Controller
     {
 //        echo MCDomain::MGA;
     	$this->actCheck('item-add', false);
+    	$id = !empty($id)?(int)$id:'';
+    	empty($id) && $this->redirect(array('CardItem/index/id/0'));
         $dsModel = $this->loadModel($id, 'ds');
         
         //范围验证
@@ -424,8 +426,12 @@ class CardItemController extends Controller
         
         if (isset($_POST['CardItem'])) {
             $itemModel = new CardItem;
-            $itemModel->dataset_id = (int)$id;
+            $itemModel->dataset_id = $id;
             $itemModel->attributes = $_POST['CardItem'];
+//          FunctionUTL::Debug($itemModel);exit;
+//          FunctionUTL::Debug($dsModel->fields);exit;
+
+            //数据校验
             foreach ($dsModel->fields as $key => $value) {
                 if ((isset($value['must']) && $value['must'] == 1) &&
                     (!isset($itemModel->attributes['data'][$key]) ||
@@ -569,6 +575,7 @@ class CardItemController extends Controller
         
         if (isset($_POST['CardItem'])) {
             $itemModel->attributes = $_POST['CardItem'];
+//             FunctionUTL::Debug($itemModel->attributes);exit;
             if ($itemModel->save()) {
             	$this->addLog('item', $itemModel->id, '修改了“'.$dsModel->name.'”中的一条数据');
                 Yii::app()->user->setFlash("success", "修改数据成功!");
@@ -581,15 +588,20 @@ class CardItemController extends Controller
         //构造字段Html
         $dsModel = $dsModel->sortField();
         $fieldHtml = '';
+//         FunctionUTL::debug($dsModel->fields);
+//         FunctionUTL::Debug($itemModel);
         foreach ($dsModel->fields as $key => $value) {
+            //普通字段
             if ($value['type'] == 'field') {
                 $fieldType = $value['extra']['field_info']['field_type'];
                 $fieldHtml .= $this->fieldItemHtml($key, $value, '', '', $itemModel->data);
-            } elseif ($value['type'] == 'group') {
+                
+            } elseif ($value['type'] == 'group') {//字段组
                 $groupData = array();
                 $groupData['datasetId'] = $dsId;
                 $groupData['enName'] = $key;
                 $groupData['data'] = $value;
+//                 FunctionUTL::Debug($itemModel->data);
                 if (!empty($itemModel->data[$key])) {
                     $groupData['dataHtml'] = array();
                     foreach ($itemModel->data[$key] as $k => $v) {
@@ -602,6 +614,7 @@ class CardItemController extends Controller
             }
         }
 
+//         FunctionUTL::debug($fieldHtml);
         $data = array();
         $data['model'] = $itemModel;
         $data['datasetId'] = $dsId;

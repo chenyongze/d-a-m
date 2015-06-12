@@ -4,9 +4,11 @@
  * @author Gavin
  */
 class LogController extends Controller {
-
+    
+    private $_logObj =null;
 	public function init(){
 		$this->actCheck('log', false);
+		$this->_logObj = Log::model();
 		$this->layout = '//layouts/column1';
 	}
 	
@@ -17,7 +19,7 @@ class LogController extends Controller {
 	public function actionIndex() {
 		$data = array();
 		
-		$attr = Log::model()->attributeLabels();
+		$attr = $this->_logObj->attributeLabels();
 		$criteria = new EMongoCriteria;
 		
 		//其他人无法看见admin的操作记录
@@ -27,17 +29,17 @@ class LogController extends Controller {
 		
 	 	//添加查询条件
         if(isset($_GET['sub'])){
-	        $criteria = $this->fillCond($criteria, Log::model()->attributeLabels());
+	        $criteria = $this->fillCond($criteria, $this->_logObj->attributeLabels());
     	}
 //         FunctionUTL::Debug($criteria);
-        $count = Log::model()->count($criteria);
+        $count = $this->_logObj->count($criteria);
         $pages = new CPagination($count);
         $perPage = 20;
         $pages->pageSize = $perPage;
         $offset = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $offset = ($offset - 1) * $perPage;
         $criteria->limit($perPage)->offset($offset)->sort('id', EMongoCriteria::SORT_DESC);
-        $logModel = Log::model()->findAll($criteria);
+        $logModel = $this->_logObj->findAll($criteria);
       	$data['logModels'] = $logModel;
         $data['pages'] = $pages;
         $data['attr'] = $attr;	//模型属性

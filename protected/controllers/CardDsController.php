@@ -36,19 +36,20 @@ class CardDsController extends Controller {
 		$db_model = $this->loadModel($id, 'db');
 		if(isset($_POST['CardDs'])) {
 			$CardDsArray = array();
-			$CardDsArray[0]['database_id'] = (int)$_POST['CardDs']['database_id'];
+			$CardDsArray[0]['database_id'] = $model->database_id ;
 			$CardDsArray[0]['name'] = $_POST['CardDs']['name'];
 			$CardDsArray[0]['en_name'] = $_POST['CardDs']['en_name'];
-
+			
 			if (isset($_POST['CardDs']['additionField'])) {
 				foreach ($_POST['CardDs']['additionField'] as $key=>$value) {
 					if (empty($value['name']) || empty($value['en_name'])) {
 						continue;
 					}
 					$CardDsArray[$key] = $value;
-					$CardDsArray[$key]['database_id'] = (int)$_POST['CardDs']['database_id'];
+					$CardDsArray[$key]['database_id'] = $model->database_id ;
 				}
 			}
+			
 			foreach ($CardDsArray as $val) {
 				$model = new CardDs("Create");
 				$model->database_id = $id;
@@ -70,8 +71,10 @@ class CardDsController extends Controller {
 			Yii::app()->user->setFlash("success", "新建 <b>{$model->name}</b> 数据表成功!");
 			$this->redirect(array('CardDs/index/id/'.$id));
 		}
-		$dbModel = $this->loadModel($id, 'db');
-		$this->renderPartial('_form_ds', array('model' => $model, 'dbModel' => $dbModel));
+		
+		//@TODO yongze del
+		//$dbModel = $this->loadModel($id, 'db');
+		$this->renderPartial('_form_ds', array('model' => $model, 'dbModel' => $db_model));
 	}
 
 	/**

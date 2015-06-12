@@ -1,4 +1,9 @@
 <?php
+/**
+ * 字段管理
+ * @author yongze
+ *
+ */
 
 class DatasetFieldController extends Controller {
 
@@ -9,13 +14,10 @@ class DatasetFieldController extends Controller {
 	public function actionIndex($id) {
 		$dsModel = $this->loadModel((int)$id, 'ds');
 		$dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
-// 		print_r($dsModel);
-// 		print_r($dbModel);
 		//范围验证
 // 		$this->scopeCheck( $dbModel->id, $dsModel->id);
 		
 		$info = Yii::app()->user->getFlash("info");
-
 		if (isset($_POST['listorder'])) {
 			$dsModel = $dsModel->fieldChangeSort($_POST['listorder']);
 			if ($dsModel->save()) {

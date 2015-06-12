@@ -71,6 +71,7 @@ class CardDb extends DBModel
 
 	public static function model($className = __CLASS__)
 	{
+	   // echo __CLASS__.__FUNCTION__.__FILE__.__LINE__.PHP_EOL;
 		return parent::model($className);
 	}
 

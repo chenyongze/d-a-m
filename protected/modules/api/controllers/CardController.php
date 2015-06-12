@@ -402,7 +402,6 @@ class CardController extends Controller {
 	protected function writeCache($data){
 		//添加缓存
 		$cache_key = 'db.admin.'.$_SERVER['REQUEST_URI'];
-
       	if(!Yii::app()->cache->set($cache_key, $data, Yii::app()->params['cache_expire'])){
     		Yii::log('设置缓存失败：key='.$cache_key, CLogger::LEVEL_WARNING, 'system.cache');
     		return -91001;

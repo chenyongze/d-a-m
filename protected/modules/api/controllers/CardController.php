@@ -12,9 +12,12 @@
 
 class CardController extends Controller {
 
-    private $g_Obj = null;//yii app
+    private $_obj = null;//yii app
+    private $_setid =null;//表id
+    
     public function init(){
-        $this->g_Obj = Yii::app();
+        $this->_obj = Yii::app();
+        $this->_setid =19;
     }
     
     /**
@@ -40,7 +43,7 @@ class CardController extends Controller {
 	 */
 	public function actionGetTables($databaseId = 0, $enName = '') {
 		$return['code'] = 0;
-		$selectField = array('id', 'database_id', 'name', 'en_name', 'listorder', 'request_times', 'last_uid', 'update_time');
+		$selectField = array('id', 'database_id', 'name', 'en_name', 'fields','listorder', 'request_times', 'last_uid', 'update_time');
 		$return['data'] = CardDs::model()->getList($databaseId, $enName, $selectField);
 		echo CJSON::encode($return);
 	}
@@ -72,7 +75,7 @@ class CardController extends Controller {
 		
 		//参数验证
 		if(empty($id)&&empty($name)){
-			 $return['code'] = 1;	//接口参数不足
+			 $return['code'] = -9101;	//接口参数不足
 		}
 		
 		$cache_data = null;
@@ -140,7 +143,7 @@ class CardController extends Controller {
 		//http://db.dev.mofang.com/api/card/getitems/setid/4/filter/djfl|珍品::/regex/djname|水/order/xyd|1/page/-2/size/20
 		$datasetId = isset($_GET['setid'])?intval($_GET['setid']):0;				//表id			setid = 4
 		$select = isset($_GET['select'])?$_GET['select']:'';						//返回字段		select = data.name
-		$filter = isset($_GET['filter'])?$this->paramStr2Arr($_GET['filter']):'';	//过滤条件		filter = djfl|珍品::	（多个且关系）
+		$filter = isset($_GET['filter'])?$this->paramStr2Arr($_GET['filter']):'';	//过滤条件		filter = djfl|珍品::	m_power|[20,1000]（多个且关系）[m_power]魔力在20-1000范围内
 		$regex = isset($_GET['regex'])?$this->paramStr2Arr($_GET['regex']):'';		//正则匹配		regex = djname|碎片（目前是不限定头尾匹配，后面需要优化）
 		$order = isset($_GET['order'])?$this->paramStr2Arr($_GET['order']):'';		//排序			order = xyd|1
 		$currPage = (isset($_GET['page'])&&$_GET['page']>=1)?intval($_GET['page']):1;//当前页码		page = 1 
@@ -150,12 +153,12 @@ class CardController extends Controller {
 		
 		//参数验证
 		if(empty($datasetId)){
-			 $return['code'] = 1;	//接口参数不足
+			 $return['code'] = -9101;	//接口参数不足
 		}
 		
 		$cache_data = null;
 		$this->checkCache($cache_data);	//检查缓存
-		if(!empty($cache_data))
+	    if(!empty($cache_data))
 		{
 		    echo $cache_data;
 		    return ;
@@ -212,7 +215,8 @@ class CardController extends Controller {
 			}else{
 				$criteria->sort('id', EMongoCriteria::SORT_ASC);	//默认id正序
 			}
-			//print_r($criteria);
+			
+// 			FunctionUTL::Debug($criteria);exit;
 			
 			//构建分页
 			$count = CardItem::model()->count($criteria);
@@ -296,6 +300,12 @@ class CardController extends Controller {
 		//获取字段定义
 		}else{
 			$this->checkCache($cache_data);	//检查缓存
+			if(!empty($cache_data))
+			{
+			    echo $cache_data;
+			    return '';
+			}
+			
 			$options = CardDs::model()->getFieldOption($datasetId, $fieldKay);
 			if(empty($options)){
 				$return['code'] = 2;
@@ -333,12 +343,39 @@ class CardController extends Controller {
 					$return['data'] = array_filter($return['data']);	//去空
 					$return['data'] = array_merge($return['data'], array());
 				}
+				
 				$this->writeCache(CJSON::encode($return));	//设置缓存
 			}
 		}
 		
 		echo CJSON::encode($return);
 		
+	}
+	
+	/**
+	 * 获取表字段类型包含字段name
+	 * 
+     *[character] => Array
+     *   (
+     *      [name] => 品质
+     *      [addition_type] => select
+     *   )
+	 */
+	protected function getTableFields(&$_fields=array())
+	{
+	    $dsModel = $this->loadModel($this->_setid, 'ds');//获取表模型
+	    if($dsModel->fields)
+	    {
+	        foreach ($dsModel->fields as $field=>$info)
+	        {
+	            $_fields[$field]['name']=$info['name'];
+	            $_fields[$field]['addition_type']=$info['extra']['field_info']['addition_type'];
+	            
+	        }
+	        
+	    }
+	    
+	    return 0;
 	}
 	
 	/**
@@ -383,12 +420,14 @@ class CardController extends Controller {
 	 * @return null
 	 */
 	protected function checkCache(&$cache_data){
+		//缓存时间 cache_expire === false 不缓存数据  ,  cache_expire == 0 缓存时间无限大
+	    if($this->_obj->params['cache_expire'] === false)
+	    {
+	        return;
+	    }
 		//现尝试从缓存中获取
         $cache_key = 'db.admin.'.$_SERVER['REQUEST_URI'];	//db.admin./api/card/getitems?setid=1&select=name
-//         FunctionUTL::Debug($cache_key);
-//         FunctionUTL::Debug(Yii::app()->cache->get($cache_key));exit;
-        if(($cache_data = Yii::app()->cache->get($cache_key)) !== false){
-//         	echo $cache_data;exit();
+        if(($cache_data = $this->_obj->cache->get($cache_key)) == false){
         	return -9100;
         }
         return ;
@@ -400,11 +439,19 @@ class CardController extends Controller {
 	 * @return unknown_type
 	 */
 	protected function writeCache($data){
+	    //缓存时间 cache_expire === false 不缓存数据  ,  cache_expire == 0 缓存时间无限大
+	    if($this->_obj->params['cache_expire'] === false)
+	    {
+	        return;
+	    }
+	    
 		//添加缓存
 		$cache_key = 'db.admin.'.$_SERVER['REQUEST_URI'];
-      	if(!Yii::app()->cache->set($cache_key, $data, Yii::app()->params['cache_expire'])){
+		$ret =$this->_obj->cache->set($cache_key, $data, $this->_obj->params['cache_expire']);
+      	if(!$ret){
     		Yii::log('设置缓存失败：key='.$cache_key, CLogger::LEVEL_WARNING, 'system.cache');
     		return -91001;
+    		
     	};
     	
     	return 0;

@@ -87,7 +87,7 @@ if (isset($group) && $enName) {
 		</div>
 	</div>
 
-	<div class="row" style="display:none">
+	<div class="row" style="display:">
 		<div class="span1"></div>
 		<label>
 		<div class="span1"><label>筛选字段</label></div>

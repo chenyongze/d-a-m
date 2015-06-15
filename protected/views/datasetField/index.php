@@ -47,9 +47,10 @@ $this->leftTree = $dataTree;
 			'transitionIn'		: 'none',
 			'transitionOut'		: 'none',
 			'width'			: 500,
-			'height'		: 600,
+			'height'		: 800,
 			'href'			: ajaxHref,
 			'type'			: 'inline',
+			'centerOnScroll':true,
 		});
 		$("#fancybox-close").unbind("click");
 		$("#fancybox-close").bind("click", function () {

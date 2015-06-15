@@ -603,7 +603,14 @@ abstract class EMongoDocument extends EMongoEmbeddedDocument
 						unset($rawData[$key]);
 				}
 			}
-
+            
+			//by yongze  add 查看入库数组
+			if(defined('ENABLE_DEBUGMONGODATA') && ENABLE_DEBUGMONGODATA === true)
+			{
+			    FunctionUTL::Debug($rawData);
+// 			    die();
+			}
+			//开启
 			if(version_compare(Mongo::VERSION, '1.0.5','>=') === true)
 				$result = $this->getCollection()->insert($rawData, array(
 				      'fsync'	=> $this->getFsyncFlag(),

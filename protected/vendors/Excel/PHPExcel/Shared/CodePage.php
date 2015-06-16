@@ -93,6 +93,7 @@ class PHPExcel_Shared_CodePage
 													break;	//	ANSI Latin I (BIFF2-BIFF3)
 			case 65000:	return 'UTF-7';				break;	//	Unicode (UTF-7)
 			case 65001:	return 'UTF-8';				break;	//	Unicode (UTF-8)
+            case 10008: return 'MAC';               break;
 		}
 
 		throw new Exception('Unknown codepage: ' . $codePage);

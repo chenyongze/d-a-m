@@ -279,6 +279,8 @@ class CardItemController extends Controller
     	
         //获取表头
         $dsmap = $dsModel->getFieldNameMap();
+        //导出模板不需 序列id 
+        array_shift($dsmap);
         $rs = array(array_values($dsmap), array_keys($dsmap));
         
         //拼接文件名

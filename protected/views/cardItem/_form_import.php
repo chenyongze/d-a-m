@@ -17,8 +17,8 @@
 		
 	?>
 	<?php
-	    echo(CHtml::fileField('CardItem','',array('class'=>'btn')));
-	    echo(CHtml::fileField('CardPic','',array('class'=>'btn')));
+	    echo('excel文件上传:'.CHtml::fileField('CardItem','',array('class'=>'btn','title'=>'execl文件上传')));
+	    echo('<br/><br/>压缩文件上传：'.CHtml::fileField('CardPic','',array('class'=>'btn btn-default','title'=>'压缩文件上传【.zip】')));
 	?>
 	<?php $this->endWidget();?>
 	</div>

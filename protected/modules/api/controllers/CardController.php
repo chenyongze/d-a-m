@@ -17,7 +17,7 @@ class CardController extends Controller {
     
     public function init(){
         $this->_obj = Yii::app();
-        $this->_setid =19;
+        $this->_setid =1;
     }
     
     /**

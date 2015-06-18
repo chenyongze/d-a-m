@@ -398,8 +398,9 @@ class CardDs extends DBModel
        			}
        			//按组数生成
        			for($i=0; $i<$size; $i++){
+       			    $_line = $i+1;
 	       			foreach($field_info['fields'] as $fg_key=>$fg_info){
-	       				$fields[$field_key.'-'.$i.'-'.$fg_key] = $field_info['name'].'-'.$fg_info['name'];
+	       				$fields[$field_key.'-'.$i.'-'.$fg_key] = $field_info['name'].'-'.$fg_info['name'].$_line;
 	       			}
        			}
        			

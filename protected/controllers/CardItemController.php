@@ -40,7 +40,7 @@ class CardItemController extends Controller
         $count = CardItem::model()->count($criteria);
         $pages = new CPagination($count);
         
-        $perPage = 10;
+        $perPage = 20;
         $pages->pageSize = $perPage;
         //$pages->applyLimit($criteria);
         $offset = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -101,8 +101,8 @@ class CardItemController extends Controller
       	}
       	
       	//@todo如果压缩包不为空,解压 upload/cardimages/321445/
+      	$_tmpImagePath ='';
       	if(isset($_FILES['CardPic']) && !empty($_FILES['CardPic'])){
-      	    $_tmpImagePath ='';
       	    $this->_getImagePath($_tmpImagePath,$_FILES['CardPic']);
       	    
       	}

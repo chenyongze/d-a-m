@@ -285,6 +285,7 @@ class CardDs extends DBModel
 		} else {
 		    $condition = array('en_name' => $enName);
 		}
+		
 		$dsList = self::findAllByAttributes(
 			$condition,
 			array(
@@ -384,6 +385,7 @@ class CardDs extends DBModel
 	public function getFieldNameMap($istpl=true){
 		//获取字段和中文的对应关系
     	$fields = array('id'=>'序号');
+//     	FunctionUTL::Debug($this->fields);exit;
        	foreach($this->fields as $field_key=>$field_info){
        		if($field_info['type'] == 'field'){
        			$fields[$field_key] = $field_info['name'];
@@ -416,10 +418,8 @@ class CardDs extends DBModel
     	
     	//调用，有缓存则用缓存
 		if(($map = Yii::app()->cache->get($cache_key)) === false){
-// 			$dblist = CardDb::model()->findAll(User::model()->getScopeDbCriteria());
-// 			$dslist = CardDs::model()->findAll(User::model()->getScopeDsCriteria());
-			$dblist = CardDb::model()->findAll();
-			$dslist = CardDs::model()->findAll();
+			$dblist = CardDb::model()->findAll(User::model()->getScopeDbCriteria());
+			$dslist = CardDs::model()->findAll(User::model()->getScopeDsCriteria());
 			foreach($dblist as $dv){
 				$map[$dv['id']] = array(
 					'en_name'=>$dv['en_name'], 

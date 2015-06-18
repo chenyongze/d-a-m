@@ -27,7 +27,7 @@ $this->widget('application.extensions.FancyBox.EFancyBox', array());
 			'transitionIn'		: 'none',
 			'transitionOut'		: 'none',
 			'width'			: 550,
-			'height'		: 370,
+			'height'		: 600,
 			'href'			: ajaxHref,	//请求地址
 			'type'			: 'inline',
 		});

@@ -561,8 +561,9 @@ abstract class EMongoDocument extends EMongoEmbeddedDocument
 	 */
 	public function save($runValidation=true,$attributes=null)
 	{
-		if(!$runValidation || $this->validate($attributes))
-			return $this->getIsNewRecord() ? $this->insert($attributes) : $this->update($attributes);
+		if(!$runValidation || $this->validate($attributes)){
+		    return $this->getIsNewRecord() ? $this->insert($attributes) : $this->update($attributes);
+		}
 		else
 			return false;
 	}
@@ -607,8 +608,7 @@ abstract class EMongoDocument extends EMongoEmbeddedDocument
 			//by yongze  add 查看入库数组
 			if(defined('ENABLE_DEBUGMONGODATA') && ENABLE_DEBUGMONGODATA === true)
 			{
-			    FunctionUTL::Debug($rawData);
-// 			    die();
+// 			    FunctionUTL::Debug($rawData);
 			}
 			//开启
 			if(version_compare(Mongo::VERSION, '1.0.5','>=') === true)
@@ -852,7 +852,6 @@ abstract class EMongoDocument extends EMongoEmbeddedDocument
 			$this->applyScopes($criteria);
 
 			$cursor = $this->getCollection()->find($criteria->getConditions());
-
 			if($criteria->getSort() !== null)
 				$cursor->sort($criteria->getSort());
 			if($criteria->getLimit() !== null)
@@ -861,7 +860,6 @@ abstract class EMongoDocument extends EMongoEmbeddedDocument
 				$cursor->skip($criteria->getOffset());
 			if($criteria->getSelect())
 				$cursor->fields($criteria->getSelect(true));
-
 			if($this->getUseCursor())
 				return new EMongoCursor($cursor, $this->model());
 			else

@@ -18,6 +18,7 @@
 	?>
 	<?php
 	    echo(CHtml::fileField('CardItem','',array('class'=>'btn')));
+	    echo(CHtml::fileField('CardPic','',array('class'=>'btn')));
 	?>
 	<?php $this->endWidget();?>
 	</div>

@@ -44,7 +44,7 @@ class Controller extends CController
 	*/
 	public function dataTree($databaseId = 0, $action='cardItem/Index') {
 		$data = array();
-		$databases = CardDb::model()->findAll();
+		$databases = CardDb::model()->findAll(User::model()->getScopeDbCriteria());
 		foreach ($databases as $key => $value) {
 			$data[$key]['text'] = '<span>'.$value->name.'</span>';
 			if ($databaseId == $value->id) {
@@ -367,7 +367,7 @@ class Controller extends CController
 			$role = $this->get_login_user('role');
 			$actions = $this->get_login_user('actions');
 			//当前用户拥有该权限，名为admin的管理员拥有所有权限  && creator 的管理员
-			if(in_array($action_no, $actions) || ($role=='10'&&$username=='admin')||($role=='10'&&$username=='creator')){
+			if(in_array($action_no, $actions) || ($role=='10'&&$username=='admin')){
 				$rs = true;
 			}
 		}
@@ -390,7 +390,7 @@ class Controller extends CController
 		$rs = false;
 		
 		//名为admin的管理员拥有所有权限
-		if($this->get_login_user('role')=='10'&& $this->get_login_user('username')=='creator'){
+		if($this->get_login_user('role')=='10'&& $this->get_login_user('username')=='admin'){
 			return true;
 		}
 		

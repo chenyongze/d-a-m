@@ -43,7 +43,7 @@ return CMap::mergeArray(
         // application-level parameters that can be accessed
         // using Yii::app()->params['paramName']
         'params'=>array(
-			'cache_expire'	=> 20,		//缓存时间
+			'cache_expire'	=> false,		//缓存时间
         ),
     )
 );

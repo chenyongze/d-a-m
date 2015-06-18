@@ -10,7 +10,8 @@ class CardItemController extends Controller
     public function actionIndex($id)
     {
         set_time_limit(0); //防止执行超时
-
+        
+        empty($id) && $id = 0;
         //获取一个可用id
         if(empty($id)){
         	$def_ds = CardDs::model()->findAll(User::model()->getScopeDsCriteria());
@@ -39,7 +40,7 @@ class CardItemController extends Controller
         $count = CardItem::model()->count($criteria);
         $pages = new CPagination($count);
         
-        $perPage = 20;
+        $perPage = 10;
         $pages->pageSize = $perPage;
         //$pages->applyLimit($criteria);
         $offset = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -71,11 +72,15 @@ class CardItemController extends Controller
      */
     public function actionImport($id)
     {
+        set_time_limit(0); //防止执行超时
+        
     	$this->actCheck('item-import', false);
         set_time_limit(0); //防止执行超时
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
+        $dsModel = $dsModel->sortField();
         $mcss = Yii::app()->mcss;
+        
         $import_rs = array('c'=>0, 'e'=>0, 'a'=>0, 'u'=>0);	//分别对应总行数，错误行数，新增行数，更新行数
         $rs_error = array();    //错误记录
         $data_error = array();  //若出错的导出数据
@@ -94,7 +99,16 @@ class CardItemController extends Controller
          		}
          	}
       	}
+      	
+      	//@todo如果压缩包不为空,解压 upload/cardimages/321445/
+      	if(isset($_FILES['CardPic']) && !empty($_FILES['CardPic'])){
+      	    $_tmpImagePath ='';
+      	    $this->_getImagePath($_tmpImagePath,$_FILES['CardPic']);
+      	    
+      	}
+      	
         
+      	//import
         if (isset($_FILES['CardItem'])) {
         	$this->addLog('ds', $dsModel->id, '批量导入了“'.$dbModel->name.'”中“'.$dsModel->name.'”表的数据');
         	
@@ -102,6 +116,8 @@ class CardItemController extends Controller
         	//$file_data = $this->inputCsv($_FILES['CardItem']['tmp_name']);
         	$file_data = $this->inputXls($_FILES['CardItem']['tmp_name']);
             $rsHeader = array();
+            
+//             FunctionUTL::Debug($file_data);exit;
             //往卡牌库Item表导入记录
             //1条1条导入
             foreach($file_data as $i=>$lineData){
@@ -126,9 +142,7 @@ class CardItemController extends Controller
                     $saveData = array();	//保存数据集
 
                     //逐一处理每个字段
-                    print_r($lineData);
                     foreach ($lineData as $key => $value) {
-
                     	//临时：字段位置的编号，若结果集键值不是数字则转ascii后减掉65
                     	$key_no = $key;	
                     	if(!is_numeric($key)){
@@ -158,7 +172,7 @@ class CardItemController extends Controller
                             $tmpField = $dsModel->fields[$field_real];		//字段定义
                             //普通字段
                             if($tmpField['type']=='field'){
-                            	$itemData[$field_real] = $this->formatFirldData($value, $tmpField, $mcss);	//格式化内容
+                            	$itemData[$field_real] = $this->formatFirldData($value, $tmpField, $mcss,true,$_tmpImagePath);	//格式化内容
                             //字段组
                             }else if($tmpField['type']=='group'){
                             	//如果有传入组内字段名才处理
@@ -167,7 +181,7 @@ class CardItemController extends Controller
                             			continue;
                             		}
 	                            	$groupField = $tmpField['fields'][$group_info[1]];				//组字段定义
-	                            	$value = $this->formatFirldData($value, $groupField, $mcss, false);	//格式化内容
+	                            	$value = $this->formatFirldData($value, $groupField, $mcss, false,$_tmpImagePath);	//格式化内容
 	                            	
 	                            	//直接根据索引进行赋值，避免异常的自动组合
 	                            	$itemData[$field_real][$group_info[1]][$group_info[2]] = $value;
@@ -178,11 +192,10 @@ class CardItemController extends Controller
                             unset($lineData[$key]);
                         }
                     }
-					
+                    
                     //若存在id则更新，否则新加一条记录
                     $is_update = false;
                     if(isset($saveData['id']) && $saveData['id']){
-                        echo '111111';
                         $itemModel = CardItem::model()->findByAttributes(array('id'=>(int)$saveData['id'], 'dataset_id'=>(int)$id));
                         //如果带id但没有对应记录则报错
                         if(empty($itemModel)){
@@ -195,11 +208,10 @@ class CardItemController extends Controller
                         }
                     	$is_update = true;
                     }else{
-                        echo '22222';
                    	 	$itemModel = new CardItem;
                    	 	$saveData['dataset_id'] = (int)$id;	//设置表类型
                     }
-
+                    
                     //填入数据
                     $saveData['data'] = $itemData;
                     $itemModel->attributes = $saveData;
@@ -218,9 +230,12 @@ class CardItemController extends Controller
                             'vo'	=> $saveData,
                         );
                     }
+                    
                 }
             }
-
+            
+            exit;
+            
             //未出问题则跳转，出了问题则导出错误列表
             if(empty($rs_error)){
                 Yii::app()->user->setFlash("success", "导入数据完成! 导入记录总数". $import_rs['c'] ."条".
@@ -257,6 +272,7 @@ class CardItemController extends Controller
     	$itemModel = new CardItem;
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
+        $dsModel = $dsModel->sortField();//添加默认安装order asc
         
         //范围验证
 		$this->scopeCheck($dsModel->database_id, $id);
@@ -284,6 +300,7 @@ class CardItemController extends Controller
     	$itemModel = new CardItem;
         $dsModel = $this->loadModel($id, 'ds');
         $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
+        $dsModel = $dsModel->sortField();//添加默认安装order asc
         
         //范围验证
 		$this->scopeCheck($dsModel->database_id, $id);
@@ -333,10 +350,11 @@ class CardItemController extends Controller
      * @param $value		传入值
      * @param $tmpField		字段定义
      * @param $mcss			上传对象
-     * @param $mcss			检查单复选的选项是否是为预定义
+     * @param $check_option			检查单复选的选项是否是为预定义
+     * @param $_tmpImagePath  卡牌图片上传临时文件夹
      * @return maxd			处理后的字段值
      */
-    protected function formatFirldData($value, $tmpField, $mcss, $check_option=true){
+    protected function formatFirldData($value, $tmpField, $mcss, $check_option=true,$_tmpImagePath){
     	//$tmpValue = mb_convert_encoding($value, 'UTF-8', 'GBK,GB2312,UTF-8');
 		$tmpValue = trim($value);
         $field_type = $tmpField['extra']['field_info']['field_type'];			//字段类型
@@ -345,17 +363,21 @@ class CardItemController extends Controller
   		//图片类型处理
      	if( $addition_type == "image"){
         	//有地址且文件存在则尝试上传
-          	if($tmpValue != '' && is_file($tmpValue)){
-             	$resData = $mcss->uploadImage($tmpValue);
-              	//如果返回值是数组类型，则发生了错误
-               	if(is_array($resData)){
-               		$tmpValue = "";
-              	}else{
-                   	$tmpValue = $resData;	//成功后替换原有地址
-              	}
-          	}else{
-        		$tmpValue = "";
-           	}
+//      	    $_tmpImagePath = 'upload/cardimages/20150618_7698e9b3229241acfb9d5abbc4fe662f_pic/';
+     	    if($tmpValue != ''){
+     	        $tmpValue =$_tmpImagePath.$tmpValue;
+     	        if(is_file($tmpValue)){
+     	            $resData = $mcss->uploadImage($tmpValue);
+     	            //如果返回值是数组类型，则发生了错误
+     	            if(is_array($resData)){
+     	                $tmpValue = "";
+     	            }else{
+     	                $tmpValue = $resData;	//成功后替换原有地址
+     	            }
+     	        }else{
+     	            $tmpValue = "";
+     	        }
+     	    }
 
       	//选择框处理
        	} else if ($field_type == 'normal' && in_array($addition_type, array('select', 'multiselect'))) {
@@ -675,7 +697,7 @@ class CardItemController extends Controller
     {
         if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
             $url = Yii::app()->mcss->uploadImage($_FILES['image']['tmp_name']);
-            if ($url) {
+            if (!isset($url['error'])) {
                 RestHelper::success(array('url' => $url));
             } else {
                 RestHelper::error('图片上传到云存储失败');
@@ -683,6 +705,27 @@ class CardItemController extends Controller
         } else {
             RestHelper::error('图片上传失败');
         }
+    }
+    
+    public function actionUploadImageList()
+    {
+        set_time_limit(0); //防止执行超时
+        //获取文件夹图片
+        $images = glob('upload/pic/*.jpg');
+        FunctionUTL::Debug($images);
+        //提交图片到云
+        $data =array();
+        foreach ($images as $key=>$image)
+        {
+            if(empty($image))
+                continue;
+            $url = Yii::app()->mcss->uploadImage($image);
+            $data[$image]= $url;
+        }
+        
+        FunctionUTL::Debug($data);
+        
+        
     }
     
     /**
@@ -717,6 +760,22 @@ class CardItemController extends Controller
     	return $this->makeCond($criteria, $type, $kfield, $koperator, $kword);
     }
     
-	
+    /**
+     * @info :压缩文件解压到零时目录
+     * @param 上传文件保存在服务器目录 $_tmpImagePath
+     * @param 上传文件压缩包 $imageSoure
+     */
+    private function _getImagePath(&$_tmpImagePath,$imageSoure){
+        
+        $imagepath = 'upload/cardimages/';//卡牌上传临时图片目录
+        $zip = new ZipArchive;
+        $aimUrl = $imagepath.date('Ymd').'_'.md5(time()).'_pic';
+        $_tempzip = "{$aimUrl}.zip";
+        move_uploaded_file($imageSoure['tmp_name'], $_tempzip);
+        shell_exec("unzip {$_tempzip} -d {$aimUrl}");
+        $_tmpImagePath = $aimUrl.DIRECTORY_SEPARATOR;
+        return 0;
+    }
+    
 
 }

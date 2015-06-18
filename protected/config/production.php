@@ -13,7 +13,6 @@ return array(
 	'defaultController' => 'site',
 	'theme' => 'abound',
 	'language'=>'zh_cn',		//启用中文语言包
-
 	// preloading 'log' component
 	'preload'=>array('log'),
 
@@ -35,9 +34,7 @@ return array(
 			'ipFilters'=>array('124.207.174.198','::1'),
 		),
 		'api',
-	    't'=>array(),
 	),
-
 	// application components
 	'components'=>array(
 		'user'=>array(

@@ -41,10 +41,10 @@ class CardController extends Controller {
 	 * 获取数据表列表
 
 	 */
-	public function actionGetTables($databaseId = 0, $enName = '') {
+	public function actionGetTables($databaseId = 0, $enname = '') {
 		$return['code'] = 0;
 		$selectField = array('id', 'database_id', 'name', 'en_name', 'fields','listorder', 'request_times', 'last_uid', 'update_time');
-		$return['data'] = CardDs::model()->getList($databaseId, $enName, $selectField);
+		$return['data'] = CardDs::model()->getList($databaseId, $enname, $selectField);
 		echo CJSON::encode($return);
 	}
 
@@ -64,9 +64,9 @@ class CardController extends Controller {
 	 */
 	public function actionGetItem() {
 		//参数接收
-		//http://db.dev.mofang.com/api/card/getitem?id=7836&select=name,ms
+		//http://db.dev.mofang.com/api/card/getitem?itemid=7836&select=name,ms
 		//http://db.dev.mofang.com/api/card/getitem?setid=1&name=冬梦&select=name,ms
-		$id = isset($_GET['id'])?intval($_GET['id']):0;				//数据id			setid = 4
+		$id = isset($_GET['id'])?intval($_GET['id']):0;				//数据itemid	
 		$datasetId = isset($_GET['setid'])?intval($_GET['setid']):0;//实体id
 		$name = isset($_GET['name'])?$_GET['name']:'';				//数据name		setid = 4
 		
@@ -250,9 +250,9 @@ class CardController extends Controller {
 	 */
 	public function actionGetOptionList() {
 		//参数接收
-		//http://db.dev.mofang.com/api/card/getoptionlist/setid/9/field/select1
+		//http://db.dev.mofang.com/api/card/getoptionlist/setid/9/enname/select1
 		$datasetId = isset($_GET['setid'])?intval($_GET['setid']):0;	//表id
-		$fieldKay  = isset($_GET['field'])?$_GET['field']:'';			//字段名
+		$fieldKay  = isset($_GET['enname'])?$_GET['enname']:'';			//字段名
 		
 		//初始化返回值
 		$info = array();

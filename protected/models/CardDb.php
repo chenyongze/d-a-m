@@ -39,7 +39,7 @@ class CardDb extends DBModel
 	public function search($caseSensitive = false) {
 
 		$criteria = new EMongoCriteria;
-// 		$criteria = User::model()->getScopeDbCriteria();
+		$criteria = User::model()->getScopeDbCriteria();
 // 		$criteria->_sort = array("id"=>"desc");
 // 	 	$criteria->sort = array('id'=>EMongoCriteria::SORT_DESC);
 		if (!empty($this->id)) {

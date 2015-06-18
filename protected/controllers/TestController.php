@@ -1,9 +1,24 @@
 <?php
 
 class TestController extends Controller {
-
+    
+    
+    private $gObj =null;
 	public function init(){
 		$this->actCheck('dbset', false);
+		$this->gObj = Yii::app();
+	}
+	
+	/**
+	 * 测试 cache
+	 */
+	public function actionCache(){
+	    $key ='1_3';
+	    $val = 'yongze';
+// 	    $this->gObj->cache->set($key,$val);
+	    FunctionUTL::Debug($this->gObj->cache);
+	    FunctionUTL::Debug($this->gObj->cache->get($key));
+	    
 	}
 	
 	/**
@@ -11,6 +26,9 @@ class TestController extends Controller {
 	* @author gentle
 	*/
 	public function actionIndex($id) {
+	    $json ='{ "id" : 29, "database_id" : 10, "name" : "ttt", "en_name" : "ttt", "fields" : { "ddd" : { "type" : "field", "name" : "ddd", "must" : 1, "extra" : { "filter" : { "type" : "0" }, "field_info" : { "field_type" : "normal", "addition_type" : "number", "num_type" : "0", "limit_from" : "1111", "limit_to" : "333" } }, "listorder" : 0 }, "daaa" : { "type" : "field", "name" : "ddaa", "must" : 1, "extra" : { "filter" : { "type" : "0" }, "field_info" : { "field_type" : "normal", "addition_type" : "multiselect", "select_value" : [ { "value" : "aaaaaa", "color" : "#ab3737" }, { "value" : "bbb", "color" : "#0a0808" } ] } }, "listorder" : 0 }, "kkk" : { "type" : "field", "name" : "kk", "must" : 1, "extra" : { "filter" : { "type" : "0" }, "field_info" : { "field_type" : "normal", "addition_type" : "text", "length" : "0" } }, "listorder" : 0 } }, "listorder" : 0, "request_times" : 0, "last_uid" : 2, "update_time" : 1434100827 }';
+	    FunctionUTL::Debug(json_decode($json,true));exit;
+	    
 	    
 // 	    die('----function:'.__FUNCTION__.'<hr>----class::'.__CLASS__);
 

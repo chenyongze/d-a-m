@@ -7,7 +7,6 @@ define('YII_TRACE_LEVEL', 3);
 $yii = '/opt/phplib/yii/yii.php';
 $configDir = __DIR__ . '/protected/config/';
 $config = $configDir . 'production.php';
-
 define("HTTP_REQUEST",		'REQUEST');
 define("HTTP_POST",			'POST');
 define("HTTP_GET",			'GET');
@@ -32,6 +31,7 @@ switch (ENVIRONMENT) {
         define('YII_ENABLE_ERROR_HANDLER',false);
         define('YII_ENABLE_EXCEPTION_HANDLER',false);
         define('ENABLE_DEBUGLOG',true);//log日志
+        define('ENABLE_DEBUGMONGODATA',true);//入库数组debug ==>/EMongoDocument[class]
         error_reporting(E_ALL & ~E_NOTICE);
         ini_set('display_errors', 'on');
         
@@ -47,5 +47,6 @@ switch (ENVIRONMENT) {
         exit();
 }
 
+$config = $configDir.'testing.php';
 require_once($yii);
 Yii::createWebApplication($config)->run();

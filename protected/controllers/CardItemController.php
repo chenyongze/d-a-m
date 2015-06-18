@@ -234,8 +234,6 @@ class CardItemController extends Controller
                 }
             }
             
-            exit;
-            
             //未出问题则跳转，出了问题则导出错误列表
             if(empty($rs_error)){
                 Yii::app()->user->setFlash("success", "导入数据完成! 导入记录总数". $import_rs['c'] ."条".

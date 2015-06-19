@@ -58,6 +58,123 @@ class CardController extends Controller {
 	}
 	
 	/**
+	 * @info:获取游戏详细页面模板结构&&数据
+	 * http://db.admin.mofang.com/api/card/getitemhtml?id=44
+	 */
+	public function actionGetItemHtml(){
+	    $return = array('code'=>0,'data'=>array());
+	    $id = isset($_GET['id'])?intval($_GET['id']):0;//数据itemid
+	    $type = isset($_GET['type'])?intval($_GET['type']):1;
+	    if(empty($id)){
+	        $return['code'] = -9115;
+	        echo CJSON::encode($return);
+	    }
+	    
+	    $criteria = new EMongoCriteria();
+	    $criteria->addCond('id', '==', $id);		//按id查询
+	    $itemInfo = CardItem::model()->find($criteria);
+	    unset($criteria);
+	    
+	    //获取卡牌对应的模板
+	    if($itemInfo->dataset_id){
+	        $criteria = new EMongoCriteria();
+	        $criteria->addCond('type', '==', $type);		//type模板类型
+	        $criteria->addCond('dataset_id', '==', $itemInfo->dataset_id);		//type模板类型
+	        $templateInfo = Template::model()->find($criteria);
+	        
+	        $this->parseTemplate($templateInfo->content,$itemInfo->data);
+	        echo html_entity_decode($templateInfo->content);
+	    }
+	    
+	    return ;
+	}
+	
+    /**
+     * @info:解析模板标签 //@todo 解析
+     * @param str $parseTemplate
+     * @param array $items
+     * [k] => Array
+        (
+            [0] => {F:name}
+            [1] => {F:character}
+            [2] => {F:profession}
+            [3] => {F:life}
+            [4] => {F:m_power}
+            [5] => {F:w_power}
+            [6] => {F:w_defense}
+            [7] => {F:f_power}
+            [8] => {F:f_defense}
+            [9] => {F:strike}
+            [10] => {F:treat}
+            [11] => {F:parry}
+            [12] => {F:hurt}
+            [13] => {F:technical_title_0}
+            [14] => {F:technical_description_0}
+            [15] => {F:technical_title_1}
+            [16] => {F:technical_description_1}
+            [17] => {F:solder_title_1}
+            [18] => {F:solder_description_1}
+            [19] => {F:solder_title_2}
+            [20] => {F:solder_description_2}
+            [21] => {F:k_pic}
+        )
+
+    [v] => Array
+        (
+            [0] => 守護神謝爾
+            [1] => 史詩
+            [2] => 守護騎士
+            [3] => 3712
+            [4] => 371
+            [5] => 294
+            [6] => 294
+            [7] => 0
+            [8] => 312
+            [9] => 40
+            [10] => 0
+            [11] => 200
+            [12] => 40
+            [13] => 普通技-死亡之握
+            [14] => 戰士對自身一定半徑範圍內的所有目標進行嘲諷，聚集所有目標並使敵人暈眩，同時造成大量傷害。
+            [15] => 普通技-雷霆一擊
+            [16] => 戰士對自身周圍的所有單位發動範圍性重擊，降低敵人物理攻擊，同時造成大量傷害並擊飛所有目標。
+            [17] => 無情守護
+            [18] => 與斷罪神薩拉一同參戰，物理攻擊提高10%
+            [19] => 庇護
+            [20] => 與影舞領主羅琳一同參戰，物理防禦提高5%
+            [21] => <img src="http://pic1.mofang.com/185/162/0a0dd636e1a9065964a5a90b98f7619600568d39.jpg">
+        )
+
+)
+     */
+	private function parseTemplate(&$parseTemplate,$items){
+	    if(empty($items)||empty($parseTemplate)){
+	        return -9122;
+	    }
+	    foreach ($items as $k=>$v){
+	        
+	        if(is_array($v)){
+	            foreach ($v as $tk=>$_tv){
+	                $_line =$tk+1;
+	                foreach ($_tv as $fieldk=>$fieldv){
+	                    $template['k'][] = "{F:{$k}_{$fieldk}_$_line}";
+	                    $template['v'][] = $fieldv;
+	                }
+	            }
+	        }else{
+	            $template['k'][] = "{F:$k}";
+	            $ext = @substr(strrchr($v, '.'), 1);
+	            if(in_array($ext, array('jpg','png'))) $v = "<img src='".$v."'>";
+	            $template['v'][] = $v;
+	        }
+	        
+	    }
+	    
+// 	    FunctionUTL::Debug($template);//exit;
+	    $parseTemplate = str_replace($template['k'], $template['v'], $parseTemplate);
+	    return;
+	}
+	/**
 	 * 获取一条内容
 	 * http://db.admin.mofang.com/api/card/getitem?id=7836
 	 * http://db.admin.mofang.com/api/card/getitem?setid=1&name=冬梦

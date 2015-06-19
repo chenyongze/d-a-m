@@ -116,26 +116,21 @@ return array(
 			'from' => 'mga',
 			'timeout'=>600,
 		),
+	    //配置引用ueeditor
 // 	    'controllerMap'=>array(
 // 	        'ueditor'=>array(
 // 	            'class'=>'ext.baiduUeditor.UeditorController',
+// 	            'config'=>array('initialFrameWidth'=>1000),
+// 	            'thumbnail'=>false,//是否开启缩略图
+// 	            'watermark'=>'',//水印图片的地址，使用相对路径
+// 	            'locate'=>9,//水印位置，1-9，默认为9在右下角
+// 	            'savePath'=>'xxx',
+// 	            'allowFiles'=>array(
+// 	                'image' => array('.gif', '.png', '.jpg', '.jpeg'),
+// 	                'file' => array( '.doc' , '.docx' , '.zip' , '.pdf' , '.txt'),
+// 	            ),
 // 	        ),
 // 	    ),
-	    //配置引用ueeditor
-	    'controllerMap'=>array(
-	        'ueditor'=>array(
-	            'class'=>'ext.baiduUeditor.UeditorController',
-	            'config'=>array('initialFrameWidth'=>1000),
-	            'thumbnail'=>false,//是否开启缩略图
-	            'watermark'=>'',//水印图片的地址，使用相对路径
-	            'locate'=>9,//水印位置，1-9，默认为9在右下角
-	            'savePath'=>'xxx',
-	            'allowFiles'=>array(
-	                'image' => array('.gif', '.png', '.jpg', '.jpeg'),
-	                'file' => array( '.doc' , '.docx' , '.zip' , '.pdf' , '.txt'),
-	            ),
-	        ),
-	    ),
 	),
 
 	// application-level parameters that can be accessed
@@ -152,6 +147,7 @@ return array(
 			'item'=>'全数据表',
 			'user'=>'用户表',
 		    'template'=>'模板定义表',
+		    'log'=>'操作日志表',
 		),
 		
 		//角色与权限

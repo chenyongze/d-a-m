@@ -40,7 +40,7 @@ $this->widget('application.extensions.FancyBox.EFancyBox', array());
 		if (tpId!=0) {
 			var Href = '/Template/Update/id/'+dsId;
 		} else {
-			var Href = '/Template/create/id/<?php echo $databaseId;?>';
+			var Href = '/Template/create/<?php echo $datasetId;?>';
 		}
 		window.location = Href;
 		return false;
@@ -103,6 +103,11 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	        'name' => 'type',
 	        'header' => '类型',
 	        'value' => '$data->type',
+	    ),
+	    array(
+	        'name' => 'dataset_id',
+	        'header' => '表ID',
+	        'value' => '$data->dataset_id',
 	    ),
 		array(
 			'class' => 'CButtonColumn',

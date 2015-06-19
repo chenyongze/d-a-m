@@ -6,9 +6,6 @@
 class Template extends DBModel {
 	//主要字段
 	public $id;
-// 	public $uid;			//操作者id
-// 	public $uname;			//操作者姓名
-
 	public $type;		    //模板类型pc,wap,....
 	public $dataset_id;	    //表id
 	public $dataset_name;   //表名【归属】
@@ -33,7 +30,7 @@ class Template extends DBModel {
 	 */
 	public function rules() {
 		return array(
-			array('type,tpname,content', 'required'),
+			array('type,tpname,content,dataset_id', 'required'),
 		);
 	}
 
@@ -43,8 +40,6 @@ class Template extends DBModel {
 	public function attributeLabels() {
 		return array(
 			'id' 		=> '序号',
-// 			'uid' 		=> '操作者id',
-// 			'uname' 	=> '操作者姓名',
 			'type' 	    =>  '模板类型',
 			'dataset_id'=> '表id',
 		    'dataset_name'=>'归属',
@@ -71,7 +66,7 @@ class Template extends DBModel {
 	    if (!empty($this->id)) {
 	        $criteria->conditions['id'] = $this->id;
 	    }
-	
+	    
 	    $criteria->sort('id', EMongoCriteria::SORT_DESC);
 	
 	    return new EMongoDocumentDataProvider($this, array(

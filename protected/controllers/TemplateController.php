@@ -16,38 +16,32 @@ class TemplateController extends Controller {
 	* @author yongze
 	*/
 	public function actionIndex($id) {
+	    
 	    $dsModel = $this->loadModel((int)$id, 'ds');
 	    $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
-// 	    $tpModel = $this->loadModel((int)$id, 'tp','dataset_id',true);
-
-	    $attr = Template::model()->attributeLabels();
-		$criteria = new EMongoCriteria;
-		
-		
-	 	//添加查询条件
-        if(isset($_GET['sub'])){
-	        $criteria = $this->fillCond($criteria, Template::model()->attributeLabels());
-    	}
-//         FunctionUTL::Debug($criteria);
-        $count = Template::model()->count($criteria);
+        $templateObj = Template::model();
+	    $attr = $templateObj->attributeLabels();
+	    
+		$criteria = new EMongoCriteria();
+		$criteria->dataset_id = (int)$id;
+    	
+        $count = $templateObj->count($criteria);
         $pages = new CPagination($count);
         $perPage = 10;
         $pages->pageSize = $perPage;
         $offset = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $offset = ($offset - 1) * $perPage;
         $criteria->limit($perPage)->offset($offset)->sort('id', EMongoCriteria::SORT_DESC);
-        $tpModel = Template::model()->findAll($criteria);
+        $tpModel = $templateObj->findAll($criteria);
+        
       	$data['templateModels'] = $tpModel;
         $data['pages'] = $pages;
         $data['attr'] = $attr;	//模型属性
-        
-        $data['model'] = Template::model();
+        $data['model'] = $templateObj;
         $data['dbModel'] = $dbModel;
         $data['dsModel'] = $dsModel;
-        $data['datasetId'] = $id;
-//         $data['dataTree'] = $this->dataTree($dsModel->database_id, 'datasetField/index');
+        $data['datasetId'] = $dsModel->id;
         $data['info'] = $this->promptInfo();
-        
 		$this->render('index', $data);
 	}
 
@@ -56,13 +50,11 @@ class TemplateController extends Controller {
 	* @author yongze
 	*/
 	public function actionCreate($id) {
-	    
 	    $dsModel = $this->loadModel((int)$id, 'ds');
 	    $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
 	    $model = new Template('Create');
 	    $data = array();
 	    if(isset($_POST['Template'])){
-	        
 	        $model->attributes = $_POST['Template'];
 			if ($model->save()) {
 				$this->addLog('template', $model->id, '添加新模板“'.$model->tpname.'”');
@@ -76,16 +68,14 @@ class TemplateController extends Controller {
 				$errorMsg = trim($errorMsg, ',');
 				Yii::app()->user->setFlash("error", $errorMsg);
 			}
-			//$page = isset($_GET['CardDb_page']) ? $_GET['CardDb_page'] : 1;
-			//$this->redirect(array('CardDb/index/CardDb_page/'.$page));
-			$this->redirect(array('/Template/Index/19'));
+			$this->redirect(array('/Template/Index/'.$dsModel->id));
 	    }
 	    
 	    $data['dbModel'] = $dbModel;
 	    $data['dsModel'] = $dsModel;
 	    $data['model'] = $model;
-	     
-// 	    FunctionUTL::Debug($data['model']);//exit;
+	    $data['datasetId'] = $id;
+	    $this->_getFieldsInfos($data['_txtfiled'],$id);
 	    $this->render('edit',$data);
 	}
 
@@ -95,10 +85,27 @@ class TemplateController extends Controller {
 	*/
 	public function actionUpdate($id) {
 	    $model = $this->loadModel((int)$id, 'tp');
+	    $setid = $model->dataset_id;
+	    if(empty($setid)){
+	        Yii::app()->user->setFlash("error", "修改 <b>{$model->tpname}</b> 失败!");
+	        $this->redirect(array('/Template/Index/0'));
+	    }
+	    $dsModel = $this->loadModel((int)$setid, 'ds');
+	    $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
+	    
 	    //范围验证
 	    $this->scopeCheck($model->id);
-	    
 	    if(isset($_POST['Template'])){
+	        
+	        if(isset($_POST['Template']['type'])){
+	            $_POST['Template']['type'] = (int)$_POST['Template']['type'];
+	        }
+	        if(isset($_POST['Template']['dataset_id'])){
+	            $_POST['Template']['dataset_id'] = (int)$_POST['Template']['dataset_id'];
+	        }
+	        if(isset($_POST['Template']['content'])){
+	            $_POST['Template']['content'] = htmlentities($_POST['Template']['content']);
+	        }
 	        $model->attributes = $_POST['Template'];
 	        if($model->save()){
 	            $this->addLog('db', $model->id, '修改了“'.$model->tpname.'”');
@@ -107,9 +114,13 @@ class TemplateController extends Controller {
 	            Yii::app()->user->setFlash("error", "修改 <b>{$model->tpname}</b> 失败!");
 	        }
 	        
-	        $this->redirect(array('/Template/Index/19'));
+	        $this->redirect(array('/Template/Index/'.$setid));
 	    }
-	    $data = array('model' => $model, 'update' => true);
+	    $data['model'] = $model;
+	    $data['dbModel'] = $dbModel;
+	    $data['dsModel'] = $dsModel;
+	    $data['update'] = true;
+	    $this->_getFieldsInfos($data['_txtfiled'],$setid);
 	    $this->render('edit',$data);
 	}
 
@@ -125,17 +136,55 @@ class TemplateController extends Controller {
 	    $this->scopeCheck($id);
 	    $old_id = $model->id;
 	    if ($model->delete()) {
-// 	        $this->addLog('template', $old_id, '删除了“'.$old_name.'”');
-	        Yii::app()->user->setFlash("success", "删除 <b>模板ID:{$model->id}</b> 数据库成功!");
+	        Yii::app()->user->setFlash("success", "删除 <b>模板ID:{$model->id}</b> 成功!");
 	    } else {
-	        Yii::app()->user->setFlash("error", "删除 <b>模板ID:{$model->id}</b> 数据库失败!");
+	        Yii::app()->user->setFlash("error", "删除 <b>模板ID:{$model->id}</b> 失败!");
 	    }
 	     
 	    $data = array();
 	    $data['info'] = $this->promptInfo();
 	    echo json_encode($data['info']);
-	    //$this->redirect(array('CardDb/index'));
 	    
+	}
+	
+	/**
+	 * @info:获取字段属性信息
+	 * @param array $info
+	 * @param int $setid
+	 */
+	public function _getFieldsInfos(&$info=array(),$setid,$type=false){
+	    if(empty($setid)) return -2;
+	    $dsModel = $this->loadModel((int)$setid, 'ds');
+	    $_tipfileds = array();
+	    
+	    $info =<<<EOF
+	<table class="table">
+	<caption>调用标签预览表</caption>
+	<thead>
+	<tr>
+	<th>名称</th>
+	<th>标签</th>
+	</tr>
+	</thead>
+	<tbody>
+EOF;
+	    
+	    if(!empty($dsModel->fields)){
+	        foreach ($dsModel->fields as $key=>$val){
+	            $_tipfileds[$key] = $val['name'];
+	            $info.=<<<EOF
+	            <tr>
+	            <td>{$val['name']}</td>
+	            <td>{F:$key}</td>
+	            </tr> 
+EOF;
+	        } 
+	        $info.='</tbody></table>';
+	        
+	    }else {
+	        return -3;
+	    }
+	    return ;
 	}
 
 }

@@ -415,7 +415,7 @@ class CardDs extends DBModel
 	 */
 	public function getDBDSMap(){
 		//添加统一前缀
-    	$cache_key = strtolower('db.admin.'.__FUNCTION__);
+    	$cache_key = strtolower('db.admin'.__FUNCTION__);
     	
     	//调用，有缓存则用缓存
 		if(($map = Yii::app()->cache->get($cache_key)) === false){

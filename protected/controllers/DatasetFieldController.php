@@ -15,7 +15,7 @@ class DatasetFieldController extends Controller {
 		$dsModel = $this->loadModel((int)$id, 'ds');
 		$dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
 		//范围验证
-// 		$this->scopeCheck( $dbModel->id, $dsModel->id);
+		$this->scopeCheck( $dbModel->id, $dsModel->id);
 		
 		$info = Yii::app()->user->getFlash("info");
 		if (isset($_POST['listorder'])) {

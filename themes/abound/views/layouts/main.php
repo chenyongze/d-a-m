@@ -41,6 +41,10 @@
 	  $cs->registerScriptFile($baseUrl.'/js/plugins/jquery.knob.js');
 	  $cs->registerScriptFile($baseUrl.'/js/plugins/jquery.masonry.min.js');
 	  $cs->registerScriptFile($baseUrl.'/js/styleswitcher.js');
+	  //ueditor
+// 	  $cs->registerScriptFile($baseUrl.'/js/ueditor/ueditor.config.js');
+// 	  $cs->registerScriptFile($baseUrl.'/js/ueditor/lang/zh-cn/zh-cn.js');
+// 	  $cs->registerScriptFile($baseUrl.'/js/ueditor/editor_api.js');
 	?>
   </head>
 

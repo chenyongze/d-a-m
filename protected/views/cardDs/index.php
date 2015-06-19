@@ -130,12 +130,16 @@ $this->widget('zii.widgets.grid.CGridView', array(
 					}",
 			'deleteConfirmation' => '确定删除这条记录吗？',
 			//'template' => '{fields} - <span onclick="DsInfo()">{modify}</span> - {delete}',
-			'template' => '{fields} - {modify} - {clear} - {delete}',
+			'template' => '{fields} - {templates}-{modify} - {clear} - {delete}',
 			'buttons' => array(
 				'fields' => array(
 					'label' => '字段管理',
 					'url' => 'Yii::app()->createUrl("DatasetField/Index", array("id"=>$data->id))',
 					),
+			    'templates' => array(
+			            'label' => '模板管理',
+			            'url' => 'Yii::app()->createUrl("Template/Index", array("id"=>$data->id))',
+			        ),
 				'modify' => array(
 					'label' => '修改',
 					//'url' => 'Yii::app()->createUrl("CardDs/Update", array("id"=>$data->id))',

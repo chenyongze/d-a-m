@@ -24,7 +24,6 @@ return array(
 		'ext.YiiMongoDbSuite.*',
 		'ext.FancyBox.*',
 	),
-
 	'modules'=>array(
 		// uncomment the following to enable the Gii tool
 		'gii'=>array(
@@ -117,6 +116,26 @@ return array(
 			'from' => 'mga',
 			'timeout'=>600,
 		),
+// 	    'controllerMap'=>array(
+// 	        'ueditor'=>array(
+// 	            'class'=>'ext.baiduUeditor.UeditorController',
+// 	        ),
+// 	    ),
+	    //配置引用ueeditor
+	    'controllerMap'=>array(
+	        'ueditor'=>array(
+	            'class'=>'ext.baiduUeditor.UeditorController',
+	            'config'=>array('initialFrameWidth'=>1000),
+	            'thumbnail'=>false,//是否开启缩略图
+	            'watermark'=>'',//水印图片的地址，使用相对路径
+	            'locate'=>9,//水印位置，1-9，默认为9在右下角
+	            'savePath'=>'xxx',
+	            'allowFiles'=>array(
+	                'image' => array('.gif', '.png', '.jpg', '.jpeg'),
+	                'file' => array( '.doc' , '.docx' , '.zip' , '.pdf' , '.txt'),
+	            ),
+	        ),
+	    ),
 	),
 
 	// application-level parameters that can be accessed
@@ -132,13 +151,14 @@ return array(
 			'dataset'=>'表定义表',
 			'item'=>'全数据表',
 			'user'=>'用户表',
+		    'template'=>'模板定义表',
 		),
 		
 		//角色与权限
 		'role'=>array(
 			'10'=>array(
 				'name'=>'管理员',
-				'actions'=>array('item', 'dbset', 'user', 'log','dump'),
+				'actions'=>array('item', 'dbset', 'user', 'log','dump','template'),
 			),
 			'20'=>array(
 				'name'=>'数据员',
@@ -160,6 +180,7 @@ return array(
 			'user'		=> '用户管理',
 			'log'		=> '操作日志',
 			'dump'		=> '备份恢复',
+		    'template'  =>'模板管理',
 		),
 		//用户默认密码
 		'def_password'=> 'mofang888',

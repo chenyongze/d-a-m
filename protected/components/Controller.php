@@ -82,6 +82,7 @@ class Controller extends CController
 	    	'db'=>'CardDb',
 	    	'ds'=>'CardDs',
 	    	'item'=>'CardItem',
+	        'tp'=>'Template',
 	    );
 	    
 	    //使用缩写的转换为类名，其它大写首字母直接使用

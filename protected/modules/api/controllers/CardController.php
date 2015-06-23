@@ -39,14 +39,53 @@ class CardController extends Controller {
 
 	/**
 	 * 获取数据表列表
-
 	 */
 	public function actionGetTables($databaseId = 0, $enname = '') {
 		$return['code'] = 0;
-		$selectField = array('id', 'database_id', 'name', 'en_name', 'fields','listorder', 'request_times', 'last_uid', 'update_time');
-		$return['data'] = CardDs::model()->getList($databaseId, $enname, $selectField);
+		$selectField = array('id', 'database_id', 'name', 'en_name', 'fields','listorder');
+		$_data = CardDs::model()->getList($databaseId, $enname, $selectField);
+		//数据处理
+	    foreach ($_data[0]['fields'] as $fields_k =>$fields_v){
+	        //过滤非筛选字段
+	        if($fields_v['extra']['filter']['type'] !=1){
+	            continue;
+	        }
+	        $return['data'][$fields_k]['name'] = $fields_v['name'];
+	        $return['data'][$fields_k]['field_info'] = $fields_v['extra']['field_info'];
+	        $return['data'][$fields_k]['listorder'] = $fields_v['listorder'];
+	    }
 		echo CJSON::encode($return);
 	}
+	
+	/**
+	 * 获取列表页展示的字段
+	 */
+	public function actionGetSelectFields($databaseId = 0, $enname = ''){
+	    $return['code'] = 0;
+	    $selectField = array('id', 'database_id', 'name', 'en_name', 'fields','listorder');
+	    $_data = CardDs::model()->getList($databaseId, $enname, $selectField);
+	    //数据处理
+	    foreach ($_data[0]['fields'] as $fields_k =>$fields_v){
+	        //过滤非筛选字段
+	        if($fields_v['must'] !=1){
+	            continue;
+	        }
+	        $return['data'][$fields_k] = $fields_v['name'];
+	    }
+	    echo CJSON::encode($return);
+	}
+	
+	
+	/**
+	 * 获取数据表列表 html
+	 * @param int $databaseId
+	 * @param string $enname
+	 */
+	public function actionGetTablesHtml($databaseId = 0, $enname = '')
+	{
+// 	    $return['code'] = 0;
+	}
+	
 
 	/**
 	 * 获取字段列表

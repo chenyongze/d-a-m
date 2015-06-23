@@ -511,70 +511,174 @@ img {
 </ul>
 <pre>
 {
-code: 0,
-data: [
-{
-id: 19,
-database_id: 10,
-name: "卡牌",
-en_name: "cardplate",
-  fields: {
-  character: {
-  type: "field",
-  listorder: 2,
-  name: "品质",
-  must: 1,
-  extra: {
-    filter: {
-    type: "1",
-    filter_type: [
-    "0"
-    ]
-    },
-    field_info: {
-      field_type: "normal",
-      addition_type: "select",
-      select_value: [
-      {
-        value: "強化",
-        color: ""
-      },
-      {
-        value: "普通",
-        color: ""
-      },
-      {
-        value: "完美",
-        color: ""
-      },
-      {
-        value: "史詩",
-        color: ""
-      },
-      {
-        value: "卓越",
-        color: ""
-      },
-      {
-        value: "無暇",
-        color: ""
-      }
-      ]
-    }
-    }
-  },
-  ...
-  },
-
-listorder: 0,
-request_times: 0,
-last_uid: 2,
-update_time: 1434426006
-}
-]
+	code: 0,
+		data: {
+			character: {
+			name: "品质",
+				field_info: {
+				field_type: "normal",
+				addition_type: "select",
+				select_value: [
+					{
+					value: "強化",
+					color: ""
+					},
+					{
+					value: "普通",
+					color: ""
+					},
+					{
+					value: "完美",
+					color: ""
+					},
+					{
+					value: "史詩",
+					color: ""
+					},
+					{
+					value: "卓越",
+					color: ""
+					},
+					{
+					value: "無暇",
+					color: ""
+					}
+				]
+			},
+			listorder: 2
+		},
+		profession: {
+			name: "职业",
+			field_info: {
+			field_type: "normal",
+			addition_type: "select",
+			select_value: [
+			{
+			value: "狂暴騎士",
+			color: ""
+			},
+			{
+			value: "巡遊者",
+			color: ""
+			},
+			{
+			value: "狙擊者",
+			color: ""
+			},
+			{
+			value: "冰語者",
+			color: ""
+			},
+			{
+			value: "火語者",
+			color: ""
+			},
+			{
+			value: "守護騎士",
+			color: ""
+			},
+			{
+			value: "聖殿祭祀",
+			color: ""
+			}
+			]
+			},
+			listorder: 3
+		},
+		life: {
+			name: "生命",
+			field_info: {
+			field_type: "normal",
+			addition_type: "number",
+			num_type: "0",
+			limit_from: "0",
+			limit_to: "0"
+			},
+			listorder: 4
+		},
+		w_power: {
+			name: "物攻",
+			field_info: {
+			field_type: "normal",
+			addition_type: "number",
+			num_type: "0",
+			limit_from: "0",
+			limit_to: "0"
+			},
+			listorder: 7
+		}
+	}
 } 
 </pre>
+<h4>5 获取卡牌详细页面模板[html]</h4>
+<ul>
+<li>请求地址:/getitemhtml</li>
+<li>请求方式: get  
+</li>
+<li>请求参数: </li>
+</ul>
+<table>
+    <tr>
+    <td>参数</td>
+		<td>是否为必填项</td>
+		<td>含义</td>
+		<td>示例</td>
+    </tr>
+	<tr>
+    <td>id</td>
+		<td>true</td>
+		<td>卡牌ID</td>
+		<td>4</td>
+    </tr>
+    <tr>
+    <td>type</td>
+		<td>true</td>
+		<td>模板类型</td>
+		<td>1[1,代表pc 2,代表wap...]</td>
+    </tr>
+</table>
+<ul>
+<li>响应结果:</li>
+</ul>
+<pre>
+<table><tbody><tr class="firstRow"><td width="187" valign="top" style="word-break: break-all;"><span style="background-color: rgb(84, 141, 212);">名称</span>：狩獵神布蘭</td><td width="187" valign="top" style="word-break: break-all;"><span style="background-color: rgb(217, 150, 148);"><strong>卡牌技能</strong></span>1：普通技-暴雨連射</td><td width="187" valign="top" style="word-break: break-all;"><span style="background-color: rgb(0, 176, 240);">卡牌技能2</span>：普通技-疾風刺</td><td width="187" valign="top" style="word-break: break-all;">2015-06-19</td></tr><tr><td width="187" valign="top" style="word-break: break-all;"><span style="background-color: rgb(255, 0, 0);">卡牌</span>：<img src='http://pic1.mofang.com/185/162/0a0dd636e1a9065964a5a90b98f7619600568d39.jpg'></td><td width="187" valign="top" style="word-break: break-all;"><span style="background-color: rgb(118, 146, 60);">卡牌描述1</span>：<span style="text-decoration: underline;">向前方扇形範圍內發射多枚箭矢，並對敵人造​​成暈眩效果。</span></td><td width="187" valign="top" style="word-break: break-all;"><span style="background-color: rgb(255, 255, 0);">卡牌描述2</span>：弓手準備3次連續強力射擊，對直線上的所有單位造成3次傷害，前兩次攻擊會擊退目標一段距離，第三次射擊會將目標擊飛。（當目標為玩家時，無擊退及擊飛效果。）</td><td width="187" valign="top" style="word-break: break-all;"><br/></td></tr><tr><td width="187" valign="top" style="word-break: break-all;"><span style="background-color: rgb(112, 48, 160);">治疗</span>：1000</td><td width="187" valign="top"><br/></td><td width="187" valign="top"><br/></td><td width="187" valign="top"><br/></td></tr></tbody></table><p><br/></p>
+</pre>
 
+<h4>6 获取列表也需要绑定字段</h4>
+<ul>
+<li>请求地址:/getselectfields</li>
+<li>请求方式: get  
+</li>
+<li>请求参数: </li>
+</ul>
+<table>
+    <tr>
+    <td>参数</td>
+		<td>是否为必填项</td>
+		<td>含义</td>
+		<td>示例</td>
+    </tr>
+	<tr>
+    <td>enname</td>
+		<td>true</td>
+		<td>游戏表英文名</td>
+		<td>cardplate</td>
+    </tr>
+</table>
+<ul>
+<li>响应结果:</li>
+</ul>
+<pre>
+{
+	code: 0,
+	data: {
+		name: "卡牌名称",
+		character: "品质",
+		profession: "职业",
+		w_defense: "物防"
+	}
+}
+</pre>
 </body>
 </html>
 <!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

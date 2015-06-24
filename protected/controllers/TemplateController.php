@@ -156,28 +156,43 @@ class TemplateController extends Controller {
 	    if(empty($setid)) return -2;
 	    $dsModel = $this->loadModel((int)$setid, 'ds');
 	    $_tipfileds = array();
-	    
 	    $info =<<<EOF
-	<table class="table">
+	<table class="table table-hover table-striped table-bordered table-condensed">
 	<caption>调用标签预览表</caption>
 	<thead>
-	<tr>
+	<tr class="even">
 	<th>名称</th>
 	<th>标签</th>
 	</tr>
 	</thead>
 	<tbody>
 EOF;
-	    
 	    if(!empty($dsModel->fields)){
 	        foreach ($dsModel->fields as $key=>$val){
-	            $_tipfileds[$key] = $val['name'];
-	            $info.=<<<EOF
+	            //group 组
+	            if($val['type'] == 'group'){
+	                foreach ($val['fields'] as $_key => $_tval){
+	                    
+	                    $_tval['name'] = $_tval['name'].'1';
+	                    $_k = $key.'_'.$_key.'_1';
+	                    $info.=<<<EOF
+        	            <tr>
+        	            <td>{$_tval['name']}</td>
+        	            <td>{F:$_k}</td>
+        	            </tr> 
+EOF;
+	                    $_tipfileds[$_k] = $_tval['name'];
+	               }
+	            }else{
+	                $_tipfileds[$key] = $val['name'];
+	                $info.=<<<EOF
 	            <tr>
 	            <td>{$val['name']}</td>
 	            <td>{F:$key}</td>
-	            </tr> 
+	            </tr>
 EOF;
+	            }
+
 	        } 
 	        $info.='</tbody></table>';
 	        

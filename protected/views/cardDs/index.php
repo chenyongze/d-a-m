@@ -53,7 +53,7 @@ $this->widget('application.extensions.FancyBox.EFancyBox', array());
 			'transitionIn'		: 'none',
 			'transitionOut'		: 'none',
 			'width'			: dsWidth,
-			'height'		: 160,
+			'height'		: 400,
 			'href'			: ajaxHref,
 			'type'			: 'inline',
 		});

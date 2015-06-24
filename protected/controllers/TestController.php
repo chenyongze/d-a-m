@@ -22,6 +22,36 @@ class TestController extends Controller {
 	}
 	
 	/**
+	 * 
+	 */
+	public function actionKuser(){
+	    
+	    $criteria = new EMongoCriteria;
+	    $_select = array('username','password');
+	    $criteria->username('==', 'dandandk') // modulo => personal_number % 10 == 0
+	    ->select($_select)
+	    ->sort('firstName',EMongoCriteria::SORT_ASC)
+	    ->limit(10);
+	    
+	    FunctionUTL::Debug($criteria);
+	    $users = Kuser::model()->deleteAll();
+	    
+	    
+	    
+	    FunctionUTL::Debug($users);
+	    exit;
+	    
+	    $user->username = 'dandandk';
+	    $user->password = '123@example.com';
+// 	    $rst = $user->save();
+	    
+	    FunctionUTL::Debug($rst);
+	    
+	    
+	    
+	}
+	
+	/**
 	* 卡牌库列表
 	* @author gentle
 	*/

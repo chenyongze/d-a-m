@@ -37,56 +37,73 @@ class CardController extends Controller {
 		echo CJSON::encode($return);
 	}
 
+	
 	/**
-	 * 获取数据表列表
+	 * @info:获取库表结构
+	 * @param number $dbid  database_id 
+	 * @param number $setid databa_setid
 	 */
-	public function actionGetTables($databaseId = 0, $enname = '') {
-		$return['code'] = 0;
-		$selectField = array('id', 'database_id', 'name', 'en_name', 'fields','listorder');
-		$_data = CardDs::model()->getList($databaseId, $enname, $selectField);
-		//数据处理
-	    foreach ($_data[0]['fields'] as $fields_k =>$fields_v){
-	        //过滤非筛选字段
-	        if($fields_v['extra']['filter']['type'] !=1){
-	            continue;
-	        }
-	        $return['data'][$fields_k]['name'] = $fields_v['name'];
-	        $return['data'][$fields_k]['field_info'] = $fields_v['extra']['field_info'];
-	        $return['data'][$fields_k]['listorder'] = $fields_v['listorder'];
-	    }
+	public function actionGetTables($dbid = 0, $setid = 0) {
+		$return = array(
+		    'code'=>0,
+		    'data'=>array('list'=>array(),'info'=>array()),
+		);
+		
+		$selectField = array('id', 'database_id', 'name', 'en_name', 'fields','listorder','show_type');
+		$setid = (int)$setid;
+		$_data = CardDs::model()->getList((int)$dbid, '', $selectField);
+		
+		foreach ($_data as $dfield =>$listinfo)
+		{
+		    
+		    $return['data']['list'][$listinfo['id']]['id'] = $listinfo['id'];
+		    $return['data']['list'][$listinfo['id']]['name'] = $listinfo['name'];
+		    $return['data']['list'][$listinfo['id']]['en_name'] = $listinfo['en_name'];
+		    $return['data']['list'][$listinfo['id']]['listorder'] = $listinfo['listorder'];
+		}
+		
+		if(!empty($setid)&&isset($_data[$setid])){
+		    //数据处理
+		    foreach ($_data[$setid]['fields'] as $fields_k =>$fields_v){
+		        //过滤非筛选字段
+		        if($fields_v['extra']['filter']['type'] !=1){
+		            continue;
+		        }
+		        
+		        $return['data']['info'][$fields_k]['name'] = $fields_v['name'];
+		        $return['data']['info'][$fields_k]['field_info'] = $fields_v['extra']['field_info'];
+		        $return['data']['info'][$fields_k]['listorder'] = $fields_v['listorder'];
+		    }
+		    
+		    $return['data']['type']['show_type'] = $_data[$setid]['show_type'];
+		    //特殊处理 图文方式
+		    if($_data[$setid]['show_type'] == 1)
+		    {
+		        $return['data']['type']['select'] = array('name'=>'名称','icon'=>'图片',);
+		    }else{
+		        $return['data']['type']['select'] = $this->_getSelectFields($_data[$setid]['id']);
+		    }
+		}
+		
 		echo CJSON::encode($return);
 	}
 	
 	/**
 	 * 获取列表页展示的字段
 	 */
-	public function actionGetSelectFields($databaseId = 0, $enname = ''){
-	    $return['code'] = 0;
-	    $selectField = array('id', 'database_id', 'name', 'en_name', 'fields','listorder');
-	    $_data = CardDs::model()->getList($databaseId, $enname, $selectField);
+	public function _getSelectFields($setId = 0){
+	    $dsModel = $this->loadModel($setId, 'ds');
 	    //数据处理
-	    foreach ($_data[0]['fields'] as $fields_k =>$fields_v){
+	    foreach ($dsModel['fields'] as $fields_k =>$fields_v){
 	        //过滤非筛选字段
 	        if($fields_v['must'] !=1){
 	            continue;
 	        }
-	        $return['data'][$fields_k] = $fields_v['name'];
+	        $data[$fields_k] = $fields_v['name'];
 	    }
-	    echo CJSON::encode($return);
+	    return $data;
 	}
 	
-	
-	/**
-	 * 获取数据表列表 html
-	 * @param int $databaseId
-	 * @param string $enname
-	 */
-	public function actionGetTablesHtml($databaseId = 0, $enname = '')
-	{
-// 	    $return['code'] = 0;
-	}
-	
-
 	/**
 	 * 获取字段列表
 	 */
@@ -98,7 +115,7 @@ class CardController extends Controller {
 	
 	/**
 	 * @info:获取游戏详细页面模板结构&&数据
-	 * http://db.admin.mofang.com/api/card/getitemhtml?id=44
+	 * http://db.admin.mofang.com/api/card/getitemhtml?id=44&type=1
 	 */
 	public function actionGetItemHtml(){
 	    $return = array('code'=>0,'data'=>array());
@@ -108,24 +125,23 @@ class CardController extends Controller {
 	        $return['code'] = -9115;
 	        echo CJSON::encode($return);
 	    }
-	    
-	    $criteria = new EMongoCriteria();
-	    $criteria->addCond('id', '==', $id);		//按id查询
-	    $itemInfo = CardItem::model()->find($criteria);
-	    unset($criteria);
-	    
+	    $itemInfo = $this->loadModel($id, 'item');
 	    //获取卡牌对应的模板
 	    if($itemInfo->dataset_id){
+	        
 	        $criteria = new EMongoCriteria();
 	        $criteria->addCond('type', '==', $type);		//type模板类型
 	        $criteria->addCond('dataset_id', '==', $itemInfo->dataset_id);		//type模板类型
 	        $templateInfo = Template::model()->find($criteria);
-	        
 	        $this->parseTemplate($templateInfo->content,$itemInfo->data);
-	        echo html_entity_decode($templateInfo->content);
+	        
+	        $_content = html_entity_decode($templateInfo->content);//html decode
+	        
+	        //测试匹配
+	        $return['data']= $_content;
 	    }
 	    
-	    return ;
+	   echo  CJSON::encode($return);
 	}
 	
     /**
@@ -190,6 +206,7 @@ class CardController extends Controller {
 	    if(empty($items)||empty($parseTemplate)){
 	        return -9122;
 	    }
+	    
 	    foreach ($items as $k=>$v){
 	        
 	        if(is_array($v)){
@@ -209,8 +226,9 @@ class CardController extends Controller {
 	        
 	    }
 	    
-// 	    FunctionUTL::Debug($template);//exit;
 	    $parseTemplate = str_replace($template['k'], $template['v'], $parseTemplate);
+	    //@todo  处理未匹配上数据
+	   //$parseTemplate = str_replace('/F/', '', $parseTemplate);
 	    return;
 	}
 	/**
@@ -295,6 +313,7 @@ class CardController extends Controller {
 	 * http://db.admin.mofang.com/api/card/getitems?setid=1&select=name
 	 */
 	public function actionGetItems() {
+	    $return = array('code'=>0, 'data'=>array(), 'pages'=>array(),'show_type'=>1);
 		//参数接收
 		//http://db.dev.mofang.com/api/card/getitems/setid/4/filter/djfl|珍品::/regex/djname|水/order/xyd|1/page/-2/size/20
 		$datasetId = isset($_GET['setid'])?intval($_GET['setid']):0;				//表id			setid = 4
@@ -304,8 +323,6 @@ class CardController extends Controller {
 		$order = isset($_GET['order'])?$this->paramStr2Arr($_GET['order']):'';		//排序			order = xyd|1
 		$currPage = (isset($_GET['page'])&&$_GET['page']>=1)?intval($_GET['page']):1;//当前页码		page = 1 
 		$pageSize = isset($_GET['size'])?intval($_GET['size']):0;					//每页数量		size = 20
-		
-		$return = array('code'=>0, 'data'=>array(), 'pages'=>array());
 		
 		//参数验证
 		if(empty($datasetId)){
@@ -340,6 +357,18 @@ class CardController extends Controller {
 			//加入过滤条件
 			if($filter){
 				foreach($filter as $fkey=>$fval){
+				    //特殊处理20:1000 数据
+				    if(preg_match ("/\d+:\d+/", $fval)){
+				        $_numberfield = explode(':', $fval);
+				        $_minval = intval($_numberfield[0]);
+				        $_maxval = intval($_numberfield[1]);
+				        if($_minval > $_maxval)
+				           continue;
+				        !empty($_minval) && $criteria->addCond('data.'.$fkey, '>=', $_minval);
+				        !empty($_maxval) && $criteria->addCond('data.'.$fkey, '<=', $_maxval);
+				        continue;
+				    }
+				        
 					if(in_array($fkey, $fields)){
 						//只查询定义的字段
 						$criteria->addCond('data.'.$fkey, '==', $fval);
@@ -348,7 +377,7 @@ class CardController extends Controller {
 					}
 				}
 			}
-
+			
 			//加入正则
 			if($regex){
 				foreach($regex as $rkey=>$rval){
@@ -383,6 +412,8 @@ class CardController extends Controller {
 			
 			//查询本页
 			$return['data'] = CardItem::model()->findAll($criteria);
+			//数据显示方式
+			$return['show_type'] = $dsModel->show_type;
 			$return['pages'] = array('itemCount'=>$count, 'pageSize'=>$pageSize, 'currPage'=>$currPage);
 			foreach($return['data'] as $rkey=>$rval){
 				$arr_info = $return['data'][$rkey]->toArray();
@@ -396,6 +427,7 @@ class CardController extends Controller {
 			}
 			$this->writeCache(CJSON::encode($return));	//设置缓存
 		}
+		
 	    echo CJSON::encode($return);
 	}
 	
@@ -545,6 +577,7 @@ class CardController extends Controller {
 		foreach($rows as $row){
 			$info = explode('|', $row);
 			if(!empty($info[0])&&!empty($info[1])){
+// 			    FunctionUTL::Debug($info);
 				$arr[$info[0]] = $info[1];
 			}
 		}

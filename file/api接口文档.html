@@ -329,7 +329,7 @@ img {
         <td>filter</td>
 		<td>false</td>
 		<td>过滤条件</td>
-		<td>name|狂戰神索迪::wpower|[20,1000]::profession|巡遊者</td>
+		<td>name|狂戰神索迪::wpower|20:1000::profession|巡遊者</td>
     </tr>
 	<tr>
         <td>regex</td>
@@ -500,10 +500,16 @@ img {
 		<td>示例</td>
     </tr>
 	<tr>
-    <td>enname</td>
+    <td>dbid</td>
 		<td>true</td>
-		<td>游戏表英文名</td>
-		<td>cardplate</td>
+		<td>库id</td>
+		<td>1</td>
+    </tr>
+    <tr>
+    <td>setid</td>
+		<td>true</td>
+		<td>表id</td>
+		<td>1</td>
     </tr>
 </table>
 <ul>
@@ -512,103 +518,36 @@ img {
 <pre>
 {
 	code: 0,
-		data: {
-			character: {
-			name: "品质",
+	data: {
+		list: {
+			1: {
+				id: 1,
+				name: "英雄",
+				en_name: "cardplate",
+				listorder: 0
+			},
+			2: {
+				id: 2,
+				name: "物品",
+				en_name: "goods",
+				listorder: 0
+			}
+		},
+		info: {
+			m_power: {
+				name: "魔法力",
 				field_info: {
 				field_type: "normal",
-				addition_type: "select",
-				select_value: [
-					{
-					value: "強化",
-					color: ""
-					},
-					{
-					value: "普通",
-					color: ""
-					},
-					{
-					value: "完美",
-					color: ""
-					},
-					{
-					value: "史詩",
-					color: ""
-					},
-					{
-					value: "卓越",
-					color: ""
-					},
-					{
-					value: "無暇",
-					color: ""
-					}
-				]
-			},
-			listorder: 2
-		},
-		profession: {
-			name: "职业",
-			field_info: {
-			field_type: "normal",
-			addition_type: "select",
-			select_value: [
-			{
-			value: "狂暴騎士",
-			color: ""
-			},
-			{
-			value: "巡遊者",
-			color: ""
-			},
-			{
-			value: "狙擊者",
-			color: ""
-			},
-			{
-			value: "冰語者",
-			color: ""
-			},
-			{
-			value: "火語者",
-			color: ""
-			},
-			{
-			value: "守護騎士",
-			color: ""
-			},
-			{
-			value: "聖殿祭祀",
-			color: ""
+				addition_type: "number",
+				num_type: "0",
+				limit_from: "0",
+				limit_to: "0"
+				},
+				listorder: 0
 			}
-			]
-			},
-			listorder: 3
-		},
-		life: {
-			name: "生命",
-			field_info: {
-			field_type: "normal",
-			addition_type: "number",
-			num_type: "0",
-			limit_from: "0",
-			limit_to: "0"
-			},
-			listorder: 4
-		},
-		w_power: {
-			name: "物攻",
-			field_info: {
-			field_type: "normal",
-			addition_type: "number",
-			num_type: "0",
-			limit_from: "0",
-			limit_to: "0"
-			},
-			listorder: 7
 		}
 	}
-} 
+}
 </pre>
 <h4>5 获取卡牌详细页面模板[html]</h4>
 <ul>

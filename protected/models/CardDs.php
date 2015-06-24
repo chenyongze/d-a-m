@@ -6,6 +6,7 @@ class CardDs extends DBModel
 	public $database_id;
 	public $name;
 	public $en_name;
+	public $show_type;//现实方式
 	public $fields = array();
 	public $listorder = 0;
 	public $request_times = 0;
@@ -91,6 +92,7 @@ class CardDs extends DBModel
             array('name, en_name', 'dsUniqueValidator', 'on'=>'Create'),
             array('id, database_id', 'numerical', 'integerOnly' => true),
             array('fields', 'safe'),
+		    array('show_type','safe'),
 		);
 	}
 
@@ -114,6 +116,7 @@ class CardDs extends DBModel
 			'id'			=> 'id',
 			'name'			=> '名称',
 			'en_name'		=> '英文标识',
+		    'show_type'     => '展现方式',
 			'listorder'		=> '排序',
 			'request_times'		=> '请求次数',
 			'last_uid'		=> '最后修改用户',
@@ -294,6 +297,7 @@ class CardDs extends DBModel
 			    'limit' => 1,
 			)
 		);
+		
 		//手工过滤了AR填充的Model数据
 		foreach ($dsList as $key=>$value) {
 			$value = $value->toArray();
@@ -302,9 +306,9 @@ class CardDs extends DBModel
 					unset ($value[$k]);
 				}
 			}
-			$dsList[$key] = $value;
+			$_dsList[$value['id']] = $value;
 		}
-		return $dsList;
+		return $_dsList;
 	}
 	
 	/**

@@ -214,6 +214,8 @@ class CardItemController extends Controller
                     
                     //填入数据
                     $saveData['data'] = $itemData;
+                    //数据格式化
+                    $this->_handleArguments($saveData,$dsModel->fields);
                     $itemModel->attributes = $saveData;
                     if ($itemModel->save()) {
                         if($is_update){
@@ -449,10 +451,9 @@ class CardItemController extends Controller
         if (isset($_POST['CardItem'])) {
             $itemModel = new CardItem;
             $itemModel->dataset_id = $id;
+            //数据格式化
+            $this->_handleArguments($_POST['CardItem'],$dsModel->fields);
             $itemModel->attributes = $_POST['CardItem'];
-//          FunctionUTL::Debug($itemModel);exit;
-//          FunctionUTL::Debug($dsModel->fields);exit;
-
             //数据校验
             foreach ($dsModel->fields as $key => $value) {
                 if ((isset($value['must']) && $value['must'] == 1) &&
@@ -596,8 +597,9 @@ class CardItemController extends Controller
 		$this->scopeCheck($dsModel->database_id, $dsId);
         
         if (isset($_POST['CardItem'])) {
+            //数据格式化
+            $this->_handleArguments($_POST['CardItem'],$dsModel->fields);
             $itemModel->attributes = $_POST['CardItem'];
-//             FunctionUTL::Debug($itemModel->attributes);exit;
             if ($itemModel->save()) {
             	$this->addLog('item', $itemModel->id, '修改了“'.$dsModel->name.'”中的一条数据');
                 Yii::app()->user->setFlash("success", "修改数据成功!");
@@ -610,8 +612,6 @@ class CardItemController extends Controller
         //构造字段Html
         $dsModel = $dsModel->sortField();
         $fieldHtml = '';
-//         FunctionUTL::debug($dsModel->fields);
-//         FunctionUTL::Debug($itemModel);
         foreach ($dsModel->fields as $key => $value) {
             //普通字段
             if ($value['type'] == 'field') {
@@ -623,7 +623,6 @@ class CardItemController extends Controller
                 $groupData['datasetId'] = $dsId;
                 $groupData['enName'] = $key;
                 $groupData['data'] = $value;
-//                 FunctionUTL::Debug($itemModel->data);
                 if (!empty($itemModel->data[$key])) {
                     $groupData['dataHtml'] = array();
                     foreach ($itemModel->data[$key] as $k => $v) {
@@ -636,7 +635,6 @@ class CardItemController extends Controller
             }
         }
 
-//         FunctionUTL::debug($fieldHtml);
         $data = array();
         $data['model'] = $itemModel;
         $data['datasetId'] = $dsId;
@@ -775,6 +773,28 @@ class CardItemController extends Controller
         shell_exec("unzip {$_tempzip} -d {$aimUrl}");
         $_tmpImagePath = $aimUrl.DIRECTORY_SEPARATOR;
         return 0;
+    }
+    
+    
+    /**
+     * @info:处理参数
+     * @param array $parameters
+     * @param array $matchArr
+     */
+    private function _handleArguments(&$parameters=array(),$matchArr){
+        
+        if(empty($parameters)||empty($matchArr)){
+            return false;
+        }
+        //对传入数值类型字段处理
+        foreach ($matchArr as $key_fields =>$val){
+            $val['extra']['field_info']['addition_type'];
+            if($val['extra']['field_info']['addition_type'] == 'number'){
+                $parameters['data'][$key_fields] = intval($parameters['data'][$key_fields]);
+            }
+        }
+        
+        return ;
     }
     
 

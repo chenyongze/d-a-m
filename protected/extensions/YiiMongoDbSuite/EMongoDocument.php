@@ -610,6 +610,7 @@ abstract class EMongoDocument extends EMongoEmbeddedDocument
 			{
 // 			    FunctionUTL::Debug($rawData);
 			}
+// 			FunctionUTL::Debug($rawData);exit;
 			//开启
 			if(version_compare(Mongo::VERSION, '1.0.5','>=') === true)
 				$result = $this->getCollection()->insert($rawData, array(

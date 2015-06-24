@@ -23,22 +23,13 @@ if (isset($update) && $update == true) {
 }
 
 ?>
-
 	<div class="row">
-		<?php echo $form->hiddenField($model,'dataset_id',array('value'=>$datasetId)); ?>
+		<?php //echo $form->hiddenField($model,'dataset_id',array('value'=>$datasetId)); ?>
 	</div>
-	<div class="row">
-		<div class="span3">
-		<p class="note">标注 <span class="required">*</span>为必填项目.</p>
-		<p><?php echo $_txtfiled;?></p>
-		</div>
-	</div>
-	<div class="row">
-		<div class="span3">
-		<?php echo $form->errorSummary($model); ?>
-		</div>
-	</div>
-
+	
+<div id="card-grid" class="grid-view">
+<?php echo $_txtfiled;?>
+</div>
 	<div class="row">
 		<div class="span1" style="width:80px;"><?php echo $form->labelEx($model,'tpname'); ?></div>
 		<div class="span3">
@@ -54,8 +45,7 @@ if (isset($update) && $update == true) {
 			<?php echo $form->labelEx($model,'type'); ?>
 		</div>
 		<div class="span3">
-		    <?php echo $form->radioButtonList($model,'type', array('1'=>'pc','2'=>'wap'),array('separator'=>'','readonly'=>$param));?>
-			<?php //echo $form->textField($model,'type', $param); ?>
+		    <?php echo $form->radioButtonList($model,'type', array('1'=>'pc','2'=>'wap'));?>
 			<?php echo $form->error($model,'type'); ?>
 		</div>
 		<div class="span2">使用说明:新建模板类型 pc,wap,...</div>
@@ -69,12 +59,11 @@ if (isset($update) && $update == true) {
 		</div>
 	</div>	
                     
-    <div>
-    </div>
 	<div class="row buttons">
 		<div class="span1">
 		<?php echo CHtml::submitButton('完成'); ?>
 		</div>
 	</div>
+
 
 <?php $this->endWidget(); ?>

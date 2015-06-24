@@ -47,7 +47,15 @@ if (isset($update) && $update == true) {
 			<?php echo $form->textField($model, 'en_name', array_merge(array('placeholder'=>'数据表英文标识'), $param)); ?>
 			<?php echo $form->error($model,'en_name'); ?>
 		</div>
-
+		
+        <div class="span1" style="width:70px;">
+			<label>方式:</label>
+		</div>
+		<div class="span2">
+			<?php echo $form->radioButtonList($model,'show_type', array('1'=>'图文','2'=>'列表'));?>
+			<?php echo $form->error($model,'show_type'); ?>
+		</div>
+        
 		<?php if (!isset($model->name)): ?>
 		<div class="span1" style="margin-left:60px;width:30px;">
 			<span style="font-size:30px;"><a href="javascript:void(0)" onclick="addRow();this.blur();">+</a></span>

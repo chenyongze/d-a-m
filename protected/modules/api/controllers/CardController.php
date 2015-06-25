@@ -118,30 +118,34 @@ class CardController extends Controller {
 	 * http://db.admin.mofang.com/api/card/getitemhtml?id=44&type=1
 	 */
 	public function actionGetItemHtml(){
-	    $return = array('code'=>0,'data'=>array());
+	    $return = array('code'=>-9112,'data'=>array('info'=>array(),'html'=>null));
 	    $id = isset($_GET['id'])?intval($_GET['id']):0;//数据itemid
 	    $type = isset($_GET['type'])?intval($_GET['type']):1;
 	    if(empty($id)){
 	        $return['code'] = -9115;
 	        echo CJSON::encode($return);
+	        return;
 	    }
+	    
 	    $itemInfo = $this->loadModel($id, 'item');
+	    $return['data']['info'] = $itemInfo->data;
 	    //获取卡牌对应的模板
 	    if($itemInfo->dataset_id){
-	        
 	        $criteria = new EMongoCriteria();
 	        $criteria->addCond('type', '==', $type);		//type模板类型
-	        $criteria->addCond('dataset_id', '==', $itemInfo->dataset_id);		//type模板类型
+	        $criteria->addCond('dataset_id', '==', $itemInfo->dataset_id);
 	        $templateInfo = Template::model()->find($criteria);
 	        $this->parseTemplate($templateInfo->content,$itemInfo->data);
-	        
 	        $_content = html_entity_decode($templateInfo->content);//html decode
 	        
-	        //测试匹配
-	        $return['data']= $_content;
+	        //@todo匹配为处理标签
+	        $return['data']['html']= $_content;
+	        if($return['data'])
+	            $return['code'] = 0;
 	    }
 	    
 	   echo  CJSON::encode($return);
+	   return;
 	}
 	
     /**

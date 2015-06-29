@@ -12,7 +12,6 @@ class Template extends DBModel {
 	public $acttime;		//操作时间
 	public $tpname;        //模板名称
 	public $content;			//模板格式化数据
-	
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return CActiveRecord the static model class
@@ -60,15 +59,14 @@ class Template extends DBModel {
 	}
 	
 	public function search($caseSensitive = false) {
-	
-	    $criteria = new EMongoCriteria;
 	    $criteria = User::model()->getScopeDbCriteria();
-	    if (!empty($this->id)) {
-	        $criteria->conditions['id'] = $this->id;
-	    }
-	    
+		if (!empty($this->id)) {
+    			$criteria->id = $this->id;
+		}
+		if (!empty($this->dataset_id)) {
+    			$criteria->dataset_id = (int)$this->dataset_id;
+		}
 	    $criteria->sort('id', EMongoCriteria::SORT_DESC);
-	
 	    return new EMongoDocumentDataProvider($this, array(
 	        'criteria' => $criteria,
 	    ));

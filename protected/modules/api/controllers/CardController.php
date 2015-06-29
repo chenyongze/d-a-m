@@ -231,8 +231,9 @@ class CardController extends Controller {
 	    }
 	    
 	    $parseTemplate = str_replace($template['k'], $template['v'], $parseTemplate);
-	    //@todo  处理未匹配上数据
-	   //$parseTemplate = str_replace('/F/', '', $parseTemplate);
+	    //@todo  处理未匹配上标签数据
+	    $preg = '#{F:[\w\W]*?}#i';
+	    $parseTemplate = preg_replace($preg, '', $parseTemplate);
 	    return;
 	}
 	/**

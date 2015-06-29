@@ -19,25 +19,11 @@ class TemplateController extends Controller {
 	    
 	    $dsModel = $this->loadModel((int)$id, 'ds');
 	    $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
-        $templateObj = Template::model();
-	    $attr = $templateObj->attributeLabels();
-	    
-		$criteria = new EMongoCriteria();
-		$criteria->dataset_id = (int)$id;
-    	
-        $count = $templateObj->count($criteria);
-        $pages = new CPagination($count);
-        $perPage = 10;
-        $pages->pageSize = $perPage;
-        $offset = isset($_GET['page']) ? intval($_GET['page']) : 1;
-        $offset = ($offset - 1) * $perPage;
-        $criteria->limit($perPage)->offset($offset)->sort('id', EMongoCriteria::SORT_DESC);
-        $tpModel = $templateObj->findAll($criteria);
-        
-      	$data['templateModels'] = $tpModel;
-        $data['pages'] = $pages;
+        $model = Template::model();
+	    $attr = $model->attributeLabels();
+	    $model->dataset_id = (int)$id;
         $data['attr'] = $attr;	//模型属性
-        $data['model'] = $templateObj;
+        $data['model'] = $model;
         $data['dbModel'] = $dbModel;
         $data['dsModel'] = $dsModel;
         $data['datasetId'] = $dsModel->id;
@@ -92,7 +78,6 @@ class TemplateController extends Controller {
 	    }
 	    $dsModel = $this->loadModel((int)$setid, 'ds');
 	    $dbModel = $this->loadModel((int)$dsModel->database_id, 'db');
-	    
 	    //范围验证
 	    $this->scopeCheck($model->id);
 	    if(isset($_POST['Template'])){

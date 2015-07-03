@@ -47,6 +47,5 @@ switch (ENVIRONMENT) {
         exit();
 }
 
-$config = $configDir.'testing.php';
 require_once($yii);
 Yii::createWebApplication($config)->run();

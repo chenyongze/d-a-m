@@ -367,18 +367,24 @@ class CardItemController extends Controller
         	//有地址且文件存在则尝试上传
 //      	    $_tmpImagePath = 'upload/cardimages/20150618_7698e9b3229241acfb9d5abbc4fe662f_pic/';
      	    if($tmpValue != ''){
-     	        $tmpValue =$_tmpImagePath.$tmpValue;
-     	        if(is_file($tmpValue)){
-     	            $resData = $mcss->uploadImage($tmpValue);
-     	            //如果返回值是数组类型，则发生了错误
-     	            if(is_array($resData)){
-     	                $tmpValue = "";
-     	            }else{
-     	                $tmpValue = $resData;	//成功后替换原有地址
+     	        do{
+     	            preg_match("#mofang.com#i",$tmpValue,$matches);
+     	            if(!empty($matches)){
+     	                break;
      	            }
-     	        }else{
-     	            $tmpValue = "";
-     	        }
+     	            $tmpValue =$_tmpImagePath.$tmpValue;
+     	            if(is_file($tmpValue)){
+     	                $resData = $mcss->uploadImage($tmpValue);
+     	                //如果返回值是数组类型，则发生了错误
+     	                if(is_array($resData)){
+     	                    $tmpValue = "";
+     	                }else{
+     	                    $tmpValue = $resData;	//成功后替换原有地址
+     	                }
+     	            }else{
+     	                $tmpValue = "";
+     	            }
+     	        }while(0);
      	    }
 
       	//选择框处理

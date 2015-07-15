@@ -117,7 +117,6 @@ class CardItemController extends Controller
         	$file_data = $this->inputXls($_FILES['CardItem']['tmp_name']);
             $rsHeader = array();
             
-//             FunctionUTL::Debug($file_data);exit;
             //往卡牌库Item表导入记录
             //1条1条导入
             foreach($file_data as $i=>$lineData){
@@ -130,11 +129,16 @@ class CardItemController extends Controller
                     $data_error[] = ($lineData['A'] != '') ? (array('','')+$lineData) : $lineData;     //添加错误列
             	//获取值
                 } elseif ($i >= 3) {
-                    $import_rs['c']++;      //累加获得总的导入量
+                    //排除空数据
+                    if(empty($lineData['A'])&&empty($lineData['B'])&&empty($lineData['C'])){
+                        continue;
+                    }
+                    
                     $itemData = array();
                     if (empty($lineData)) {
                         continue;
                     }
+                    $import_rs['c']++;      //累加获得总的导入量
                     
                     //组字段数据临时存放点
                     $group_info = array();	//字段信息

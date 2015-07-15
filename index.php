@@ -1,4 +1,6 @@
 <?php
+//xhprof
+// include_once './xhprof.php';
 // remove the following lines when in production mode
 define('YII_DEBUG', 1);
 // specify how many levels of call stack should be shown in each log message

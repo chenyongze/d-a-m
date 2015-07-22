@@ -780,6 +780,7 @@ class CardItemController extends Controller
         $aimUrl = $imagepath.date('Ymd').'_'.md5(time()).'_pic';
         $_tempzip = "{$aimUrl}.zip";
         move_uploaded_file($imageSoure['tmp_name'], $_tempzip);
+        sleep(1);
         shell_exec("unzip {$_tempzip} -d {$aimUrl}");
         $_tmpImagePath = $aimUrl.DIRECTORY_SEPARATOR;
         return 0;

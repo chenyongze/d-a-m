@@ -22,7 +22,7 @@ switch (ENVIRONMENT) {
         define('YII_ENABLE_ERROR_HANDLER',false);
         define('YII_ENABLE_EXCEPTION_HANDLER',false);
         error_reporting(E_ALL & ~E_NOTICE);
-        ini_set('display_errors', 'on');
+        ini_set('display_errors', 'off');
 
         $tryConfig = $configDir . ENVIRONMENT . '.php';
         file_exists($tryConfig) && $config = $tryConfig;
@@ -48,6 +48,5 @@ switch (ENVIRONMENT) {
     default :
         exit();
 }
-
 require_once($yii);
 Yii::createWebApplication($config)->run();

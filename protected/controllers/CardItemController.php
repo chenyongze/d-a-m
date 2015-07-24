@@ -776,12 +776,11 @@ class CardItemController extends Controller
     private function _getImagePath(&$_tmpImagePath,$imageSoure){
         
         $imagepath = 'upload/cardimages/';//卡牌上传临时图片目录
-        $zip = new ZipArchive;
+        //$zip = new ZipArchive;
         $aimUrl = $imagepath.date('Ymd').'_'.md5(time()).'_pic';
         $_tempzip = "{$aimUrl}.zip";
         move_uploaded_file($imageSoure['tmp_name'], $_tempzip);
-        sleep(1);
-        shell_exec("unzip {$_tempzip} -d {$aimUrl}");
+        system("unzip {$_tempzip} -d {$aimUrl} >/dev/null 2>&1;");
         $_tmpImagePath = $aimUrl.DIRECTORY_SEPARATOR;
         return 0;
     }

@@ -41,6 +41,10 @@ class TemplateController extends Controller {
 	    $model = new Template('Create');
 	    $data = array();
 	    if(isset($_POST['Template'])){
+	        
+	        if(isset($_POST['Template']['type'])){
+	            $_POST['Template']['type'] = (int)$_POST['Template']['type'];
+	        }
 	        $model->attributes = $_POST['Template'];
 	        $model->dataset_id = (int)$dsModel->id;
 	        $model->dataset_name = $dsModel->name;

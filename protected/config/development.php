@@ -12,7 +12,7 @@ return CMap::mergeArray(
                     array(
                         'class'=>'CFileLogRoute',
                         'levels'=>'error, warning',
-                        'logPath'=>'/data/log/www/db.mofang.com/nnhysj',
+                        'logPath'=>'/data/log/www/db.mofang.com/',
                     ),
                     // uncomment the following to show log messages on web pages
                     /*array(

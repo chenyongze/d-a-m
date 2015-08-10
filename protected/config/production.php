@@ -68,7 +68,7 @@ return array(
 		*/
 		'mongodb'=>array(
 			'class'=>'EMongoDB',
-			'connectionString' => 'mongodb://127.0.0.1',
+			'connectionString' => 'mongodb://210.65.11.22:27017,203.66.45.95:27017,203.66.45.59:27017/?replicaSet=shard1',
 			'dbName' => 'card_db_v2',
 			'fsyncFlag' => true,
 			'safeFlag' => true,
@@ -79,7 +79,7 @@ return array(
 			'class' => 'system.caching.CMemCache',
 			'useMemcached' => true,
 			'servers' => array(
-				'01' => array('host' => '127.0.0.1', 'port' => 11211),
+				'01' => array('host' => '210.61.12.172', 'port' => 11212),
 			),
 		),
 // 	    'redis'=>array(

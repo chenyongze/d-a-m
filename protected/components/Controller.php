@@ -36,6 +36,36 @@ class Controller extends CController
 		if (empty(Yii::app()->user->id) && !in_array($controller, $noCheck) && $module!=='api') {
 			$this->redirect(array('/site/login'));
 		}
+		
+	}
+	/**
+	 * 获取用户数据操作 index
+	 * @param number $databaseId
+	 * @return number
+	 */
+	public function dataCardDbIndex($databaseId = 0)
+	{
+	    $data = array();
+	    $databases = CardDb::model()->findAll(User::model()->getScopeDbCriteria());
+	    foreach ($databases as $key => $value) 
+	    {
+	        $dscriteria = User::model()->getScopeDsCriteria();
+	        $dscriteria->addCond('database_id', '==', (int)$value->id);
+	        $datasets = CardDs::model()->findAll($dscriteria);
+	        if(!empty($datasets))
+	        {
+	            foreach($datasets as $k => $v) 
+	            {
+	                if($v->id)
+	                {
+	                    return $v->id;
+	                }
+	            }
+	        }
+	    }
+	    
+	    return 0;
+	    
 	}
 
 	/**
@@ -131,28 +161,13 @@ class Controller extends CController
 		foreach($rs as $key=>$vo){
 			foreach($vo as $vk=>$vv){
 				//清理掉在CSV中有特殊含义的字符
-//				if($key==63 && $vk==1){
-//					var_dump($vv);
-//					$vv = '11'.$vv;
-//				}
 				$vv = str_replace(array(",", "\r\n", "\n", "\r", "\""), array("，", "", "", "", "“"), $vv);
-				//$vv = str_replace("\n", "", $vv);
-//				if($key==63 && $vk==1){
-//					var_dump($vv);
-//				}
 				$vo[$vk] = "\"".trim($vv)."\"";
 			}
-//			if($key==63){
-//				var_dump($vo);
-//			}
 			
 			//$str[] = iconv('utf-8', 'gbk//IGNORE', implode(',', $vo));	//转码
 			$str[] = mb_convert_encoding( implode(',', $vo), "GBK", "utf-8");
 		}
-//				var_dump($rs[63]);
-//				var_dump($str[63]);
-//				exit();
-		
 		
 		$str = implode("\n", $str);
 	    header("Content-type:text/csv");   
@@ -161,7 +176,7 @@ class Controller extends CController
 	    header('Expires:0');   
 	    header('Pragma:public');
 	    echo $str;
-	    exit();
+	    die();
 	}
 	
 	/**

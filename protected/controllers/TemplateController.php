@@ -41,7 +41,13 @@ class TemplateController extends Controller {
 	    $model = new Template('Create');
 	    $data = array();
 	    if(isset($_POST['Template'])){
+	        
+	        if(isset($_POST['Template']['type'])){
+	            $_POST['Template']['type'] = (int)$_POST['Template']['type'];
+	        }
 	        $model->attributes = $_POST['Template'];
+	        $model->dataset_id = (int)$dsModel->id;
+	        $model->dataset_name = $dsModel->name;
 			if ($model->save()) {
 				$this->addLog('template', $model->id, '添加新模板“'.$model->tpname.'”');
 				Yii::app()->user->setFlash("success", "新建 <b>{$model->tpname}</b> 模板成功!");
@@ -61,6 +67,7 @@ class TemplateController extends Controller {
 	    $data['dsModel'] = $dsModel;
 	    $data['model'] = $model;
 	    $data['datasetId'] = $id;
+
 	    $this->_getFieldsInfos($data['_txtfiled'],$id);
 	    $this->render('edit',$data);
 	}

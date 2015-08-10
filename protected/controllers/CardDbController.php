@@ -3,7 +3,8 @@
 class CardDbController extends Controller {
 
 	public function init(){
-		$this->actCheck('dbset', false);
+		$this->actCheck('dbset');
+		
 	}
 	
 	/**
@@ -13,6 +14,7 @@ class CardDbController extends Controller {
 	public function actionIndex() {
 		$data = array();
 		$data['model'] = CardDb::model();
+// 		FunctionUTL::Debug(User::model()->getScopeDbCriteria());exit;
 		$data['dataTree'] = $this->dataTree(0, 'datasetField/index');
 		$data['info'] = $this->promptInfo();
 		$this->render('index', $data);

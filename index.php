@@ -2,7 +2,7 @@
 //xhprof
 // include_once './xhprof.php';
 // remove the following lines when in production mode
-define('YII_DEBUG', 1);
+define('YII_DEBUG', 0);
 // specify how many levels of call stack should be shown in each log message
 define('YII_TRACE_LEVEL', 3);
 // change the following paths if necessary
@@ -20,9 +20,9 @@ defined('ENVIRONMENT') || define('ENVIRONMENT', isset($_SERVER['ENVIRONMENT']) ?
 switch (ENVIRONMENT) {
     case 'development' :
         define('YII_ENABLE_ERROR_HANDLER',false);
-        define('YII_ENABLE_EXCEPTION_HANDLER',false);
+        define('YII_ENABLE_EXCEPTION_HANDLER',true);
         error_reporting(E_ALL & ~E_NOTICE);
-        ini_set('display_errors', 'on');
+        ini_set('display_errors', 'On');
 
         $tryConfig = $configDir . ENVIRONMENT . '.php';
         file_exists($tryConfig) && $config = $tryConfig;
@@ -47,7 +47,7 @@ switch (ENVIRONMENT) {
 
     default :
         exit();
-}
-
+}   
 require_once($yii);
+
 Yii::createWebApplication($config)->run();

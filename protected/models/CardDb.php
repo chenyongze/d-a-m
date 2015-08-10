@@ -58,11 +58,9 @@ class CardDb extends DBModel
 	 	$criteria->sort('id', EMongoCriteria::SORT_DESC);
 	 	//$criteria->select=array('id');
 	 	//$criteria->sort = array('id'=>EMongoCriteria::SORT_DESC);
-		//print_r($criteria);
-		//exit();
 
-    		//$criteria->last_uid = $this->last_uid;
-    		//$criteria->update_time = $this->update_time;
+    	//$criteria->last_uid = $this->last_uid;
+    	//$criteria->update_time = $this->update_time;
 
 		return new EMongoDocumentDataProvider($this, array(
 			'criteria' => $criteria,
@@ -74,11 +72,13 @@ class CardDb extends DBModel
 		return parent::model($className);
 	}
 
+	
 	public function getList() {
 		$noSelect = array('_id');
 		$dbList = self::findAll(array(
 		    'order' => 'id desc',
 		));
+		
 		//手工过滤了AR填充的Model数据
 		foreach ($dbList as $key=>$value) {
 			$value = $value->toArray();

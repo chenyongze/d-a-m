@@ -47,7 +47,7 @@ switch (ENVIRONMENT) {
 
     default :
         exit();
-}
+}   
 require_once($yii);
 
 Yii::createWebApplication($config)->run();

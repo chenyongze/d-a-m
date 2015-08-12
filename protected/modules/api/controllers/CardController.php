@@ -367,15 +367,13 @@ class CardController extends Controller {
 				        $_numberfield = explode(':', $fval);
 				        $_minval = intval($_numberfield[0]);
 				        $_maxval = intval($_numberfield[1]);
-				        
 				        !empty($_minval) && $criteria->addCond('data.'.$fkey, '>=', $_minval);
-				        
-				        if($_minval > $_maxval){
-				            continue;
-				        }else{
+				        if($_minval <= $_maxval)
+				        {
 				            !empty($_maxval) && $criteria->addCond('data.'.$fkey, '<=', $_maxval);
 				        }
-				       
+				        
+				        continue;
 				    }
 				        
 					if(in_array($fkey, $fields)){

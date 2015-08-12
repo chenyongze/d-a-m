@@ -704,7 +704,11 @@ class CardItemController extends Controller
     public function actionUploadImage($name)
     {
         if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-            $url = Yii::app()->mcss->uploadImage($_FILES['image']['tmp_name']);
+            //图片处理  
+            $pic = '/data/www/db.admin.mofang.com/upload/cardimages/'.md5(time()).'.jpg';
+            move_uploaded_file($_FILES['image']['tmp_name'], $pic);
+            $url = Yii::app()->mcss->uploadImage($pic);
+            unlink($pic);
             if (!isset($url['error'])) {
                 RestHelper::success(array('url' => $url));
             } else {

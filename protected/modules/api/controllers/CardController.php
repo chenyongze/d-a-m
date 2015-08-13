@@ -367,10 +367,12 @@ class CardController extends Controller {
 				        $_numberfield = explode(':', $fval);
 				        $_minval = intval($_numberfield[0]);
 				        $_maxval = intval($_numberfield[1]);
-				        if($_minval > $_maxval)
-				           continue;
 				        !empty($_minval) && $criteria->addCond('data.'.$fkey, '>=', $_minval);
-				        !empty($_maxval) && $criteria->addCond('data.'.$fkey, '<=', $_maxval);
+				        if($_minval <= $_maxval)
+				        {
+				            !empty($_maxval) && $criteria->addCond('data.'.$fkey, '<=', $_maxval);
+				        }
+				        
 				        continue;
 				    }
 				        
@@ -405,8 +407,6 @@ class CardController extends Controller {
 			}else{
 				$criteria->sort('id', EMongoCriteria::SORT_ASC);	//默认id正序
 			}
-			
-// 			FunctionUTL::Debug($criteria);exit;
 			
 			//构建分页
 			$count = CardItem::model()->count($criteria);

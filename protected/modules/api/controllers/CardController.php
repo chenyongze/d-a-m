@@ -91,7 +91,8 @@ class CardController extends Controller {
 	/**
 	 * 获取列表页展示的字段
 	 */
-	public function _getSelectFields($setId = 0){
+	private function _getSelectFields($setId = 0){
+	    $result =[];
 	    $dsModel = $this->loadModel($setId, 'ds');
 	    //数据处理
 	    foreach ($dsModel['fields'] as $fields_k =>$fields_v){
@@ -99,9 +100,18 @@ class CardController extends Controller {
 	        if($fields_v['must'] !=1){
 	            continue;
 	        }
-	        $data[$fields_k] = $fields_v['name'];
+	        $data[$fields_k]['name'] = $fields_v['name'];
+	        $data[$fields_k]['order'] = $fields_v['listorder'];
+	        $order[] =$fields_v['listorder'];
 	    }
-	    return $data;
+	    array_multisort($order, SORT_ASC, $data);
+	    if($data){
+	        foreach ($data as $field=>$val)
+	        {
+	            $result[$field] = $val['name'];
+	        }
+	    }
+	    return $result;
 	}
 	
 	/**
@@ -367,6 +377,12 @@ class CardController extends Controller {
 				        $_numberfield = explode(':', $fval);
 				        $_minval = intval($_numberfield[0]);
 				        $_maxval = intval($_numberfield[1]);
+				        // ==
+				        if($_minval == $_maxval){
+				            $criteria->addCond('data.'.$fkey, '==', $_minval);
+				            continue;
+				        }
+				        
 				        !empty($_minval) && $criteria->addCond('data.'.$fkey, '>=', $_minval);
 				        if($_minval <= $_maxval)
 				        {

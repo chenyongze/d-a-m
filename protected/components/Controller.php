@@ -123,7 +123,6 @@ class Controller extends CController
 	    } else {
 	    	$model = $modelClass::model()->findByAttributes(array($fieldType=>(int)$id));
 	    }
-
 	    //if ($model === null)
 		//throw new CHttpException(404, '请求的记录不存在');
 	    return $model;

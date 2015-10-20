@@ -228,13 +228,13 @@ class CardController extends Controller {
 	                $_line =$tk+1;
 	                foreach ($_tv as $fieldk=>$fieldv){
 	                    $template['k'][] = "{F:{$k}_{$fieldk}_$_line}";
+	                    self::FormatImgTag($fieldv);
 	                    $template['v'][] = $fieldv;
 	                }
 	            }
 	        }else{
 	            $template['k'][] = "{F:$k}";
-	            $ext = @substr(strrchr($v, '.'), 1);
-	            if(in_array($ext, array('jpg','png'))) $v = "<img src='".$v."'>";
+	            self::FormatImgTag($v);
 	            $template['v'][] = $v;
 	        }
 	        
@@ -246,6 +246,18 @@ class CardController extends Controller {
 	    $parseTemplate = preg_replace($preg, '', $parseTemplate);
 	    return;
 	}
+	
+	/**
+	 * 格式化图片标签
+	 */
+	private function FormatImgTag(&$tag)
+	{
+	    $ext = @substr(strrchr($tag, '.'), 1);
+	    $ext = strtolower($ext);
+	    if(in_array($ext, array('jpg','png'))) $tag = "<img src='".$tag."'>";
+	    return;
+	}
+	
 	/**
 	 * 获取一条内容
 	 * http://db.admin.mofang.com/api/card/getitem?id=7836

@@ -73,7 +73,6 @@ class CardItemController extends Controller
     public function actionImport($id)
     {
         set_time_limit(0); //防止执行超时
-        
     	$this->actCheck('item-import', false);
         set_time_limit(0); //防止执行超时
         $dsModel = $this->loadModel($id, 'ds');
@@ -104,10 +103,8 @@ class CardItemController extends Controller
       	$_tmpImagePath ='';
       	if(isset($_FILES['CardPic']) && !empty($_FILES['CardPic'])){
       	    $this->_getImagePath($_tmpImagePath,$_FILES['CardPic']);
-      	    
       	}
       	
-        
       	//import
         if (isset($_FILES['CardItem'])) {
         	$this->addLog('ds', $dsModel->id, '批量导入了“'.$dbModel->name.'”中“'.$dsModel->name.'”表的数据');
@@ -119,6 +116,7 @@ class CardItemController extends Controller
             
             //往卡牌库Item表导入记录
             //1条1条导入
+//             file_put_contents('b-b.log', var_export($file_data,true),FILE_APPEND);
             foreach($file_data as $i=>$lineData){
             	if($i<2){
                     $data_error[] = ($lineData['A'] != '出错行号') ? (array('出错行号','错误提示')+$lineData) : $lineData;    //添加错误列
@@ -166,6 +164,7 @@ class CardItemController extends Controller
                     		$group_info = explode('-', $field_key, 3);
                     		if(isset($group_info[0])){
                     			$field_real = $group_info[0];
+//                     			file_put_contents('b-b.log', $field_real,FILE_APPEND);
                     		}
                         }
                         
@@ -184,9 +183,11 @@ class CardItemController extends Controller
                             		if(empty($value)){
                             			continue;
                             		}
-	                            	$groupField = $tmpField['fields'][$group_info[1]];				//组字段定义
-	                            	$value = $this->formatFirldData($value, $groupField, $mcss, false,$_tmpImagePath);	//格式化内容
+	                            	$groupField = $tmpField['fields'][$group_info[2]];				//组字段定义
 	                            	
+// 	                            	file_put_contents('b-b.log', var_export($groupField,true),FILE_APPEND);
+	                            	$value = $this->formatFirldData($value, $groupField, $mcss, false,$_tmpImagePath);	//格式化内容
+// 	                            	file_put_contents('b-b.log', $value."\n",FILE_APPEND);
 	                            	//直接根据索引进行赋值，避免异常的自动组合
 	                            	$itemData[$field_real][$group_info[1]][$group_info[2]] = $value;
                             	}
@@ -449,7 +450,6 @@ class CardItemController extends Controller
      */
     public function actionCreate($id, $preview = false)
     {
-//        echo MCDomain::MGA;
     	$this->actCheck('item-add', false);
     	$id = !empty($id)?(int)$id:'';
     	empty($id) && $this->redirect(array('CardItem/index/id/0'));

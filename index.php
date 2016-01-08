@@ -1,5 +1,5 @@
 <?php
-//:bell:
+//:u5272::bell:
 //xhprof
 // include_once './xhprof.php';
 // remove the following lines when in production mode
